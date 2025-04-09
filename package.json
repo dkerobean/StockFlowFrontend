@@ -69,6 +69,7 @@
     "react-sweetalert2": "^0.6.0",
     "react-tag-input-component": "^2.0.2",
     "react-timepicker": "^2.0.2",
+    "react-toastify": "^11.0.5",
     "sass": "^1.72.0",
     "slick-carousel": "^1.8.1",
     "sweetalert2": "^11.10.6",

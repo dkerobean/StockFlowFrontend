@@ -1,40 +1,43 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import ImageWithBasePath from "../../../core/img/imagewithbasebath";
 import { all_routes } from "../../../Router/all_routes";
 
+// --- Import react-toastify ---
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import default CSS
+
 const Signin = () => {
   const route = all_routes;
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  // State for form inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // State for loading and errors
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // State for password visibility (optional, needs JS logic)
+  // We'll use toasts for errors, so the separate error state is less critical
+  // const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Handle form submission
   const handleSignIn = async (e) => {
-    e.preventDefault(); // Prevent default form submission (page reload)
-    setError(""); // Clear previous errors
-    setLoading(true); // Set loading state
+    e.preventDefault();
+    setLoading(true);
 
+    // --- Frontend Validation ---
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      // Use toast for validation feedback
+      toast.warn("Please enter both email and password.");
       setLoading(false);
       return;
     }
 
-    console.log({
-      env: process.env,
-      apiUrl: process.env.REACT_APP_API_URL
-    });
+    // --- Log Environment Variable (Keep for debugging if needed) ---
+    console.log("API URL:", process.env.REACT_APP_API_URL);
+    if (!process.env.REACT_APP_API_URL) {
+        toast.error("API URL is not configured. Please check setup.");
+        setLoading(false);
+        return; // Stop if URL is missing
+    }
 
     try {
       const config = {
@@ -45,58 +48,75 @@ const Signin = () => {
 
       const body = JSON.stringify({ email, password });
 
-      // Make API call to backend signin endpoint
+      // --- Make API call (Ensure endpoint is correct - /auth/signin) ---
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/auth/login`,
         body,
         config
       );
 
-      // Assuming backend sends back { token: '...', user: {...} } on success
-      if (res.data.token) {
-        // --- Authentication Successful ---
-
-        // Store the token (localStorage persists after browser close)
+      // --- Success Case ---
+      if (res.data && res.data.token) {
+        // Store the token
         localStorage.setItem("token", res.data.token);
+        if (res.data.user) {
+            localStorage.setItem('user', JSON.stringify(res.data.user));
+        }
 
-        // You might want to store user info as well (be mindful of sensitive data)
-        // localStorage.setItem('user', JSON.stringify(res.data.user));
+        // --- Success Toast ---
+        toast.success("Sign in successful!");
 
-        // Optional: Set token in axios default headers for subsequent requests
-        // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-
-        // Redirect to the dashboard
-        navigate(route.dashboard);
+        // Short delay before redirect to allow toast to be seen (optional)
+        setTimeout(() => {
+            navigate(route.dashboard);
+        }, 1500); // Adjust delay as needed
 
       } else {
-         // Should not happen if backend is well-designed, but handle just in case
-         setError("Login failed. Please try again.");
+         // Handle unexpected success response without a token
+         toast.error("Login failed: Invalid response from server.");
       }
 
     } catch (err) {
-        // --- Authentication Failed or Server Error ---
+        // --- Error Handling ---
         console.error("Sign-in error:", err);
-        if (err.response && err.response.data && err.response.data.message) {
-            // Use error message from backend if available
-            setError(err.response.data.message);
+
+        if (err.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error("Error data:", err.response.data);
+            console.error("Error status:", err.response.status);
+            console.error("Error headers:", err.response.headers);
+
+            // --- Use specific backend message if available ---
+            if (err.response.data && err.response.data.message) {
+                // e.g., "Invalid credentials.", "User not found.", etc.
+                toast.error(err.response.data.message);
+            } else if (err.response.status === 401) {
+                 toast.error("Incorrect email or password."); // Generic 401
+            } else if (err.response.status === 404) {
+                toast.error("Login endpoint not found on the server.");
+            }
+             else {
+                // Other server-side errors (500, etc.)
+                toast.error("An error occurred on the server. Please try again later.");
+            }
         } else if (err.request) {
-            // Network error (couldn't reach server)
-            setError("Network error. Please check your connection or the server.");
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser
+            console.error("Error request:", err.request);
+            toast.error("Network error: Could not connect to the server.");
         } else {
-            // Other errors
-            setError("An unexpected error occurred. Please try again.");
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error', err.message);
+            toast.error("An unexpected error occurred. Please try again.");
         }
     } finally {
-      setLoading(false); // Reset loading state regardless of outcome
+      setLoading(false);
     }
   };
 
-  // Simple password toggle logic (add to the eye icon)
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
-    // Add logic here to change the icon class (e.g., fa-eye / fa-eye-slash)
-    // This depends on how your template handles the icon switching.
-    // Example:
     const eyeIcon = document.querySelector('.toggle-password');
     if (eyeIcon) {
        eyeIcon.classList.toggle('fa-eye');
@@ -104,16 +124,30 @@ const Signin = () => {
     }
   };
 
-
   return (
     <div className="main-wrapper">
+      {/* --- Add ToastContainer --- */}
+      {/* You can configure position, autoClose time, etc. */}
+      <ToastContainer
+          position="top-right"
+          autoClose={3000} // Close after 3 seconds
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light" // Or "dark" or "colored"
+        />
+
       <div className="account-content">
         <div className="login-wrapper bg-img">
           <div className="login-content">
-            {/* Use onSubmit on the form */}
             <form onSubmit={handleSignIn}>
               <div className="login-userset">
-                <div className="login-logo logo-normal">
+                {/* ... Logo, Headings ... */}
+                 <div className="login-logo logo-normal">
                   <ImageWithBasePath src="assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
@@ -126,23 +160,24 @@ const Signin = () => {
                   </h4>
                 </div>
 
-                {/* Display Error Messages */}
-                {error && (
+                {/* --- Remove the old error display --- */}
+                {/* {error && (
                     <div className="alert alert-danger" role="alert">
                         {error}
                     </div>
-                )}
+                )} */}
 
-                <div className="form-login mb-3">
+                {/* ... Email Input ... */}
+                 <div className="form-login mb-3">
                   <label className="form-label">Email Address</label>
                   <div className="form-addons">
                     <input
-                      type="email" // Use type="email" for better semantics/validation
+                      type="email"
                       className="form-control"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)} // Update state on change
-                      required // Add basic HTML validation
-                      disabled={loading} // Disable when loading
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
                     />
                     <ImageWithBasePath
                       src="assets/img/icons/mail.svg"
@@ -150,27 +185,28 @@ const Signin = () => {
                     />
                   </div>
                 </div>
+                {/* ... Password Input ... */}
                 <div className="form-login mb-3">
                   <label className="form-label">Password</label>
                   <div className="pass-group">
                     <input
-                      type={showPassword ? "text" : "password"} // Toggle type based on state
+                      type={showPassword ? "text" : "password"}
                       className="pass-input form-control"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)} // Update state on change
-                      required // Add basic HTML validation
-                      disabled={loading} // Disable when loading
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={loading}
                     />
-                    {/* Add onClick to the toggle icon */}
                     <span
                         className={`fas toggle-password ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}
                         onClick={togglePasswordVisibility}
-                        style={{ cursor: 'pointer' }} // Make it clear it's clickable
+                        style={{ cursor: 'pointer' }}
                     />
                   </div>
                 </div>
+                {/* ... Remember Me / Forgot Password ... */}
                 <div className="form-login authentication-check">
-                  <div className="row">
+                   <div className="row">
                     <div className="col-12 d-flex align-items-center justify-content-between">
                       <div className="custom-control custom-checkbox">
                         <label className="checkboxs ps-4 mb-0 pb-0 line-height-1">
@@ -187,16 +223,17 @@ const Signin = () => {
                     </div>
                   </div>
                 </div>
-                <div className="form-login">
-                  {/* Change Link to button type="submit" */}
+                {/* ... Submit Button ... */}
+                 <div className="form-login">
                   <button
                     type="submit"
                     className="btn btn-login"
-                    disabled={loading} // Disable button when loading
+                    disabled={loading}
                   >
                     {loading ? "Signing In..." : "Sign In"}
                   </button>
                 </div>
+                {/* ... Sign up link / Social Links / Copyright ... */}
                 <div className="signinform">
                   <h4>
                     New on our platform?
@@ -206,37 +243,14 @@ const Signin = () => {
                     </Link>
                   </h4>
                 </div>
-                {/* Social links and copyright remain the same */}
                 <div className="form-setlogin or-text">
                   <h4>OR</h4>
                 </div>
                 <div className="form-sociallink">
-                   {/* ... social links ... */}
-                   <ul className="d-flex">
-                    <li>
-                      <Link to="#" className="facebook-logo">
-                        <ImageWithBasePath
-                          src="assets/img/icons/facebook-logo.svg"
-                          alt="Facebook"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/google.png"
-                          alt="Google"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#" className="apple-logo">
-                        <ImageWithBasePath
-                          src="assets/img/icons/apple-logo.svg"
-                          alt="Apple"
-                        />
-                      </Link>
-                    </li>
+                  <ul className="d-flex">
+                    <li><Link to="#" className="facebook-logo"><ImageWithBasePath src="assets/img/icons/facebook-logo.svg" alt="Facebook" /></Link></li>
+                    <li><Link to="#"><ImageWithBasePath src="assets/img/icons/google.png" alt="Google" /></Link></li>
+                    <li><Link to="#" className="apple-logo"><ImageWithBasePath src="assets/img/icons/apple-logo.svg" alt="Apple" /></Link></li>
                   </ul>
                   <div className="my-4 d-flex justify-content-center align-items-center copyright-text">
                     <p>Copyright © 2023 DreamsPOS. All rights reserved</p>
