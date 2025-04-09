@@ -18,6 +18,7 @@
     "@types/react-slick": "^0.23.13",
     "antd": "^5.15.2",
     "apexcharts": "^4.0.0",
+    "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "boxicons": "^2.1.4",
     "chart.js": "^4.4.2",
@@ -75,12 +76,12 @@
     "weather-icons-react": "^1.2.0",
     "yet-another-react-lightbox": "^3.17.1"
   },
-"scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
