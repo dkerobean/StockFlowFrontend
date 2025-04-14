@@ -165,30 +165,23 @@ const EditProduct = () => {
 
     // --- Effect to Fetch Dropdowns ---
     useEffect(() => {
-    // Only proceed if dropdowns are done loading and we have a productId
-    if (!isLoadingDropdowns && productId) {
-        console.log("Dependencies met, calling fetchProductData...");
-        // We call fetchProductData which is stable due to useCallback,
-        // unless its own dependencies (categories/brands) change.
-        fetchProductData();
-    } else {
-        // Log why it's not fetching (useful for debugging)
-        console.log(
-            "Skipping fetchProductData call. Conditions:",
-            { isLoadingDropdowns: !isLoadingDropdowns, productId: !!productId }
-        );
-    }
+        fetchDropdownData();
+    }, [fetchDropdownData]); // Run only when fetchDropdownData changes (due to useCallback deps)
 
-    // --- Critical Change: Simplified Dependency Array ---
-    // This effect should run IF:
-    // 1. The productId changes (navigating to a different product edit page).
-    // 2. The dropdown loading state changes (from true to false).
-    // 3. The fetchProductData function itself changes (which happens when categories/brands update,
-    //    ensuring we re-populate dropdowns if needed after fetching).
-    // We REMOVED isLoadingProduct, categories.length, brands.length because changes
-    // to them shouldn't trigger a *new* fetch, only the initial one.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [productId, isLoadingDropdowns, fetchProductData]); // <-- CORRECTED DEPENDENCIES
+    // --- Effect to Fetch Product *after* Dropdowns are potentially loaded ---
+     useEffect(() => {
+        // Fetch product data only if dropdowns are loaded (or tried to load)
+        // and productId is available.
+        if (!isLoadingDropdowns && productId && categories.length > 0 && brands.length > 0) {
+            fetchProductData();
+        } else if (!isLoadingDropdowns && productId && !isLoadingProduct) {
+            // Fallback if dropdowns failed but we need to try loading the product anyway
+            // or if category/brand data isn't strictly necessary for initial display
+             fetchProductData();
+        }
+        // This dependency array setup tries to ensure dropdowns are ready
+        // before setting the selected values in fetchProductData.
+    }, [fetchDropdownData, fetchProductData, isLoadingDropdowns, productId, categories.length, brands.length, isLoadingProduct]);
 
 
     // --- Handlers ---
