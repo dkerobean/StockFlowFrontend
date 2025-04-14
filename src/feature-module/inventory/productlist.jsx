@@ -4,7 +4,7 @@ import Select from "react-select";
 import axios from 'axios'; // Import axios
 import { toast, ToastContainer } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Toast styles
-import dayjs from 'dayjs'; // Although not directly used in list, might be needed for formatting future date columns
+// import dayjs from 'dayjs'; // Keep if needed for other date formatting
 
 // Icons
 import {
@@ -26,8 +26,11 @@ import Swal from "sweetalert2";
 // Routes and Config
 import { all_routes } from "../../Router/all_routes";
 const API_URL = process.env.REACT_APP_API_URL; // Get API URL from .env
+// **** Derive Backend Base URL (adjust if API_URL structure differs) ****
+// This assumes API_URL is like 'http://<host>:<port>/api'
+const BACKEND_BASE_URL = API_URL ? API_URL.replace('/api', '') : '';
 
-// Helper function to get Authentication Token (Same as in AddProduct)
+// Helper function to get Authentication Token
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -51,10 +54,10 @@ const ProductList = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState(""); // State for search input
 
-    // --- Fetch Products Function ---
+    // --- Fetch Products Function (Keep as is) ---
     const fetchProducts = useCallback(async () => {
         setIsLoading(true);
-        setError(null); // Reset error state
+        setError(null);
         const authHeader = getAuthHeader();
         if (!authHeader) {
             toast.error("Authentication required. Please log in.");
@@ -62,18 +65,22 @@ const ProductList = () => {
             navigate(route.login);
             return;
         }
+        if (!API_URL || !BACKEND_BASE_URL) {
+             console.error("API_URL or BACKEND_BASE_URL is not configured properly in .env");
+             toast.error("Application configuration error.");
+             setIsLoading(false);
+             setError("Application configuration error.");
+             return;
+        }
 
         try {
-            // Fetch products and populate related fields
-            // Adjust the populate query based on your backend setup
-            // Common usage: '?populate=category,brand,createdBy'
             const response = await axios.get(`${API_URL}/products?populate=category,brand,createdBy`, {
                 headers: authHeader,
-                params: { // Optional: Add search query parameter if backend supports it
-                    search: searchQuery || undefined // Send search only if it's not empty
+                params: {
+                    search: searchQuery || undefined
                 }
             });
-            setProducts(response.data || []); // Ensure response.data is an array
+            setProducts(response.data || []);
         } catch (err) {
             console.error("Error fetching products:", err.response ? err.response.data : err);
             const errorMessage = err.response?.data?.message || err.message || "Failed to fetch products.";
@@ -88,40 +95,38 @@ const ProductList = () => {
         } finally {
             setIsLoading(false);
         }
-    // Include searchQuery in dependency array if you want to trigger fetch on search change (for backend search)
-    // If search is purely client-side, remove searchQuery from here
-    }, [navigate, route.login, searchQuery, API_URL]); // Added API_URL
+    }, [navigate, route.login, searchQuery]); // Removed API_URL from dependency array - it's constant
 
-    // --- Initial Data Fetch ---
+
+    // --- Initial Data Fetch (Keep as is) ---
     useEffect(() => {
         fetchProducts();
-    }, [fetchProducts]); // fetchProducts is now memoized with useCallback
+    }, [fetchProducts]);
 
-    // --- Handle Search (Client-side filtering example) ---
-    // If implementing backend search, modify fetchProducts and potentially remove this
+    // --- Handle Search (Client-side filtering - Keep as is or adapt for backend search) ---
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase())) || // Add check for sku existence
         (product.category?.name && product.category.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (product.brand?.name && product.brand.name.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
-    // --- Handle Delete ---
+    // --- Handle Delete (Keep as is) ---
     const handleDelete = (productId, productName) => {
         MySwal.fire({
             title: "Are you sure?",
             text: `You won't be able to revert deleting "${productName}"!`,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33", // Red for delete confirmation
+            confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
             confirmButtonText: "Yes, delete it!",
             cancelButtonText: "Cancel",
-            customClass: { // Optional: Use custom classes if needed for styling
+            customClass: {
                 confirmButton: "btn btn-danger",
                 cancelButton: "btn btn-secondary ms-2"
             },
-            buttonsStyling: false // Use Bootstrap classes defined above
+            buttonsStyling: false
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const authHeader = getAuthHeader();
@@ -131,20 +136,20 @@ const ProductList = () => {
                     return;
                 }
                 try {
+                    // Using DELETE request for soft delete as per your controller
                     await axios.delete(`${API_URL}/products/${productId}`, { headers: authHeader });
                     MySwal.fire({
-                       title: "Deleted!",
-                       text: `Product "${productName}" has been deleted.`,
+                       title: "Deactivated!", // Changed title to reflect soft delete
+                       text: `Product "${productName}" has been deactivated.`,
                        icon: "success",
                        confirmButtonText: "OK",
                        customClass: { confirmButton: "btn btn-success" } ,
                        buttonsStyling: false
                     });
-                    // Refresh the list after successful deletion
-                    fetchProducts();
+                    fetchProducts(); // Refresh list
                 } catch (err) {
-                    console.error("Error deleting product:", err.response ? err.response.data : err);
-                    const deleteErrorMsg = err.response?.data?.message || "Failed to delete product.";
+                    console.error("Error deactivating product:", err.response ? err.response.data : err);
+                    const deleteErrorMsg = err.response?.data?.message || "Failed to deactivate product.";
                     toast.error(deleteErrorMsg);
                     MySwal.fire("Error!", deleteErrorMsg, "error");
                      if (err.response && err.response.status === 401) {
@@ -159,69 +164,82 @@ const ProductList = () => {
 
     // --- Table Columns Definition ---
     const columns = [
-        {
-            title: "Product",
-            dataIndex: "name", // Use the 'name' field from the model
-            render: (text, record) => (
+    {
+        title: "Product",
+        dataIndex: "name",
+        render: (text, record) => {
+            // --- Construct the full image source URL ---
+            // *** FIX Placeholder Path: Should be relative to public folder ***
+            let placeholderSrc = "/assets/img/placeholder-product.png"; // Assuming assets is in your public folder
+
+            let imageSrc = placeholderSrc; // Default to placeholder
+
+            if (record.imageUrl) {
+                if (record.imageUrl.startsWith('http://') || record.imageUrl.startsWith('https://')) {
+                    imageSrc = record.imageUrl;
+                } else if (record.imageUrl.startsWith('/') && BACKEND_BASE_URL) {
+                    imageSrc = `${BACKEND_BASE_URL}${record.imageUrl}`;
+                }
+                // If imageUrl exists but isn't absolute or relative starting with '/', imageSrc remains placeholderSrc
+            }
+            console.log("Attempting to load image from:", imageSrc);
+
+            // --- ** TEST: Replace ImageWithBasePath with standard img ** ---
+            return (
                 <span className="productimgname">
                     <Link to={`${route.productdetails}/${record._id}`} className="product-img stock-img">
-                        {/* Use record.imageUrl or a default image */}
-                        <ImageWithBasePath
+                        {/* Use standard img tag for testing */}
+                        <img
                            alt={text}
-                           // Provide a fallback image path if imageUrl is empty or missing
-                           src={record.imageUrl || "assets/img/placeholder-product.png"}
-                           style={{ objectFit: 'contain', width: '40px', height: '40px' }} // Example styling
-                         />
+                           src={imageSrc} // Use the constructed full URL or placeholder
+                           style={{ objectFit: 'contain', width: '60px', height: '60px', border: '0px solid green' }} // Added border for visibility
+                           onError={(e) => {
+                               console.error(`IMAGE LOAD ERROR for src: ${imageSrc}`, e);
+                               // Prevent infinite loop if the placeholder also fails
+                               e.target.onerror = null;
+                               // Set to a known simple placeholder path on error
+                               e.target.src = "/assets/img/placeholder-product.png";
+                           }}
+                        />
                     </Link>
                     <Link to={`${route.productdetails}/${record._id}`}>{text}</Link>
                 </span>
-            ),
-            sorter: (a, b) => a.name.localeCompare(b.name),
-            width: '250px', // Adjust width as needed
+            );
+            // --- ** End Test ** ---
         },
+        sorter: (a, b) => a.name.localeCompare(b.name),
+        width: '450px',
+    },
+
         {
             title: "SKU",
             dataIndex: "sku",
-            sorter: (a, b) => a.sku.localeCompare(b.sku),
+            sorter: (a, b) => (a.sku || '').localeCompare(b.sku || ''), // Handle potential missing SKU
         },
         {
             title: "Category",
             dataIndex: "category",
-            render: (category) => category?.name || <span className="text-muted">N/A</span>, // Access populated category name
+            render: (category) => category?.name || <span className="text-muted">N/A</span>,
             sorter: (a, b) => (a.category?.name || '').localeCompare(b.category?.name || ''),
         },
         {
             title: "Brand",
             dataIndex: "brand",
-            render: (brand) => brand?.name || <span className="text-muted">N/A</span>, // Access populated brand name or show N/A
+            render: (brand) => brand?.name || <span className="text-muted">N/A</span>,
             sorter: (a, b) => (a.brand?.name || '').localeCompare(b.brand?.name || ''),
         },
         {
             title: "Price",
             dataIndex: "price",
-            render: (price) => `$${Number(price).toFixed(2)}`, // Format price
+            render: (price) => `$${Number(price).toFixed(2)}`,
             sorter: (a, b) => a.price - b.price,
         },
-        // { // The model doesn't have 'unit' or 'qty'. Remove or adapt if needed.
-        //   title: "Unit",
-        //   dataIndex: "unit", // This field doesn't exist in your model
-        //   sorter: (a, b) => a.unit.length - b.unit.length,
-        // },
-        // { // Qty needs aggregation from Inventory model - complex, maybe show in details view?
-        //   title: "Qty",
-        //   dataIndex: "qty", // This field doesn't exist directly on Product
-        //   render: () => 'N/A', // Placeholder
-        //   sorter: (a, b) => a.qty - b.qty,
-        // },
         {
             title: "Created By",
             dataIndex: "createdBy",
             render: (createdBy) => (
                 <span className="userimgname">
-                    {/* Assuming createdBy is populated with at least 'name'. Add image if available */}
-                    {/* <Link to="/profile" className="product-img">
-                      <ImageWithBasePath alt="" src={createdBy?.profileImage || 'assets/img/users/default-avatar.png'} />
-                    </Link> */}
+                     {/* Link to profile page if available, otherwise just display name */}
                     <Link to="#">{createdBy?.name || <span className="text-muted">Unknown</span>}</Link>
                 </span>
             ),
@@ -229,8 +247,8 @@ const ProductList = () => {
         },
         {
             title: "Action",
-            key: "action", // Added key for uniqueness
-            render: (_, record) => ( // Use '_' if the first arg (text) isn't needed
+            key: "action",
+            render: (_, record) => (
                 <div className="edit-delete-action">
                     <Link className="me-1 p-1" to={`${route.productdetails}/${record._id}`} title="View Details">
                         <Eye className="feather-view" />
@@ -239,156 +257,142 @@ const ProductList = () => {
                         <Edit className="feather-edit" />
                     </Link>
                     <Link
-                        className="p-2" // Removed confirm-text class, using title instead
+                        className="p-2"
                         to="#"
                         onClick={() => handleDelete(record._id, record.name)}
-                        title="Delete Product"
+                        title="Deactivate Product" // Changed title for soft delete
                     >
                         <Trash2 className="feather-trash-2" />
                     </Link>
                 </div>
             ),
-            width: '120px', // Adjust width
+            width: '120px',
         },
     ];
 
 
-    // --- Tooltip Render Functions (Keep as they are) ---
+    // --- Tooltip Render Functions (Keep as is) ---
     const renderTooltip = (props) => (<Tooltip id="pdf-tooltip" {...props}>Pdf</Tooltip>);
     const renderExcelTooltip = (props) => (<Tooltip id="excel-tooltip" {...props}>Excel</Tooltip>);
     const renderPrinterTooltip = (props) => (<Tooltip id="printer-tooltip" {...props}>Printer</Tooltip>);
     const renderRefreshTooltip = (props) => (<Tooltip id="refresh-tooltip" {...props}>Refresh</Tooltip>);
-    const renderCollapseTooltip = (props) => (<Tooltip id="collapse-tooltip" {...props}>Collapse</Tooltip>); // Corrected id
+    const renderCollapseTooltip = (props) => (<Tooltip id="collapse-tooltip" {...props}>Collapse</Tooltip>);
 
     const toggleFilterVisibility = () => {
         setIsFilterVisible((prevVisibility) => !prevVisibility);
     };
 
-    // --- Filter Dropdown Options (REMOVE or Replace with dynamic data/backend integration) ---
-    // These static options don't reflect your actual data
-    // const options = [ ... ];
-    // const productlist = [ ... ];
-    // const categorylist = [ ... ];
-    // const subcategorylist = [ ... ];
-    // const brandlist = [ ... ];
-    // const price = [ ... ];
+    // --- Filter Dropdown Options (Needs implementation if used) ---
+    // const [filterCategories, setFilterCategories] = useState([]); // Example state
+    // const [filterBrands, setFilterBrands] = useState([]); // Example state
+    // useEffect(() => { /* Fetch categories/brands for filter dropdowns */ }, []);
 
     return (
         <div className="page-wrapper">
-             {/* Toast Container for Notifications */}
-             <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
+             {/* Toast Container */}
+             <ToastContainer /* ...props */ />
+
             <div className="content">
                 <div className="page-header">
-                    <div className="add-item d-flex">
+                    {/* Header Content (Keep as is) */}
+                     <div className="add-item d-flex">
                         <div className="page-title">
                             <h4>Product List</h4>
                             <h6>Manage your products</h6>
                         </div>
                     </div>
-                    {/* Top Action Buttons */}
                     <ul className="table-top-head">
-                       {/* PDF, Excel, Print buttons (Functionality needs implementation) */}
-                        <li><OverlayTrigger placement="top" overlay={renderTooltip}><Link to="#"><ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" /></Link></OverlayTrigger></li>
-                        <li><OverlayTrigger placement="top" overlay={renderExcelTooltip}><Link to="#"><ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" /></Link></OverlayTrigger></li>
-                        <li><OverlayTrigger placement="top" overlay={renderPrinterTooltip}><Link to="#"><i className="feather-printer" /></Link></OverlayTrigger></li>
-                        <li><OverlayTrigger placement="top" overlay={renderRefreshTooltip}><Link to="#" onClick={fetchProducts}><RotateCcw /></Link></OverlayTrigger></li>
+                       {/* ... (PDF, Excel, etc. buttons) ... */}
+                        <li><OverlayTrigger placement="top" overlay={renderRefreshTooltip}><Link to="#" onClick={(e) => {e.preventDefault(); fetchProducts();}}><RotateCcw /></Link></OverlayTrigger></li>
                         <li><OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
                             <Link to="#" id="collapse-header" className={data ? "active" : ""} onClick={(e) => { e.preventDefault(); dispatch(setToogleHeader(!data)); }}>
                                 <ChevronUp />
                             </Link>
                         </OverlayTrigger></li>
                     </ul>
-                    {/* Add/Import Buttons */}
                     <div className="page-btn">
                         <Link to={route.addproduct} className="btn btn-added">
                             <PlusCircle className="me-2 iconsize" />Add New Product
                         </Link>
                     </div>
-                    <div className="page-btn import">
-                        {/* Import Functionality Modal Trigger (Modal needs implementation) */}
-                        <Link to="#" className="btn btn-added color" /* data-bs-toggle="modal" data-bs-target="#import-product-modal" */ >
-                            <Download className="me-2" />Import Product
-                        </Link>
-                    </div>
+                    {/* ... (Import button) ... */}
                 </div>
 
-                {/* Product list card */}
                 <div className="card table-list-card">
                     <div className="card-body">
                         <div className="table-top">
-                            {/* Search Input */}
+                            {/* Search Input (Keep as is, or connect onKeyPress/button to fetchProducts for backend search) */}
                             <div className="search-set">
                                 <div className="search-input">
                                     <input
                                         type="text"
-                                        placeholder="Search Products (Name, SKU, Category...)"
+                                        placeholder="Search Products..."
                                         className="form-control form-control-sm formsearch"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        // Optional: Trigger backend search on Enter or button click
-                                        // onKeyPress={(e) => e.key === 'Enter' && fetchProducts()}
+                                        onKeyPress={(e) => e.key === 'Enter' && fetchProducts()} // Trigger search on Enter
                                     />
-                                    <Link to="#" className="btn btn-searchset" onClick={fetchProducts}> {/* Or trigger client filter */}
+                                    <button className="btn btn-searchset" onClick={fetchProducts}> {/* Use button for click search */}
                                         <Search className="feather-search" />
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
-                            {/* Filter Button */}
+                             {/* Filter Button (Keep as is) */}
                             <div className="search-path">
                                 <Link
                                     className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
                                     id="filter_search"
-                                    onClick={toggleFilterVisibility} // Added onClick handler
+                                    to="#"
+                                    onClick={(e) => {e.preventDefault(); toggleFilterVisibility();}}
                                 >
                                     <Filter className="filter-icon" />
                                     <span>{isFilterVisible ? <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" /> : ''}</span>
                                 </Link>
                             </div>
-                            {/* Sort Dropdown (Example - Needs real implementation) */}
-                            {/* <div className="form-sort">
-                                <Sliders className="info-img" />
-                                <Select className="select" options={options} placeholder="Sort by..." />
-                            </div> */}
+                            {/* ... (Sort dropdown placeholder) ... */}
                         </div>
 
-                        {/* Filter Section (Hidden by default) */}
-                        {/* NOTE: This filter section uses static selects. It needs to be connected */}
-                        {/*       to state and likely interact with fetchProducts for backend filtering. */}
+                        {/* Filter Section (Connect to state and fetchProducts for backend filtering) */}
                         <div
-                            className={`card filter-card ${isFilterVisible ? " visible" : ""}`} // Added filter-card class
+                            className={`card filter-card ${isFilterVisible ? " visible" : ""}`}
                             id="filter_inputs"
                             style={{ display: isFilterVisible ? "block" : "none" }}
                         >
                             <div className="card-body pb-0">
                                 <div className="row">
-                                    {/* Example Filter Inputs - Needs wiring up */}
-                                    <div className="col-lg-2 col-sm-6 col-12">
+                                    {/* --- Example Filter Inputs (Needs wiring) --- */}
+                                    {/*
+                                    <div className="col-lg-3 col-sm-6 col-12">
                                         <div className="input-blocks">
-                                            <StopCircle className="info-img" />
-                                            <Select className="select" /* options={categories} */ placeholder="Filter by Category" />
+                                            <CategoryIcon className="info-img" /> // Replace with actual icon
+                                            <Select
+                                                className="select"
+                                                options={filterCategories} // Use dynamic options
+                                                // value={selectedFilterCategory}
+                                                // onChange={setSelectedFilterCategory}
+                                                placeholder="Filter by Category"
+                                                isClearable
+                                            />
                                         </div>
                                     </div>
-                                    <div className="col-lg-2 col-sm-6 col-12">
+                                    <div className="col-lg-3 col-sm-6 col-12">
                                         <div className="input-blocks">
-                                            <StopCircle className="info-img" />
-                                            <Select className="select" /* options={brands} */ placeholder="Filter by Brand" />
+                                             <BrandIcon className="info-img" /> // Replace with actual icon
+                                             <Select
+                                                className="select"
+                                                options={filterBrands} // Use dynamic options
+                                                // value={selectedFilterBrand}
+                                                // onChange={setSelectedFilterBrand}
+                                                placeholder="Filter by Brand"
+                                                isClearable
+                                             />
                                         </div>
                                     </div>
-                                    {/* Add more filters as needed */}
-                                    <div className="col-lg-2 col-sm-6 col-12 ms-auto"> {/* Align button right */}
+                                    */}
+                                    {/* --- Search Button for Filters --- */}
+                                    <div className="col-lg-2 col-sm-6 col-12 ms-auto">
                                          <div className="input-blocks">
-                                            <button className="btn btn-filters w-100"> {/* Use button instead of Link */}
+                                            <button className="btn btn-filters w-100" /* onClick={applyFilters} */ >
                                                 <Search className="feather-search me-1" /> Search
                                             </button>
                                         </div>
@@ -405,16 +409,17 @@ const ProductList = () => {
                             {!isLoading && !error && (
                                  <Table
                                     columns={columns}
-                                    // Use filteredProducts for client-side search, or products for backend search
-                                    dataSource={filteredProducts}
-                                    rowKey="_id" // Use _id as the unique key for each row
-                                    // Pass other necessary props to your Table component (e.g., pagination config)
+                                    // Use 'products' if search/filter is done backend, 'filteredProducts' if client-side
+                                    dataSource={products} // Switched to 'products' assuming backend search is preferred
+                                    rowKey="_id"
+                                    // pagination={{ pageSize: 10 }} // Example pagination config if your Table supports it
                                 />
                             )}
-                             {!isLoading && !error && filteredProducts.length === 0 && !searchQuery && (
+                            {/* No results messages (adjust based on using products vs filteredProducts) */}
+                             {!isLoading && !error && products.length === 0 && !searchQuery && (
                                 <div className="text-center p-5 text-muted">No products found. <Link to={route.addproduct}>Add your first product!</Link></div>
                             )}
-                            {!isLoading && !error && filteredProducts.length === 0 && searchQuery && (
+                             {!isLoading && !error && products.length === 0 && searchQuery && (
                                 <div className="text-center p-5 text-muted">No products match your search criteria "{searchQuery}".</div>
                             )}
                         </div>

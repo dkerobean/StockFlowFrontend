@@ -197,23 +197,40 @@ const AddProduct = () => {
         }
         // Note: MinStock and NotifyAt validation already handled during parsing.
 
-        // --- !!! Placeholder for Actual Image Upload Logic !!! ---
-        // You would typically upload the `imageFile` here to your backend or cloud storage
-        // and get back the permanent `finalImageUrl`.
-        let finalImageUrl = imageUrl; // Use preview URL for now if no upload logic exists
-        // if (imageFile) {
-        //    try {
-        //        // const uploadedImageUrl = await uploadImageFunction(imageFile, authHeader);
-        //        // finalImageUrl = uploadedImageUrl;
-        //        toast.info("Simulating image upload..."); // Placeholder message
-        //    } catch (uploadError) {
-        //        console.error("Image upload failed:", uploadError);
-        //        toast.error("Image upload failed. Product not saved.");
-        //        setIsSubmitting(false);
-        //        return; // Stop submission if upload fails
-        //    }
-        // }
-        // --- End Placeholder ---
+
+        let finalImageUrl = imageUrl;
+
+        // --- *** START: Actual Image Upload Logic *** ---
+        if (imageFile) {
+            const formData = new FormData();
+            // IMPORTANT: 'productImage' must match upload.single('productImage') in backend
+            formData.append('productImage', imageFile);
+
+            try {
+                toast.info("Uploading image..."); // Inform user
+                const uploadRes = await axios.post(`${API_URL}/upload/product-image`, formData, {
+                    headers: {
+                        ...authHeader, // Include auth token
+                        'Content-Type': 'multipart/form-data', // Important for file uploads
+                    },
+                });
+
+                finalImageUrl = uploadRes.data.imageUrl; // Get the permanent URL from the backend response
+                toast.dismiss(); // Dismiss the 'Uploading...' toast
+                toast.success("Image uploaded successfully!");
+
+            } catch (uploadError) {
+                console.error("Image upload failed:", uploadError.response ? uploadError.response.data : uploadError);
+                const errorMsg = uploadError.response?.data?.message || "Image upload failed. Please try again.";
+                toast.error(errorMsg);
+                setIsSubmitting(false); // Stop submission if upload fails
+                return;
+            }
+        }
+        // --- *** END: Actual Image Upload Logic *** ---
+
+
+
 
 
         // --- Prepare Product Data Payload ---
