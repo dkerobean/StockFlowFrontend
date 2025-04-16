@@ -63,18 +63,15 @@ const EditProduct = () => {
     const [isLoadingProduct, setIsLoadingProduct] = useState(true); // For fetching the product
     const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
 
-    // --- Fetch Dropdown Data (Categories, Brands) ---
-    // Use useCallback to prevent re-creation on every render unless API_URL changes
+// --- Fetch Dropdown Data (Categories, Brands) ---
     const fetchDropdownData = useCallback(async () => {
-        console.log("Refreshing dropdown data...");
+        console.log("[EditProduct] fetchDropdownData: Fetching Categories and Brands...");
         setIsLoadingDropdowns(true);
         const authHeader = getAuthHeader();
-        if (!authHeader) {
-            toast.error("Authentication required.");
-            setIsLoadingDropdowns(false);
-            // Optional: Redirect if needed, but primary check is in product fetch
-            return;
-        }
+        if (!authHeader) { /* ... */ return; }
+
+        let categoryOptions = [];
+        let brandOptions = [];
 
         try {
             const [categoryRes, brandRes] = await Promise.all([
@@ -82,85 +79,111 @@ const EditProduct = () => {
                 axios.get(`${API_URL}/brands`, { headers: authHeader })
             ]);
 
-            setCategories(categoryRes.data.map(cat => ({ value: cat._id, label: cat.name })));
-            setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
+            console.log("[EditProduct] fetchDropdownData: Raw Categories:", categoryRes?.data);
+            console.log("[EditProduct] fetchDropdownData: Raw Brands:", brandRes?.data);
+
+            if (categoryRes?.data && Array.isArray(categoryRes.data)) {
+                 categoryOptions = categoryRes.data.map(cat => ({ value: cat._id, label: cat.name }));
+                 console.log("[EditProduct] fetchDropdownData: Mapped Category Options:", categoryOptions);
+            } else { console.warn("[EditProduct] fetchDropdownData: Category data invalid."); }
+
+            if (brandRes?.data && Array.isArray(brandRes.data)) {
+                brandOptions = brandRes.data.map(br => ({ value: br._id, label: br.name }));
+                console.log("[EditProduct] fetchDropdownData: Mapped Brand Options:", brandOptions);
+            } else { console.warn("[EditProduct] fetchDropdownData: Brand data invalid."); }
+
+            setCategories(categoryOptions);
+            setBrands(brandOptions);
+            console.log("[EditProduct] fetchDropdownData: Updated dropdown state.");
 
         } catch (error) {
-            console.error("Error fetching dropdown data:", error);
-            toast.error("Failed to load categories/brands. Please refresh.");
-             if (error.response && error.response.status === 401) {
-                 toast.error("Session expired. Please log in again.");
-                 localStorage.removeItem('token');
-                 navigate(route.login);
-             }
+            console.error("[EditProduct] fetchDropdownData: Error:", error);
+            toast.error("Failed to load categories/brands.");
+            setCategories([]); setBrands([]); // Reset on error
+             if (error.response?.status === 401) { /* ... */ }
         } finally {
+            console.log("[EditProduct] fetchDropdownData: Finished. Setting isLoadingDropdowns=false.");
             setIsLoadingDropdowns(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [API_URL, navigate, route.login]); // Add dependencies
+    }, [API_URL, navigate, route.login]);
 
     // --- Fetch Existing Product Data ---
-    const fetchProductData = useCallback(async () => {
-        if (!productId) {
-            toast.error("Product ID is missing.");
-            navigate(route.productlist);
-            return;
-        }
-        console.log(`Fetching product data for ID: ${productId}`);
+    // Accepts fetched dropdown options to ensure correct matching
+    const fetchProductData = useCallback(async (fetchedCategories, fetchedBrands) => {
+        if (!productId) { return; }
+        console.log(`[EditProduct] fetchProductData: Fetching product ID: ${productId}`);
         setIsLoadingProduct(true);
         const authHeader = getAuthHeader();
-        if (!authHeader) {
-            toast.error("Authentication required. Please log in.");
-            setIsLoadingProduct(false);
-            navigate(route.login);
-            return;
-        }
+        if (!authHeader) { /* ... */ return; }
 
         try {
-            // Request population of category and brand directly if backend supports it
             const response = await axios.get(`${API_URL}/products/${productId}?populate=category,brand`, { headers: authHeader });
             const product = response.data;
+            console.log("[EditProduct] fetchProductData: Received product data:", product);
 
-            // --- Populate Form State ---
+            // ** Populate ALL Form State Fields **
             setProductName(product.name || '');
             setDescription(product.description || '');
-            setPrice(product.price?.toString() || ''); // Ensure price is string for input
+            setPrice(product.price?.toString() || '');
             setSku(product.sku || '');
             setBarcode(product.barcode || '');
-            setImageUrl(product.imageUrl || ''); // Set initial image URL
-            setOriginalImageUrl(product.imageUrl || ''); // Store the original URL separately
-            setIsActive(product.isActive !== undefined ? product.isActive : true); // Handle status
+            setImageUrl(product.imageUrl || ''); // Use this for display logic
+            setOriginalImageUrl(product.imageUrl || ''); // Keep track of the original
+            setIsActive(product.isActive !== undefined ? product.isActive : true);
+            console.log("[EditProduct] fetchProductData: Populated basic fields.");
 
-            // Populate Select fields - IMPORTANT: Find the matching *object*
-            // Ensure categories/brands are loaded *before* trying to set these
-            if (categories.length > 0 && product.category) {
-                const categoryOption = categories.find(c => c.value === (product.category._id || product.category)); // Handle populated vs non-populated ID
+            // --- Set Selected Dropdown Value ---
+            console.log("[EditProduct] fetchProductData: Using fetched options for matching - Categories:", fetchedCategories, "Brands:", fetchedBrands);
+            if (fetchedCategories?.length > 0 && product.category) {
+                const categoryIdToFind = product.category._id || product.category;
+                const categoryOption = fetchedCategories.find(c => c.value === categoryIdToFind);
+                console.log(`[EditProduct] fetchProductData: Found Category Option for initial select:`, categoryOption);
                 setSelectedCategory(categoryOption || null);
-            }
-            if (brands.length > 0 && product.brand) {
-                const brandOption = brands.find(b => b.value === (product.brand._id || product.brand)); // Handle populated vs non-populated ID
+            } else { setSelectedCategory(null); }
+
+            if (fetchedBrands?.length > 0 && product.brand) {
+                 const brandIdToFind = product.brand._id || product.brand;
+                const brandOption = fetchedBrands.find(b => b.value === brandIdToFind);
+                console.log(`[EditProduct] fetchProductData: Found Brand Option for initial select:`, brandOption);
                 setSelectedBrand(brandOption || null);
-            }
-             // If dropdowns haven't loaded yet when product data arrives,
-             // this part might run again in the dropdown useEffect completion.
+            } else { setSelectedBrand(null); }
 
         } catch (error) {
-            console.error("Error fetching product data:", error);
-            if (error.response && error.response.status === 404) {
-                toast.error("Product not found.");
-                navigate(route.productlist); // Redirect if product doesn't exist
-            } else if (error.response && error.response.status === 401) {
-                 toast.error("Session expired. Please log in again.");
-                 localStorage.removeItem('token');
-                 navigate(route.login);
-            } else {
-                toast.error("Failed to load product data. Please try again.");
-            }
+            console.error("[EditProduct] fetchProductData: Error:", error);
+            toast.error("Failed to load product data.");
+            // Reset form on product fetch error? Optional.
+             if (error.response?.status === 401) { /* ... */ }
+             if (error.response?.status === 404) { navigate(route.productlist); }
+             // Reset dropdown selections if product fetch fails
+             setSelectedCategory(null);
+             setSelectedBrand(null);
         } finally {
+            console.log("[EditProduct] fetchProductData: Finished. Setting isLoadingProduct=false.");
             setIsLoadingProduct(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productId, API_URL, navigate, route.login, route.productlist, categories, brands]); // Add categories/brands as dependencies
+    }, [productId, API_URL, navigate, route.login, route.productlist]);
+
+
+    // --- useEffect Hooks for Data Fetching ---
+    useEffect(() => {
+        // Fetch dropdowns first on component mount
+        console.log("[EditProduct] useEffect 1: Calling fetchDropdownData.");
+        fetchDropdownData();
+    }, [fetchDropdownData]); // Depends only on the stable callback
+
+    useEffect(() => {
+        // Fetch product details only after dropdowns are loaded AND productId is available
+        console.log(`[EditProduct] useEffect 2: Checking conditions - isLoadingDropdowns: ${isLoadingDropdowns}, productId: ${!!productId}`);
+        if (!isLoadingDropdowns && productId) {
+            console.log("[EditProduct] useEffect 2: Conditions met. Calling fetchProductData, passing current dropdown state.");
+            // Pass the current state of categories/brands directly
+            fetchProductData(categories, brands);
+        } else {
+            console.log("[EditProduct] useEffect 2: Skipping product data fetch.");
+        }
+    // Rerun if dropdown loading state changes, product ID changes,
+    // or if the dropdown data arrays themselves change (to potentially re-match selection)
+    }, [isLoadingDropdowns, productId, fetchProductData, categories, brands]);
 
 
     // --- Effect to Fetch Dropdowns ---
@@ -294,7 +317,10 @@ const EditProduct = () => {
             // --- Send PUT Request to Update ---
             const response = await axios.put(`${API_URL}/products/${productId}`, productUpdateData, { headers: authHeader });
             toast.success(`Product "${response.data.name}" updated successfully!`);
-            navigate(route.productlist); // Redirect after successful update
+           setTimeout(() => {
+                console.log("[EditProduct] handleSubmit: Delay finished, navigating to product list.");
+                navigate(route.productlist); // Redirect after the delay
+            }, 1000);
 
         } catch (error) {
             console.error("Error updating product:", error.response ? error.response.data : error);
