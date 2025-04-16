@@ -179,15 +179,6 @@ const EditProduct = () => {
         );
     }
 
-    // --- Critical Change: Simplified Dependency Array ---
-    // This effect should run IF:
-    // 1. The productId changes (navigating to a different product edit page).
-    // 2. The dropdown loading state changes (from true to false).
-    // 3. The fetchProductData function itself changes (which happens when categories/brands update,
-    //    ensuring we re-populate dropdowns if needed after fetching).
-    // We REMOVED isLoadingProduct, categories.length, brands.length because changes
-    // to them shouldn't trigger a *new* fetch, only the initial one.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [productId, isLoadingDropdowns, fetchProductData]); // <-- CORRECTED DEPENDENCIES
 
 
@@ -504,48 +495,87 @@ const EditProduct = () => {
                             {/* REMOVED: Initial Stock Information Section */}
 
                             {/* Section 2: Product Image */}
-                            <div className="mb-4">
-                                <h5 className="form-section-title d-flex align-items-center mb-3">
-                                    <ImageIcon className="me-2" size={20}/> Product Image (Optional)
-                                </h5>
-                                <div className="col-lg-12">
-                                    {/* Image Upload Area */}
-                                    <div
-                                        className="image-upload-box text-center p-4 p-lg-5 border rounded"
-                                        style={{ borderStyle: 'dashed !important', cursor: 'pointer', backgroundColor: '#f8f9fa' }}
-                                        onClick={() => document.getElementById('product-image-upload')?.click()}
-                                        onDragOver={(e) => e.preventDefault()}
-                                        onDrop={(e) => { e.preventDefault(); handleImageChange({ target: e.dataTransfer }); }}
-                                    >
-                                        <input type="file" id="product-image-upload" accept="image/*" onChange={handleImageChange} className="d-none" />
-                                        <ImageWithBasePath src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
-                                        <p className="mb-0 text-muted small">
-                                            Drag and drop a file to upload <br/> or click here to replace image
-                                        </p>
-                                    </div>
-                                    {/* Image Preview Area */}
-                                    {imageUrl && ( // Show preview if imageUrl exists (could be original or new preview)
-                                        <div className="mt-3">
-                                            <p className="mb-1 small text-muted">Current Image:</p>
-                                            <div style={{ maxWidth: '150px', position: 'relative', display:'inline-block', border: '1px solid #dee2e6', padding: '5px', borderRadius: '4px' }}>
-                                                {/* Use ImageWithBasePath if it handles external URLs, otherwise use <img> */}
-                                                {/* Assuming imageUrl can be a full URL or a blob URL */}
-                                                <img src={imageUrl} alt="Product Preview" style={{ width: '100%', height: 'auto', display: 'block' }} onError={(e) => { e.target.onerror = null; e.target.src="fallback_image_path.jpg"; }} />
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-sm btn-danger p-0"
-                                                    onClick={handleRemoveImage}
-                                                    style={{ position: 'absolute', top: '5px', right: '5px', width: '24px', height: '24px', lineHeight: '1', borderRadius: '50%' }}
-                                                    title="Remove Image"
-                                                    aria-label="Remove Image"
-                                                >
-                                                    <X size={16}/>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+            <div className="mb-4">
+                <h5 className="form-section-title d-flex align-items-center mb-3">
+                    <ImageIcon className="me-2" size={20}/> Product Image (Optional)
+                </h5>
+                <div className="col-lg-12">
+                    {/* --- Image Upload Trigger Area --- */}
+                    {/* This part allows selecting/dropping a NEW image to REPLACE the current one */}
+                    <div
+                        className="image-upload-box text-center p-4 p-lg-5 border rounded mb-3" // Added margin-bottom for spacing
+                        style={{ borderStyle: 'dashed !important', cursor: 'pointer', backgroundColor: '#f8f9fa' }}
+                        onClick={() => document.getElementById('product-image-upload')?.click()} // Triggers hidden input
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => { e.preventDefault(); handleImageChange({ target: e.dataTransfer }); }} // Handles drop
+                    >
+                        <input
+                            type="file"
+                            id="product-image-upload"
+                            accept="image/*"
+                            onChange={handleImageChange} // Updates imageFile and imageUrl (for preview)
+                            className="d-none" // Hide the standard file input
+                        />
+                        {/* Upload Icon and Text */}
+                        <ImageWithBasePath src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                        <p className="mb-0 text-muted small">
+                            Drag and drop a file to upload <br/> or click here to replace the current image
+                        </p>
+                    </div>
+
+                    {/* --- Image Display/Preview Area --- */}
+                    {/* This section shows the CURRENT image: either the one fetched from DB */}
+                    {/* OR the preview of a NEWLY selected file. It uses the imageUrl state. */}
+                    {/* --- Image Display/Preview Area --- */}
+            {imageUrl && (
+                <div className="mt-3">
+                    <p className="mb-1 small text-muted">Current Image:</p>
+                    <div style={{ maxWidth: '150px', position: 'relative', display:'inline-block', border: '1px solid #dee2e6', padding: '5px', borderRadius: '4px' }}>
+                        <img
+                            // --- MODIFIED SRC LOGIC ---
+                            src={
+                                imageUrl // Check if imageUrl exists
+                                ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('blob:'))
+                                    ? imageUrl // It's already an absolute URL (http/https) or a temporary Blob URL (preview) - use directly
+                                    : `${process.env.REACT_APP_FILE_BASE_URL}${imageUrl}` // It's relative (starts with /), prepend API Base URL
+                                : '' // If imageUrl is null/empty, use empty string
+                            }
+                            // --- END MODIFIED SRC LOGIC ---
+                            alt="Product Preview"
+                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                            onError={(e) => {
+                                // Construct the full URL again for accurate error logging
+                                const finalSrc = imageUrl
+                                    ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('blob:'))
+                                        ? imageUrl
+                                        : `${process.env.REACT_APP_FILE_BASE_URL}${imageUrl}`
+                                    : '';
+                                console.error(`[EditProduct] Render: Failed to load image from calculated src: ${finalSrc}`);
+                                e.target.onerror = null;
+                                e.target.alt = "Failed to load image";
+                                // Optionally hide: e.target.style.display = 'none';
+                            }}
+                        />
+                        {/* Remove Button */}
+                        <button
+                            type="button"
+                            className="btn btn-sm btn-danger p-0"
+                            onClick={handleRemoveImage}
+                            style={{ position: 'absolute', top: '5px', right: '5px', width: '24px', height: '24px', lineHeight: '1', borderRadius: '50%' }}
+                            title="Remove Image"
+                            aria-label="Remove Image"
+                        >
+                            <X size={16}/>
+                        </button>
+                    </div>
+                </div>
+            )}
+            {!imageUrl && (
+                <p className="mt-2 text-muted small">No image is currently set for this product.</p>
+            )}
+                </div>
+            </div>
+            {/* End Section 2: Product Image */}
 
                         </div> {/* End card-body */}
                     </div> {/* End card */}
