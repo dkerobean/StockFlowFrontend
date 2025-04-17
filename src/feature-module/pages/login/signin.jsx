@@ -19,6 +19,18 @@ const Signin = () => {
   // const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+const backgroundStyle = {
+    // Set the background image URL
+    backgroundImage: "url('assets/img/authentication/verify-img.png')",
+
+    // Add other necessary background properties (often defined in .bg-img)
+    // These ensure the image covers the area nicely. Adjust as needed.
+    backgroundSize: 'cover',          // Makes the image cover the entire container
+    backgroundPosition: 'center center', // Centers the image
+    backgroundRepeat: 'no-repeat',    // Prevents the image from tiling
+    minHeight: '100vh'                // Optional: Ensures the div takes at least full viewport height
+  };
+
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -142,13 +154,17 @@ const Signin = () => {
         />
 
       <div className="account-content">
-        <div className="login-wrapper bg-img">
+        <div
+            className="login-wrapper bg-img" // Keep existing classes
+            style={backgroundStyle}                      // Apply the inline style object
+        >
+
           <div className="login-content">
             <form onSubmit={handleSignIn}>
               <div className="login-userset">
                 {/* ... Logo, Headings ... */}
                  <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="public/assets/img/logo.png" alt="img" />
+                  <ImageWithBasePath src="/assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
                   <ImageWithBasePath src="assets/img/logo-white.png" alt="" />

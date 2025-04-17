@@ -8,6 +8,20 @@ import { all_routes } from "../../../Router/all_routes";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import default CSS
 
+
+const backgroundStyle = {
+    // Set the background image URL
+    backgroundImage: "url('assets/img/authentication/verify-img.png')",
+
+    // Add other necessary background properties (often defined in .bg-img)
+    // These ensure the image covers the area nicely. Adjust as needed.
+    backgroundSize: 'cover',          // Makes the image cover the entire container
+    backgroundPosition: 'center center', // Centers the image
+    backgroundRepeat: 'no-repeat',    // Prevents the image from tiling
+    minHeight: '100vh'                // Optional: Ensures the div takes at least full viewport height
+  };
+
+
 const Register = () => {
   const route = all_routes;
   const navigate = useNavigate(); // Hook for navigation
@@ -166,7 +180,10 @@ const Register = () => {
         />
 
       <div className="account-content">
-        <div className="login-wrapper register-wrap bg-img">
+        <div
+            className="login-wrapper register-wrap bg-img" // Keep existing classes
+            style={backgroundStyle}                      // Apply the inline style object
+        >
           <div className="login-content">
             {/* --- Use onSubmit on the form --- */}
             <form onSubmit={handleRegister}>
@@ -181,7 +198,7 @@ const Register = () => {
 
                 <div className="login-userheading">
                   <h3>Register</h3>
-                  <h4>Create New Dreamspos Account</h4>
+                  <h4>Create New StockFlow Account</h4>
                 </div>
 
                 {/* --- Name Input --- */}
@@ -312,7 +329,7 @@ const Register = () => {
                    </ul>
                  </div>
                  <div className="my-4 d-flex justify-content-center align-items-center copyright-text">
-                   <p>Copyright © 2023 DreamsPOS. All rights reserved</p>
+                   <p>Copyright © 2023 StockFlow. All rights reserved</p>
                  </div>
               </div>
             </form>
