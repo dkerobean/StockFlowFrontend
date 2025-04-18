@@ -13,7 +13,8 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import Table from '../../core/pagination/datatable'
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList = () => {
     const dispatch = useDispatch();
@@ -72,9 +73,8 @@ const CategoryList = () => {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-
+                 toast.success('Category deleted successfully');
                 setCategories(categories.filter(category => category._id !== id));
-                toast.success('Category deleted successfully');
             } catch (error) {
                 console.error("Error deleting category:", error);
                 toast.error("Failed to delete category");
@@ -191,6 +191,7 @@ const CategoryList = () => {
             <div className="page-wrapper">
                 <div className="content">
                     <div className="page-header">
+                    <ToastContainer />
                         <div className="add-item d-flex">
                             <div className="page-title">
                                 <h4>Category</h4>

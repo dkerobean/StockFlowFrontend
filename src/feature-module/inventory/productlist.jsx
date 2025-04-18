@@ -154,6 +154,7 @@ const ProductList = () => {
                        customClass: { confirmButton: "btn btn-success" } ,
                        buttonsStyling: false
                     });
+                    toast.success("Deleted");
                     // Trigger a refetch *after* the confirmation modal is closed
                     fetchProducts();
                 } catch (err) {
@@ -312,7 +313,7 @@ const ProductList = () => {
 
     return (
         <div className="page-wrapper">
-             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
+             <ToastContainer />
 
             <div className="content">
                 <div className="page-header">

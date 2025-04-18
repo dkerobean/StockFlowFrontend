@@ -1,25 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// Make sure Bootstrap's JS is loaded, e.g., in your index.js or App.js
+// import 'bootstrap/dist/js/bootstrap.bundle.min';
+
 
 const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) => {
     const API_URL = process.env.REACT_APP_API_URL;
-    const [name, setName] = useState(currentName);
-    const [status, setStatus] = useState(currentStatus);
+    const [name, setName] = useState(''); // Initialize empty, set in useEffect
+    const [status, setStatus] = useState('active'); // Initialize default, set in useEffect
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const modalId = `edit-category-${categoryId}`; // Dynamic ID
 
+    // Effect to update state when props change (e.g., when opening modal for a different category)
     useEffect(() => {
-        setName(currentName);
-        setStatus(currentStatus);
-    }, [currentName, currentStatus]);
+        setName(currentName || ''); // Handle potential undefined initial prop
+        setStatus(currentStatus || 'active'); // Handle potential undefined initial prop
+    }, [currentName, currentStatus, categoryId]); // Re-run if any of these change
 
     const generateSlug = (name) => {
+         if (!name) return '';
         return name.toLowerCase()
             .replace(/[^\w\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/--+/g, '-');
     };
+
+     const resetForm = () => {
+        // Resetting to initial props might be better than blank/active
+        setName(currentName || '');
+        setStatus(currentStatus || 'active');
+        setIsSubmitting(false);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,7 +53,7 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
             const slug = generateSlug(name);
             await axios.put(`${API_URL}/categories/${categoryId}`,
                 {
-                    name,
+                    name: name.trim(), // Trim name
                     slug,
                     status
                 },
@@ -51,23 +64,37 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
                 }
             );
 
+            // --- Success Sequence ---
+            // 1. Show success toast
             toast.success('Category updated successfully!');
 
+            // 2. Call the onUpdate callback (to refresh list)
             if (onUpdate) {
                 onUpdate();
             }
 
-            // Close modal
-            const modalElement = document.getElementById(`edit-category-${categoryId}`);
-            const modalInstance = bootstrap.Modal.getInstance(modalElement);
-            if (modalInstance) {
-                modalInstance.hide();
+            // 3. Close the modal
+            const modalElement = document.getElementById(modalId);
+             if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    const bsModal = new bootstrap.Modal(modalElement);
+                    bsModal.hide();
+                }
             }
+
+            // 4. Reset form state (handled by 'hidden.bs.modal' event)
+            // Resetting state here might cause a flicker if the modal closes slowly
+            // setIsSubmitting(false); // Let finally handle this
+
         } catch (error) {
             console.error("Error updating category:", error);
-            toast.error(`Failed to update category: ${error.response?.data?.message || error.message}`);
+             const errorMessage = error.response?.data?.message || error.message || "Failed to update category";
+            toast.error(errorMessage);
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false); // Ensure submitting state is reset on success or error
         }
     };
 
@@ -75,31 +102,56 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
         setStatus(prev => prev === 'active' ? 'inactive' : 'active');
     };
 
+     // Effect to reset form when modal is hidden
+    useEffect(() => {
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            const handleHide = () => {
+                console.log(`Edit modal ${modalId} hidden, resetting form.`);
+                // Don't necessarily reset the form here, as the parent might reuse the component instance.
+                // Resetting isSubmitting is important though.
+                 setIsSubmitting(false);
+                 // Optionally reset name/status if desired, but maybe rely on the prop-setting effect instead.
+                 // setName(currentName || '');
+                 // setStatus(currentStatus || 'active');
+            };
+            modalElement.addEventListener('hidden.bs.modal', handleHide);
+
+            // Cleanup listener
+            return () => {
+                modalElement.removeEventListener('hidden.bs.modal', handleHide);
+            };
+        }
+    }, [modalId, currentName, currentStatus]); // Add dependencies if reset logic uses them
+
     return (
-        <div className="modal fade" id={`edit-category-${categoryId}`}>
+        // Ensure the modalId matches the one used in JS
+        <div className="modal fade" id={modalId} tabIndex="-1" aria-labelledby={`editCategoryLabel-${categoryId}`} aria-hidden="true">
+        <ToastContainer />
             <div className="modal-dialog modal-dialog-centered custom-modal-two">
                 <div className="modal-content">
                     <div className="page-wrapper-new p-0">
                         <div className="content">
                             <div className="modal-header border-0 custom-modal-header">
                                 <div className="page-title">
-                                    <h4>Edit Category</h4>
+                                    <h4 id={`editCategoryLabel-${categoryId}`}>Edit Category</h4> {/* Dynamic label id */}
                                 </div>
-                                <button
+                                 <button
                                     type="button"
-                                    className="close"
+                                    className="btn-close" // Use Bootstrap's standard close button class
                                     data-bs-dismiss="modal"
                                     aria-label="Close"
-                                >
-                                    <span aria-hidden="true">×</span>
-                                </button>
+                                    disabled={isSubmitting} // Disable close button while submitting
+                                />
                             </div>
                             <div className="modal-body custom-modal-body">
                                 <form onSubmit={handleSubmit}>
+                                    {/* ... (input fields for name, slug) ... */}
                                     <div className="mb-3">
-                                        <label className="form-label">Category Name</label>
+                                        <label htmlFor={`edit-category-name-${categoryId}`} className="form-label">Category Name</label> {/* Dynamic htmlFor */}
                                         <input
                                             type="text"
+                                            id={`edit-category-name-${categoryId}`} // Dynamic id
                                             className="form-control"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
@@ -108,25 +160,31 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
                                         />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label">Category Slug</label>
+                                        <label htmlFor={`edit-category-slug-${categoryId}`} className="form-label">Category Slug</label> {/* Dynamic htmlFor */}
                                         <input
                                             type="text"
+                                            id={`edit-category-slug-${categoryId}`} // Dynamic id
                                             className="form-control"
                                             value={generateSlug(name)}
                                             readOnly
+                                             tabIndex="-1"
                                         />
                                     </div>
-                                    <div className="mb-0">
+                                     <div className="mb-3"> {/* Wrapped status toggle */}
                                         <div className="status-toggle modal-status d-flex justify-content-between align-items-center">
                                             <span className="status-label">Status</span>
-                                            <input
-                                                type="checkbox"
-                                                id={`edit-status-${categoryId}`}
-                                                className="check"
-                                                checked={status === 'active'}
-                                                onChange={toggleStatus}
-                                            />
-                                            <label htmlFor={`edit-status-${categoryId}`} className="checktoggle" />
+                                             <div className="form-check form-switch">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`edit-status-${categoryId}`} // Dynamic id
+                                                    className="form-check-input"
+                                                    role="switch"
+                                                    checked={status === 'active'}
+                                                    onChange={toggleStatus}
+                                                    disabled={isSubmitting}
+                                                />
+                                                 <label htmlFor={`edit-status-${categoryId}`} className="form-check-label">{status === 'active' ? 'Active' : 'Inactive'}</label>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="modal-footer-btn">
@@ -141,9 +199,14 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
                                         <button
                                             type="submit"
                                             className="btn btn-submit"
-                                            disabled={isSubmitting}
+                                            disabled={isSubmitting || !name.trim()} // Disable if submitting or name empty
                                         >
-                                            {isSubmitting ? 'Updating...' : 'Save Changes'}
+                                             {isSubmitting ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                    Updating...
+                                                </>
+                                            ) : 'Save Changes'}
                                         </button>
                                     </div>
                                 </form>

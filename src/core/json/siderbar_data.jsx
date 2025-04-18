@@ -3,7 +3,7 @@ import React from 'react';
 import * as Icon from 'react-feather';
 
 export const SidebarData = [
-          
+
     {
         label: "Main",
         submenuOpen: true,
@@ -57,18 +57,14 @@ export const SidebarData = [
         submenuOpen: true,
         showSubRoute: false,
         submenuHdr: "Inventory",
-      
+
         submenuItems: [
           { label: "Products", link: "/product-list", icon:<Icon.Box />,showSubRoute: false,submenu: false },
           { label: "Create Product", link: "/add-product", icon:  <Icon.PlusSquare />,showSubRoute: false, submenu: false },
           { label: "Expired Products", link: "/expired-products", icon:  <Icon.Codesandbox  />,showSubRoute: false,submenu: false },
           { label: "Low Stocks", link: "/low-stocks", icon: <Icon.TrendingDown  />,showSubRoute: false,submenu: false },
           { label: "Category", link: "/category-list", icon:  <Icon.Codepen />,showSubRoute: false,submenu: false },
-          { label: "Sub Category", link: "/sub-categories", icon:  <Icon.Speaker  />,showSubRoute: false,submenu: false },
           { label: "Brands", link: "/brand-list", icon:  <Icon.Tag />,showSubRoute: false,submenu: false },
-          { label: "Units", link: "/units", icon:  <Icon.Speaker />,showSubRoute: false,submenu: false },
-          { label: "Variant Attributes", link: "/variant-attributes", icon:  <Icon.Layers />,showSubRoute: false,submenu: false },
-          { label: "Warranties", link: "/warranty", icon:  <Icon.Bookmark />,showSubRoute: false,submenu: false },
           { label: "Print Barcode", link: "/barcode", icon: <Icon.AlignJustify />, showSubRoute: false,submenu: false },
           { label: "Print QR Code", link: "/qrcode", icon:  <Icon.Maximize  />,showSubRoute: false,submenu: false }
         ]
@@ -119,8 +115,8 @@ export const SidebarData = [
           { label: "Purchase Return", link: "/purchase-returns", icon:  <Icon.RefreshCw />,showSubRoute: false,submenu: false }
         ]
       },
-    
-    
+
+
 
     {
         label: "Finance & Accounts",
@@ -146,16 +142,16 @@ export const SidebarData = [
         submenuOpen: true,
         showSubRoute: false,
         submenuHdr: "People",
-      
+
         submenuItems: [
           { label: "Customers", link: "/customers", icon:<Icon.User />,showSubRoute: false,submenu: false },
           { label: "Suppliers", link: "/suppliers", icon:  <Icon.Users />,showSubRoute: false, submenu: false },
           { label: "Stores", link: "/store-list", icon:  <Icon.Home  />,showSubRoute: false,submenu: false },
           { label: "Warehouses", link: "/warehouse", icon: <Icon.Archive />,showSubRoute: false,submenu: false },
-     
+
         ]
       },
-      
+
       {
         label: "HRM",
         submenuOpen: true,
@@ -168,7 +164,7 @@ export const SidebarData = [
           { label: "Shifts", link: "/shift", icon: <Icon.Shuffle />,showSubRoute: false },
 
           { label: "Attendance", link: "#", icon: <Icon.Clock />,showSubRoute: false, submenu: true,
-          
+
           submenuItems: [
             { label: "Employee", link: "/attendance-employee" },
             { label: "Admin", link: "/attendance-admin" },
@@ -186,7 +182,7 @@ export const SidebarData = [
             // { label: "Employee Salary", link: "payroll-list" },
             { label: "Payslip", link: "/payslip" },
           ] },
-          
+
         ],
       },
       {
@@ -328,8 +324,8 @@ export const SidebarData = [
         showSubRoute: false,
         submenuHdr: "Settings",
         submenuItems: [
-          { label: "General Settings", 
-          submenu: true, 
+          { label: "General Settings",
+          submenu: true,
           showSubRoute: false,
           icon: <Icon.Settings/>,
           submenuItems: [
@@ -338,7 +334,7 @@ export const SidebarData = [
             { label: "Notifications", link: "/notification" },
             { label: "Connected Apps", link: "/connected-apps" }
           ]},
-          { label: "Website Settings", submenu: true, 
+          { label: "Website Settings", submenu: true,
           showSubRoute: false,
           icon: <Icon.Globe/>,
           submenuItems: [
@@ -351,7 +347,7 @@ export const SidebarData = [
             { label: "Social Authentication", link: "/social-authentication",showSubRoute: false },
             { label: "Language", link: "/language-settings" ,showSubRoute: false}
           ]},
-          { label: "App Settings", submenu: true, 
+          { label: "App Settings", submenu: true,
 
           showSubRoute: false,
           icon: <Icon.Smartphone/>,
@@ -361,7 +357,7 @@ export const SidebarData = [
             { label: "POS", link: "/pos-settings",showSubRoute: false },
             { label: "Custom Fields", link: "/custom-fields",showSubRoute: false }
           ]},
-          { label: "System Settings", submenu: true, 
+          { label: "System Settings", submenu: true,
           showSubRoute: false,
           icon: <Icon.Monitor/>,
           submenuItems: [
@@ -370,7 +366,7 @@ export const SidebarData = [
             { label: "OTP", link: "/otp-settings",showSubRoute: false },
             { label: "GDPR Cookies", link: "/gdpr-settings",showSubRoute: false }
           ]},
-          { label: "Financial Settings", submenu: true, 
+          { label: "Financial Settings", submenu: true,
           showSubRoute: false,
           icon: <Icon.DollarSign/>,
           submenuItems: [
@@ -379,7 +375,7 @@ export const SidebarData = [
             { label: "Tax Rates", link: "/tax-rates",showSubRoute: false },
             { label: "Currencies", link: "/currency-settings",showSubRoute: false }
           ]},
-          { label: "Other Settings", submenu: true, 
+          { label: "Other Settings", submenu: true,
           showSubRoute: false,
           icon: <Icon.Hexagon/>,
           submenuItems: [
@@ -389,7 +385,7 @@ export const SidebarData = [
           { label: "Logout", link: "/signin", icon:  <Icon.LogOut />,showSubRoute: false }
         ]
       },
-      
+
 
       {
         label: 'UI Interface',
@@ -564,7 +560,7 @@ export const SidebarData = [
           }
         ]
       }
-      
+
 
 
 ]

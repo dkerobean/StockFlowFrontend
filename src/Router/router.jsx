@@ -21,7 +21,6 @@ const HeaderLayout = () => {
       <Header />
       <Sidebar />
       <Outlet /> {/* Nested routes render here */}
-      <ThemeSettings />
       <Loader />
     </div>
   );
@@ -34,7 +33,6 @@ const AuthpagesLayout = () => {
     <div className={data ? "header-collapse" : ""}>
       <Outlet /> {/* Signin, Register etc. render here */}
       <Loader />
-      <ThemeSettings />
     </div>
   );
 };
@@ -46,7 +44,6 @@ const PospagesLayout = () => {
       <Header /> {/* Consider if POS needs a different header */}
       <Outlet /> {/* Nested POS routes render here */}
       <Loader />
-      <ThemeSettings />
     </div>
   );
 };
