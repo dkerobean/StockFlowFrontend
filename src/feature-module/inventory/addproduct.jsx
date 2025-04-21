@@ -163,7 +163,7 @@ const AddProduct = () => {
 
     // --- Form Submission Logic ---
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default browser form submission
+        e.preventDefault();
         setIsSubmitting(true);
         const authHeader = getAuthHeader();
         if (!authHeader) {
@@ -173,126 +173,122 @@ const AddProduct = () => {
             return;
         }
 
-        // --- Parse numeric fields for validation & submission ---
-        const parsedPrice = parseFloat(price);
-        const parsedQuantity = parseInt(initialQuantity); // Allow 0
-        const parsedMinStock = parseInt(minStock) >= 0 ? parseInt(minStock) : 0; // Default to 0 if invalid/negative
-        const parsedNotifyAt = parseInt(notifyAt) >= 0 ? parseInt(notifyAt) : parsedMinStock; // Default to parsedMinStock if invalid/negative
+        // --- Parse numeric fields ---
+        // Use Number() which handles empty strings as 0, but check for NaN
+        const parsedPrice = Number(price);
+        // Allow 0 quantity, treat empty string or invalid as potential error or 0 depending on backend logic
+        const parsedQuantityInput = initialQuantity.trim() === '' ? 0 : Number(initialQuantity); // Treat empty as 0
+        const parsedMinStock = Number(minStock) >= 0 ? Number(minStock) : 5; // Default 5 if invalid/negative
+        const parsedNotifyAt = Number(notifyAt) >= 0 ? Number(notifyAt) : parsedMinStock; // Default to parsedMinStock
 
         // --- Client-side Validation ---
-        if (!productName || !price || !selectedCategory || !sku || !selectedLocation || initialQuantity === '') {
-            toast.error("Please fill all required fields (*).");
+        // Require location ONLY IF initial quantity > 0 or other inventory fields are set?
+        // For simplicity, let's require location if ANY inventory field is touched, or just always require it if the section is shown.
+        // OR: Backend handles validation based on presence of locationId.
+        // Let's simplify frontend validation: ensure required product fields are set.
+        if (!productName || !price || !selectedCategory || !sku ) {
+            toast.error("Please fill all required product fields (*).");
             setIsSubmitting(false);
             return;
         }
+         // Require location IF initial quantity is provided and > 0 (or just always if you want inventory record)
+         if ((initialQuantity.trim() !== '' && Number(initialQuantity) > 0) && !selectedLocation) {
+             toast.error("Please select a location to add initial stock.");
+             setIsSubmitting(false);
+             return;
+         }
+        // If initial quantity is 0 or empty, location might be optional depending on desired workflow.
+        // Let's require location if the user intends to set ANY initial stock info (even 0).
+        if ((initialQuantity.trim() !== '' || minStock.trim() !== '' || notifyAt.trim() !== '' || expiryDate) && !selectedLocation) {
+            toast.error("Please select a location when providing initial stock details.");
+            setIsSubmitting(false);
+            return;
+        }
+
+
         if (isNaN(parsedPrice) || parsedPrice <= 0) {
-             toast.error("Selling Price must be a positive number.");
-             setIsSubmitting(false);
-             return;
+            toast.error("Selling Price must be a positive number.");
+            setIsSubmitting(false); return;
         }
-        if (isNaN(parsedQuantity) || parsedQuantity < 0) {
+         // Validate parsed quantity input if it's not empty
+         if (initialQuantity.trim() !== '' && (isNaN(parsedQuantityInput) || parsedQuantityInput < 0)) {
              toast.error("Initial Quantity must be a non-negative number (0 or more).");
-             setIsSubmitting(false);
-             return;
-        }
-        // Note: MinStock and NotifyAt validation already handled during parsing.
+             setIsSubmitting(false); return;
+         }
+        // MinStock/NotifyAt validation handled by defaulting
 
 
         let finalImageUrl = imageUrl;
 
-        // --- *** START: Actual Image Upload Logic *** ---
+        // --- Image Upload Logic (no changes needed here) ---
         if (imageFile) {
             const formData = new FormData();
-            // IMPORTANT: 'productImage' must match upload.single('productImage') in backend
             formData.append('productImage', imageFile);
-
             try {
-                toast.info("Uploading image..."); // Inform user
+                toast.info("Uploading image...");
                 const uploadRes = await axios.post(`${API_URL}/upload/product-image`, formData, {
-                    headers: {
-                        ...authHeader, // Include auth token
-                        'Content-Type': 'multipart/form-data', // Important for file uploads
-                    },
+                    headers: { ...authHeader, 'Content-Type': 'multipart/form-data' },
                 });
-
-                finalImageUrl = uploadRes.data.imageUrl; // Get the permanent URL from the backend response
-                toast.dismiss(); // Dismiss the 'Uploading...' toast
+                finalImageUrl = uploadRes.data.imageUrl;
+                toast.dismiss();
                 toast.success("Image uploaded successfully!");
-
             } catch (uploadError) {
                 console.error("Image upload failed:", uploadError.response ? uploadError.response.data : uploadError);
-                const errorMsg = uploadError.response?.data?.message || "Image upload failed. Please try again.";
-                toast.error(errorMsg);
-                setIsSubmitting(false); // Stop submission if upload fails
-                return;
+                toast.error(uploadError.response?.data?.message || "Image upload failed.");
+                setIsSubmitting(false); return; // Stop if upload fails
             }
         }
-        // --- *** END: Actual Image Upload Logic *** ---
 
-
-
-
-
-        // --- Prepare Product Data Payload ---
-        const productData = {
+        // --- Prepare ONE Payload for Product Creation ---
+        const payload = {
+            // Product fields
             name: productName.trim(),
             description: description.trim(),
-            price: parsedPrice, // Use parsed numeric value
+            price: parsedPrice,
             sku: sku.trim(),
-            barcode: barcode ? barcode.trim() : null, // Send null if empty, backend allows sparse
+            barcode: barcode ? barcode.trim() : null,
             category: selectedCategory.value, // Send ObjectId (_id)
-            brand: selectedBrand ? selectedBrand.value : null, // Send ObjectId or null
-            imageUrl: finalImageUrl || '', // Use the final uploaded URL or empty string
-            // `createdBy` will be set by the backend using the authenticated user from the token
+            brand: selectedBrand ? selectedBrand.value : null,
+            imageUrl: finalImageUrl || '',
+            // isActive: true, // Backend defaults to true
+
+            // Initial Inventory fields (only if location is selected)
+            locationId: selectedLocation ? selectedLocation.value : null,
+            initialQuantity: selectedLocation ? parsedQuantityInput : null, // Send parsed number or null
+            expiryDate: selectedLocation ? expiryDate : null,           // Send ISO string or null
+            minStock: selectedLocation ? parsedMinStock : null,         // Send parsed number or null
+            notifyAt: selectedLocation ? parsedNotifyAt : null,         // Send parsed number or null
         };
 
+        // Filter out null inventory fields if no location was selected (optional, backend handles null locationId)
+        // if (!payload.locationId) {
+        //     delete payload.initialQuantity;
+        //     delete payload.expiryDate;
+        //     delete payload.minStock;
+        //     delete payload.notifyAt;
+        // }
+
+
         try {
-            // --- Step 1: Create the Product Definition ---
-            const productResponse = await axios.post(`${API_URL}/products`, productData, { headers: authHeader });
-            const createdProduct = productResponse.data;
-            toast.success(`Product "${createdProduct.name}" created successfully!`);
+            // --- *** Make SINGLE API Call to Create Product (and optionally Inventory) *** ---
+            const response = await axios.post(`${API_URL}/products`, payload, { headers: authHeader });
 
-            // --- Step 2: Create Initial Inventory Record (if location selected) ---
-            // Create inventory record even if quantity is 0, to establish the product at that location
-            if (selectedLocation && parsedQuantity >= 0) {
-                const inventoryData = {
-                    product: createdProduct._id,       // Link to the newly created product's ID
-                    location: selectedLocation.value, // Link to the selected location's ID
-                    quantity: parsedQuantity,          // Use parsed numeric value (can be 0)
-                    expiryDate: expiryDate || null,      // Optional: Use ISO string or null
-                    minStock: parsedMinStock,          // Use parsed numeric value
-                    notifyAt: parsedNotifyAt,          // Use parsed numeric value
-                    // Add audit log info on the backend if needed for 'initial_stock'
-                };
-
-                try {
-                    await axios.post(`${API_URL}/inventory`, inventoryData, { headers: authHeader });
-                    if (parsedQuantity > 0) {
-                         toast.info(`Added ${inventoryData.quantity} units to ${selectedLocation.label}.`);
-                    } else {
-                        toast.info(`Inventory record created with 0 stock at ${selectedLocation.label}.`);
-                    }
-                } catch (inventoryError) {
-                    console.error("Error creating initial inventory record:", inventoryError.response ? inventoryError.response.data : inventoryError);
-                    // Product was created, but inventory failed. Inform user.
-                    toast.warn(`Product created, but failed to add initial stock. Please add stock manually via Inventory Management. Error: ${inventoryError.response?.data?.message || inventoryError.message}`);
-                }
-            }
+            // Use the message from the backend response
+            toast.success(response.data.message || `Product "${response.data.product?.name || 'New Product'}" created successfully!`);
 
             // --- Success: Navigate to Product List ---
-            navigate(route.productlist); // Redirect after successful creation
+            navigate(route.productlist);
 
         } catch (error) {
-            console.error("Error during product creation process:", error.response ? error.response.data : error);
+            console.error("Error during product creation:", error.response ? error.response.data : error);
+            // Display specific error from backend if available
             toast.error(`Failed to create product: ${error.response?.data?.message || error.message}`);
-            // Handle specific errors like duplicate SKU/Barcode if the backend sends distinct messages
-             if (error.response && error.response.status === 401) {
-                 toast.error("Authentication error. Please log in again.");
+            if (error.response && error.response.status === 401) {
                  localStorage.removeItem('token');
                  navigate(route.login);
              }
         } finally {
-            setIsSubmitting(false); // Re-enable the submit button
+            setIsSubmitting(false);
         }
     };
 

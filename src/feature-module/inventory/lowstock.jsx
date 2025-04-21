@@ -1,170 +1,223 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ImageWithBasePath from '../../core/img/imagewithbasebath';
-import { Archive, Box, ChevronUp, Mail, RotateCcw, Sliders, Zap } from 'feather-icons-react/build/IconComponents';
-import { useDispatch, useSelector } from 'react-redux';
-import { setToogleHeader } from '../../core/redux/action';
+import { Archive, Box, ChevronUp, Mail, RotateCcw, Sliders, Zap, Edit } from 'feather-icons-react'; // Import specific icons
+import { useDispatch, useSelector } from 'react-redux'; // Keep for header toggle if needed
+import { setToogleHeader } from '../../core/redux/action'; // Keep for header toggle if needed
 import Select from 'react-select';
 import { Filter } from 'react-feather';
-import EditLowStock from '../../core/modals/inventory/editlowstock';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
-import Table from '../../core/pagination/datatable'
+// import EditLowStock from '../../core/modals/inventory/editlowstock'; // Keep if you have this modal and want to use it
+import Table from '../../core/pagination/datatable';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
+// Feather Icon Helper
+const FeatherIcon = ({ icon, ...props }) => {
+    const IconComponent = icon;
+    return <IconComponent {...props} />;
+};
 
 const LowStock = () => {
-
+    // Redux state for header toggle (keep if needed)
     const dispatch = useDispatch();
-    const data = useSelector((state) => state.toggle_header);
-    const dataSource = useSelector((state) => state.lowstock_data);
+    const redux_data = useSelector((state) => state.toggle_header); // Renamed to avoid conflict
+
+    // Component State
+    const [lowStockItems, setLowStockItems] = useState([]);
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+    const [loadingLow, setLoadingLow] = useState(true);
+    const [loadingOut, setLoadingOut] = useState(true);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    // const [editingItem, setEditingItem] = useState(null); // State for editing modal if used
+
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    // --- Fetching Functions ---
+    const fetchLowStock = async () => {
+        setLoadingLow(true);
+        try {
+            const response = await axios.get(`${API_URL}/inventory/low-stock`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setLowStockItems(response.data || []);
+        } catch (error) {
+            console.error("Error fetching low stock items:", error);
+            toast.error(error.response?.data?.message || "Failed to load low stock items");
+            setLowStockItems([]);
+        } finally {
+            setLoadingLow(false);
+        }
+    };
+
+    const fetchOutOfStock = async () => {
+        setLoadingOut(true);
+        try {
+            const response = await axios.get(`${API_URL}/inventory/out-of-stock`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setOutOfStockItems(response.data || []);
+        } catch (error) {
+            console.error("Error fetching out of stock items:", error);
+            toast.error(error.response?.data?.message || "Failed to load out of stock items");
+            setOutOfStockItems([]);
+        } finally {
+            setLoadingOut(false);
+        }
+    };
+
+    // Fetch data on component mount
+    useEffect(() => {
+        fetchLowStock();
+        fetchOutOfStock();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // --- Handlers ---
     const toggleFilterVisibility = () => {
         setIsFilterVisible((prevVisibility) => !prevVisibility);
     };
 
-    const oldandlatestvalue = [
-        { value: 'date', label: 'Sort by Date' },
-        { value: 'newest', label: 'Newest' },
-        { value: 'oldest', label: 'Oldest' },
-    ];
-    const productlist = [
-        { value: 'chooseProduct', label: 'Choose Product' },
-        { value: 'lenovo3rdGen', label: 'Lenovo 3rd Generation' },
-        { value: 'nikeJordan', label: 'Nike Jordan' },
-        { value: 'amazonEchoDot', label: 'Amazon Echo Dot' },
-    ];
-    const category = [
-        { value: 'chooseCategory', label: 'Choose Category' },
-        { value: 'laptop', label: 'Laptop' },
-        { value: 'shoe', label: 'Shoe' },
-        { value: 'speaker', label: 'Speaker' },
-    ];
-    const warehouse = [
-        { value: 'chooseWarehouse', label: 'Choose Warehouse' },
-        { value: 'lavishWarehouse', label: 'Lavish Warehouse' },
-        { value: 'lobarHandy', label: 'Lobar Handy' },
-        { value: 'traditionalWarehouse', label: 'Traditional Warehouse' },
-    ];
-    const renderTooltip = (props) => (
-        <Tooltip id="pdf-tooltip" {...props}>
-            Pdf
-        </Tooltip>
-    );
-    const renderExcelTooltip = (props) => (
-        <Tooltip id="excel-tooltip" {...props}>
-            Excel
-        </Tooltip>
-    );
-    const renderPrinterTooltip = (props) => (
-        <Tooltip id="printer-tooltip" {...props}>
-            Printer
-        </Tooltip>
-    );
-    const renderRefreshTooltip = (props) => (
-        <Tooltip id="refresh-tooltip" {...props}>
-            Refresh
-        </Tooltip>
-    );
-    const renderCollapseTooltip = (props) => (
-        <Tooltip id="refresh-tooltip" {...props}>
-            Collapse
-        </Tooltip>
-    );
+    // Edit Modal Handling (Keep if EditLowStock modal is implemented)
+    // const handleEditClick = (item) => {
+    //     setEditingItem(item);
+    //     const modalElement = document.getElementById(`edit-stock-${item._id}`); // Ensure modal has dynamic ID
+    //     if (modalElement) {
+    //         const bsModal = new bootstrap.Modal(modalElement);
+    //         bsModal.show();
+    //     }
+    // };
+    // const handleEditModalClose = () => setEditingItem(null);
+    // const handleUpdateSuccess = () => {
+    //     fetchLowStock(); // Re-fetch low stock after potential update
+    //     handleEditModalClose();
+    // };
 
-    const columns = [
+    // --- Tooltip Renderers ---
+    const renderTooltip = (props, text) => (<Tooltip {...props}>{text}</Tooltip>);
+
+    // --- Column Definitions ---
+    // Columns for Low Stock Table
+    const columnsLow = [
         {
-            title: "Warehouse",
-            dataIndex: "warehouse",
-         
-            sorter: (a, b) => a.warehouse.length - b.warehouse.length,
-            width: "5%"
-        },
-        {
-            title: "Store",
-            dataIndex: "store",
-            sorter: (a, b) => a.store.length - b.store.length,
+            title: "Location",
+            dataIndex: ['location', 'name'], // Access nested data
+            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
+            render: (name) => name || 'N/A',
         },
         {
             title: "Product",
-            dataIndex: "product",
-            render: (text, record) => (
+            // dataIndex: ['product', 'name'], // Can't use dataIndex with custom render easily here
+            render: (record) => ( // Use record from render param
                 <span className="productimgname">
                     <Link to="#" className="product-img stock-img">
-                        <ImageWithBasePath alt="" src={record.img} />
+                        {/* Use actual image URL from product */}
+                        <ImageWithBasePath
+                            src={record.product?.imageUrl || 'assets/img/products/product1.jpg'} // Fallback image
+                            alt={record.product?.name || ''}
+                         />
                     </Link>
-                    {text}
+                    <Link to={`/products/view/${record.product?._id}`}> {/* Optional: Link to product details */}
+                     {record.product?.name || 'N/A'}
+                    </Link>
                 </span>
             ),
-            sorter: (a, b) => a.product.length - b.product.length,
+            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
+        },
+        // { // Category might require extra population or be omitted
+        //     title: "Category",
+        //     dataIndex: ['product', 'category', 'name'], // Requires category to be populated with name
+        //     sorter: (a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''),
+        //      render: (name) => name || 'N/A',
+        // },
+        {
+            title: "SKU",
+            dataIndex: ['product', 'sku'],
+            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
+            render: (sku) => sku || 'N/A',
         },
         {
-            title: "Category",
-            dataIndex: "category",
-            sorter: (a, b) => a.category.length - b.category.length,
+            title: "Current Qty",
+            dataIndex: 'quantity',
+            sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0), // Numeric sort, handle null/undefined
+             render: (qty) => qty ?? 0, // Display 0 if null/undefined
         },
         {
-            title: "SkU",
-            dataIndex: "sku",
-            sorter: (a, b) => a.sku.length - b.sku.length,
+            title: "Notify Qty",
+            dataIndex: 'notifyAt',
+            sorter: (a, b) => (a.notifyAt ?? 0) - (b.notifyAt ?? 0), // Numeric sort
+             render: (qty) => qty ?? 0,
+        },
+        // { // Actions column - Edit removed as purpose is unclear, Delete is wrong
+        //     title: 'Actions',
+        //     key: 'actions',
+        //     render: (record) => (
+        //         <td className="action-table-data">
+        //             <div className="edit-delete-action">
+        //                 <button className="me-2 p-2 btn btn-link action-icon" onClick={() => handleEditClick(record)}>
+        //                     <FeatherIcon icon={Edit} size={16}/>
+        //                 </button>
+        //                 {/* Delete action doesn't make sense here */}
+        //             </div>
+        //         </td>
+        //     )
+        // },
+    ];
+
+    // Columns for Out of Stock Table (Simplified - no notify qty, no actions)
+    const columnsOut = [
+         {
+            title: "Location",
+            dataIndex: ['location', 'name'],
+            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
+             render: (name) => name || 'N/A',
+        },
+        {
+            title: "Product",
+            render: (record) => (
+                <span className="productimgname">
+                    <Link to="#" className="product-img stock-img">
+                         <ImageWithBasePath
+                             src={record.product?.imageUrl || 'assets/img/products/product1.jpg'}
+                             alt={record.product?.name || ''}
+                          />
+                    </Link>
+                     <Link to={`/products/view/${record.product?._id}`}>
+                        {record.product?.name || 'N/A'}
+                     </Link>
+                </span>
+            ),
+            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
+        },
+        {
+            title: "SKU",
+            dataIndex: ['product', 'sku'],
+            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
+             render: (sku) => sku || 'N/A',
         },
         {
             title: "Qty",
-            dataIndex: "qty",
-            sorter: (a, b) => a.qty.length - b.qty.length,
+            dataIndex: 'quantity',
+             sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0),
+              render: (qty) => qty ?? 0,
         },
-        {
-            title: "Qty Alert",
-            dataIndex: "qtyalert",
-            sorter: (a, b) => a.qtyalert.length - b.qtyalert.length,
-        },
+         { // Indicate if product/location itself is inactive
+            title: "Status",
+            render: (record) => (
+                <>
+                    {!record.product?.isActive && <span className="badge badge-linedanger me-1">Product Inactive</span>}
+                    {!record.location?.isActive && <span className="badge badge-linedanger">Location Inactive</span>}
+                    {record.product?.isActive && record.location?.isActive && <span className="badge badge-linesuccess">Active</span>}
+                </>
+            ),
+        }
+    ];
 
-        {
-            title: 'Actions',
-            dataIndex: 'actions',
-            key: 'actions',
-            render: () => (
-                <td className="action-table-data">
-                    <div className="edit-delete-action">
-                        <Link className="me-2 p-2" to="#" data-bs-toggle="modal" data-bs-target="#edit-stock">
-                            <i data-feather="edit" className="feather-edit"></i>
-                        </Link>
-                        <Link className="confirm-text p-2" to="#"  >
-                            <i data-feather="trash-2" className="feather-trash-2" onClick={showConfirmationAlert}></i>
-                        </Link>
-                    </div>
-                </td>
-            )
-        },
-    ]
-    const MySwal = withReactContent(Swal);
-
-    const showConfirmationAlert = () => {
-        MySwal.fire({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            showCancelButton: true,
-            confirmButtonColor: '#00ff00',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonColor: '#ff0000',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                MySwal.fire({
-                    title: 'Deleted!',
-                    text: 'Your file has been deleted.',
-                    className: "btn btn-success",
-                    confirmButtonText: 'OK',
-                    customClass: {
-                        confirmButton: 'btn btn-success',
-                    },
-                });
-            } else {
-                MySwal.close();
-            }
-
-        });
-    };
+     // Filter Options - Replace with dynamic data if needed
+     const productlist = [{ value: 'all', label: 'All Products' }];
+     const category = [{ value: 'all', label: 'All Categories' }];
+     const warehouse = [{ value: 'all', label: 'All Locations' }];
+     const oldandlatestvalue = [{ value: 'newest', label: 'Newest' }];
 
 
     return (
@@ -173,313 +226,124 @@ const LowStock = () => {
                 <div className="content">
                     <div className="page-header">
                         <div className="page-title me-auto">
-                            <h4>Low Stocks</h4>
-                            <h6>Manage your low stocks</h6>
+                            <h4>Stock Alerts</h4>
+                            <h6>Manage low and out of stock items</h6>
                         </div>
                         <ul className="table-top-head">
+                            {/* Notify Toggle & Send Email Button - UI only for now */}
                             <li>
                                 <div className="status-toggle d-flex justify-content-between align-items-center">
-                                    <input type="checkbox" id="user2" className="check" defaultChecked="true" />
-                                    <label htmlFor="user2" className="checktoggle">
-                                        checkbox
-                                    </label>
+                                    <input type="checkbox" id="notifyCheck" className="check"/>
+                                    <label htmlFor="notifyCheck" className="checktoggle me-2">checkbox</label>
                                     Notify
                                 </div>
                             </li>
                             <li>
-                                <Link
-                                    to=""
-                                    className="btn btn-secondary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#send-email"
-                                >
-
-                                    <Mail className="feather-mail" />
+                                <button type="button" className="btn btn-secondary">
+                                    <FeatherIcon icon={Mail} className="feather-mail me-1" size={16}/>
                                     Send Email
-                                </Link>
+                                </button>
                             </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderTooltip}>
-                                    <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderPrinterTooltip}>
-
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <i data-feather="printer" className="feather-printer" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
-
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <RotateCcw />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
-
-                                    <Link
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        id="collapse-header"
-                                        className={data ? "active" : ""}
-                                        onClick={() => { dispatch(setToogleHeader(!data)) }}
-                                    >
-                                        <ChevronUp />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
+                            {/* Standard Icons */}
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'PDF')}><Link to="#"><ImageWithBasePath src="assets/img/icons/pdf.svg" alt="PDF" /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Excel')}><Link to="#"><ImageWithBasePath src="assets/img/icons/excel.svg" alt="Excel" /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Print')}><Link to="#"><FeatherIcon icon={Sliders} /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Refresh')}><Link to="#" onClick={() => { fetchLowStock(); fetchOutOfStock(); }}><FeatherIcon icon={RotateCcw} /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Collapse')}><Link to="#" id="collapse-header" className={redux_data ? "active" : ""} onClick={() => { dispatch(setToogleHeader(!redux_data)); }}><FeatherIcon icon={ChevronUp} /></Link></OverlayTrigger></li>
                         </ul>
                     </div>
+
+                    {/* Tabs */}
                     <div className="table-tab">
                         <ul className="nav nav-pills" id="pills-tab" role="tablist">
                             <li className="nav-item" role="presentation">
-                                <button
-                                    className="nav-link active"
-                                    id="pills-home-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#pills-home"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="pills-home"
-                                    aria-selected="true"
-                                >
+                                <button className="nav-link active" id="pills-low-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-low-stock" type="button" role="tab" aria-controls="pills-low-stock" aria-selected="true">
                                     Low Stocks
                                 </button>
                             </li>
                             <li className="nav-item" role="presentation">
-                                <button
-                                    className="nav-link"
-                                    id="pills-profile-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#pills-profile"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="pills-profile"
-                                    aria-selected="false"
-                                >
+                                <button className="nav-link" id="pills-out-of-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-out-of-stock" type="button" role="tab" aria-controls="pills-out-of-stock" aria-selected="false">
                                     Out of Stocks
                                 </button>
                             </li>
                         </ul>
+
+                        {/* Tab Content */}
                         <div className="tab-content" id="pills-tabContent">
-                            <div
-                                className="tab-pane fade show active"
-                                id="pills-home"
-                                role="tabpanel"
-                                aria-labelledby="pills-home-tab"
-                            >
-                                {/* /product list */}
+                            {/* Low Stock Pane */}
+                            <div className="tab-pane fade show active" id="pills-low-stock" role="tabpanel" aria-labelledby="pills-low-stock-tab">
                                 <div className="card table-list-card">
                                     <div className="card-body">
+                                        {/* Common Table Top Structure */}
                                         <div className="table-top">
-                                            <div className="search-set">
-                                                <div className="search-input">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search"
-                                                        className="form-control form-control-sm formsearch"
-                                                    />
-                                                    <Link to className="btn btn-searchset">
-                                                        <i data-feather="search" className="feather-search" />
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                            <div className="search-path">
-                                                <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                                    <Filter
-                                                        className="filter-icon"
-                                                        onClick={toggleFilterVisibility}
-                                                    />
-                                                    <span onClick={toggleFilterVisibility}>
-                                                        <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
-                                                    </span>
-                                                </Link>
-                                            </div>
-                                            <div className="form-sort">
-                                                <Sliders className="info-img" />
-                                                <Select
-                                                    className="select"
-                                                    options={oldandlatestvalue}
-                                                    placeholder="Newest"
-                                                />
-                                            </div>
+                                            <div className="search-set"><div className="search-input"><input type="text" placeholder="Search..." className="form-control form-control-sm formsearch"/><Link to="#" className="btn btn-searchset"><FeatherIcon icon={Filter}/></Link></div></div>
+                                            <div className="search-path"><button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility}><FeatherIcon icon={Filter} className="filter-icon"/><span><ImageWithBasePath src="assets/img/icons/closes.svg" alt="Close"/></span></button></div>
+                                            <div className="form-sort"><FeatherIcon icon={Sliders} className="info-img"/><Select className="select" options={oldandlatestvalue} placeholder="Sort by..."/></div>
                                         </div>
-                                        {/* /Filter */}
-                                        <div
-                                            className={`card${isFilterVisible ? " visible" : ""}`}
-                                            id="filter_inputs"
-                                            style={{ display: isFilterVisible ? "block" : "none" }}
-                                        >                                            <div className="card-body pb-0">
-                                                <div className="row">
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <Box className="info-img" />
-                                                            <Select options={productlist} className="select" placeholder="Choose Product" />
-
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <i data-feather="zap" className="info-img" />
-                                                            <Zap className="info-img" />
-                                                            <Select options={category} className="select" placeholder="Choose Product" />
-
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <Archive className="info-img" />
-                                                            <Select options={warehouse} className="select" placeholder="Choose Warehouse" />
-
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto">
-                                                        <div className="input-blocks">
-                                                            <Link className="btn btn-filters ms-auto">
-                                                                {" "}
-                                                                <i
-                                                                    data-feather="search"
-                                                                    className="feather-search"
-                                                                />{" "}
-                                                                Search{" "}
-                                                            </Link>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* /Filter */}
-                                        <div className="table-responsive">
-                                        <Table columns={columns} dataSource={dataSource} />
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* /product list */}
-                            </div>
-                            <div
-                                className="tab-pane fade"
-                                id="pills-profile"
-                                role="tabpanel"
-                                aria-labelledby="pills-profile-tab"
-                            >
-                                {/* /product list */}
-                                <div className="card table-list-card">
-                                    <div className="card-body">
-                                        <div className="table-top">
-                                            <div className="search-set">
-                                                <div className="search-input">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search"
-                                                        className="form-control form-control-sm formsearch"
-                                                    />
-                                                    <Link to className="btn btn-searchset">
-                                                        <i data-feather="search" className="feather-search" />
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                            <div className="search-path">
-                                            <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                            <Filter
-                                                className="filter-icon"
-                                                onClick={toggleFilterVisibility}
-                                            />
-                                            <span onClick={toggleFilterVisibility}>
-                                                <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
-                                            </span>
-                                        </Link>
-                                            </div>
-                                            <div className="form-sort">
-                                            <Sliders className="info-img" />
-                                            <Select
-                                                className="select"
-                                                options={oldandlatestvalue}
-                                                placeholder="Newest"
-                                            />
-                                            </div>
-                                        </div>
-                                        {/* /Filter */}
-                                        <div className="card" id="filter_inputs1">
+                                        {/* Filter Inputs */}
+                                        <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
                                             <div className="card-body pb-0">
                                                 <div className="row">
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <i data-feather="box" className="info-img" />
-                                                            <select className="select">
-                                                                <option>Choose Product</option>
-                                                                <option>Lenovo 3rd Generation </option>
-                                                                <option>Nike Jordan</option>
-                                                                <option>Amazon Echo Dot </option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <i data-feather="zap" className="info-img" />
-                                                            <select className="select">
-                                                                <option>Choose Category</option>
-                                                                <option>Laptop</option>
-                                                                <option>Shoe</option>
-                                                                <option>Speaker</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12">
-                                                        <div className="input-blocks">
-                                                            <i data-feather="archive" className="info-img" />
-                                                            <select className="select">
-                                                                <option>Choose Warehouse</option>
-                                                                <option>Lavish Warehouse </option>
-                                                                <option>Lobar Handy </option>
-                                                                <option>Traditional Warehouse </option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto">
-                                                        <div className="input-blocks">
-                                                            <Link className="btn btn-filters ms-auto">
-                                                                {" "}
-                                                                <i
-                                                                    data-feather="search"
-                                                                    className="feather-search"
-                                                                />{" "}
-                                                                Search{" "}
-                                                            </Link>
-                                                        </div>
-                                                    </div>
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Box} className="info-img"/><Select options={productlist} className="select" placeholder="Choose Product"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Zap} className="info-img"/><Select options={category} className="select" placeholder="Choose Category"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Archive} className="info-img"/><Select options={warehouse} className="select" placeholder="Choose Location"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto"><div className="input-blocks"><button type="button" className="btn btn-filters ms-auto"><FeatherIcon icon={Filter} className="me-1" size={16}/> Search </button></div></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        {/* /Filter */}
+                                        {/* Table */}
                                         <div className="table-responsive">
-                                            <Table columns={columns} dataSource={dataSource} />
-
+                                            <Table columns={columnsLow} dataSource={lowStockItems} loading={loadingLow} rowKey="_id" />
                                         </div>
                                     </div>
                                 </div>
-                                {/* /product list */}
+                            </div>
+
+                            {/* Out of Stock Pane */}
+                            <div className="tab-pane fade" id="pills-out-of-stock" role="tabpanel" aria-labelledby="pills-out-of-stock-tab">
+                                 <div className="card table-list-card">
+                                    <div className="card-body">
+                                        {/* Re-use common Table Top Structure */}
+                                        <div className="table-top">
+                                            <div className="search-set"><div className="search-input"><input type="text" placeholder="Search..." className="form-control form-control-sm formsearch"/><Link to="#" className="btn btn-searchset"><FeatherIcon icon={Filter}/></Link></div></div>
+                                            <div className="search-path"><button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility}><FeatherIcon icon={Filter} className="filter-icon"/><span><ImageWithBasePath src="assets/img/icons/closes.svg" alt="Close"/></span></button></div>
+                                            <div className="form-sort"><FeatherIcon icon={Sliders} className="info-img"/><Select className="select" options={oldandlatestvalue} placeholder="Sort by..."/></div>
+                                        </div>
+                                        {/* Re-use Filter Inputs Structure */}
+                                         <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
+                                            <div className="card-body pb-0">
+                                                {/* Filter fields here */}
+                                                <div className="row">
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Box} className="info-img"/><Select options={productlist} className="select" placeholder="Choose Product"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Zap} className="info-img"/><Select options={category} className="select" placeholder="Choose Category"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Archive} className="info-img"/><Select options={warehouse} className="select" placeholder="Choose Location"/></div></div>
+                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto"><div className="input-blocks"><button type="button" className="btn btn-filters ms-auto"><FeatherIcon icon={Filter} className="me-1" size={16}/> Search </button></div></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* Table */}
+                                        <div className="table-responsive">
+                                            <Table columns={columnsOut} dataSource={outOfStockItems} loading={loadingOut} rowKey="_id" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <EditLowStock />
+
+            {/* Render Edit modal conditionally if implemented */}
+            {/* {editingItem && (
+                <EditLowStock
+                    key={editingItem._id}
+                    inventoryItem={editingItem} // Pass the whole item or specific props
+                    onUpdate={handleUpdateSuccess}
+                    onModalClose={handleEditModalClose}
+                 />
+            )} */}
         </div>
     )
 }
 
-export default LowStock
+export default LowStock;

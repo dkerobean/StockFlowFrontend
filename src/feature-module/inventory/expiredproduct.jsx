@@ -1,148 +1,133 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ImageWithBasePath from '../../core/img/imagewithbasebath';
-import { ChevronUp, Filter, RotateCcw, Sliders } from 'feather-icons-react/build/IconComponents';
-import { setToogleHeader } from '../../core/redux/action';
-import { useDispatch, useSelector } from 'react-redux';
+import { ChevronUp, Filter, RotateCcw, Sliders, Box } from 'feather-icons-react'; // Import specific icons
+import { setToogleHeader } from '../../core/redux/action'; // Keep if needed
+import { useDispatch, useSelector } from 'react-redux'; // Keep if needed
 import Select from 'react-select';
-import { Box } from 'react-feather';
+// Removed react-feather Box, using feather-icons-react Box
 import { DatePicker } from 'antd';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
-import Table from '../../core/pagination/datatable'
+// Removed Swal imports as delete action is removed
+import Table from '../../core/pagination/datatable';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
+// Feather Icon Helper
+const FeatherIcon = ({ icon, ...props }) => {
+    const IconComponent = icon;
+    return <IconComponent {...props} />;
+};
 
 const ExpiredProduct = () => {
-
+    // Redux state for header toggle (keep if needed)
     const dispatch = useDispatch();
-    const data = useSelector((state) => state.toggle_header);
-    const dataSource = useSelector((state) => state.expiredproduct_data);
+    const redux_data = useSelector((state) => state.toggle_header); // Renamed
 
+    // Component State
+    const [expiredItems, setExpiredItems] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null); // Filter state
+
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    // --- Fetching Function ---
+    const fetchExpiredItems = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_URL}/inventory/expired`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setExpiredItems(response.data || []);
+        } catch (error) {
+            console.error("Error fetching expired items:", error);
+            toast.error(error.response?.data?.message || "Failed to load expired items");
+            setExpiredItems([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch data on mount
+    useEffect(() => {
+        fetchExpiredItems();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // --- Handlers ---
     const toggleFilterVisibility = () => {
         setIsFilterVisible((prevVisibility) => !prevVisibility);
     };
-    const [selectedDate, setSelectedDate] = useState(new Date());
     const handleDateChange = (date) => {
-        setSelectedDate(date);
+        setSelectedDate(date); // Update filter state
+        // Add logic here to re-fetch data with date filter if needed
     };
 
-    const oldandlatestvalue = [
-        { value: 'date', label: 'Sort by Date' },
-        { value: 'newest', label: 'Newest' },
-        { value: 'oldest', label: 'Oldest' },
-    ];
+    // --- Tooltip Renderers ---
+    const renderTooltip = (props, text) => (<Tooltip {...props}>{text}</Tooltip>);
 
-    const brands = [
-        { value: 'chooseType', label: 'Choose Type' },
-        { value: 'lenovo3rdGen', label: 'Lenovo 3rd Generation' },
-        { value: 'nikeJordan', label: 'Nike Jordan' },
-    ];
-
-    const renderTooltip = (props) => (
-        <Tooltip id="pdf-tooltip" {...props}>
-            Pdf
-        </Tooltip>
-    );
-    const renderExcelTooltip = (props) => (
-        <Tooltip id="excel-tooltip" {...props}>
-            Excel
-        </Tooltip>
-    );
-    const renderPrinterTooltip = (props) => (
-        <Tooltip id="printer-tooltip" {...props}>
-            Printer
-        </Tooltip>
-    );
-    const renderRefreshTooltip = (props) => (
-        <Tooltip id="refresh-tooltip" {...props}>
-            Refresh
-        </Tooltip>
-    );
-    const renderCollapseTooltip = (props) => (
-        <Tooltip id="refresh-tooltip" {...props}>
-            Collapse
-        </Tooltip>
-    );
-
+    // --- Column Definitions ---
     const columns = [
-        {
+         {
             title: "Product",
-            dataIndex: "product",
-            render: (text, record) => (
+            // dataIndex: ['product', 'name'], // Not ideal with custom render
+            render: (record) => (
                 <span className="productimgname">
                     <Link to="#" className="product-img stock-img">
-                        <ImageWithBasePath alt="" src={record.img} />
+                         <ImageWithBasePath
+                             src={record.product?.imageUrl || 'assets/img/products/product1.jpg'} // Fallback
+                             alt={record.product?.name || ''}
+                          />
                     </Link>
-                    {text}
+                    <Link to={`/products/view/${record.product?._id}`}>
+                       {record.product?.name || 'N/A'}
+                     </Link>
                 </span>
             ),
-            sorter: (a, b) => a.product.length - b.product.length,
-            width: "5%"
+            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
+        },
+         { // Added Location column as required
+            title: "Location",
+            dataIndex: ['location', 'name'],
+            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
+            render: (name) => name || 'N/A',
         },
         {
             title: "SKU",
-            dataIndex: "sku",
-            sorter: (a, b) => a.sku.length - b.sku.length,
+            dataIndex: ['product', 'sku'],
+            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
+             render: (sku) => sku || 'N/A',
         },
-        {
-            title: "Manufactured Date",
-            dataIndex: "manufactureddate",
-            sorter: (a, b) => a.manufactureddate.length - b.manufactureddate.length,
+        { // Added Quantity column
+            title: "Expired Qty",
+            dataIndex: "quantity",
+            sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0),
+             render: (qty) => qty ?? 0,
         },
+        // { // Manufactured Date removed - not in model
+        //     title: "Manufactured Date",
+        //     dataIndex: "manufactureddate", // This field doesn't exist in model
+        // },
         {
             title: "Expired Date",
-            dataIndex: "expireddate",
-            sorter: (a, b) => a.expireddate.length - b.expireddate.length,
+            dataIndex: "expiryDate", // Correct field name from model
+            render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
+            sorter: (a, b) => new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0),
         },
-       
-        {
-            title: 'Actions',
-            dataIndex: 'actions',
-            key: 'actions',
-            render: () => (
-                <td className="action-table-data">
-                    <div className="edit-delete-action">
-                        <Link className="me-2 p-2" to="#">
-                            <i data-feather="edit" className="feather-edit"></i>
-                        </Link>
-                        <Link className="confirm-text p-2" to="#"  >
-                            <i data-feather="trash-2" className="feather-trash-2" onClick={showConfirmationAlert}></i>
-                        </Link>
-                    </div>
-                </td>
-            )
-        },
-    ]
-    const MySwal = withReactContent(Swal);
+        // Actions removed - Edit/Delete not appropriate for "expired" state itself
+        // {
+        //     title: 'Actions',
+        //     key: 'actions',
+        //     render: () => (...)
+        // },
+    ];
 
-    const showConfirmationAlert = () => {
-        MySwal.fire({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            showCancelButton: true,
-            confirmButtonColor: '#00ff00',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonColor: '#ff0000',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
+     // Filter Options - Replace with dynamic data if needed
+     const productFilterOptions = [{ value: 'all', label: 'All Products' }];
+     const oldandlatestvalue = [{ value: 'newest', label: 'Newest' }];
 
-                MySwal.fire({
-                    title: 'Deleted!',
-                    text: 'Your file has been deleted.',
-                    className: "btn btn-success",
-                    confirmButtonText: 'OK',
-                    customClass: {
-                        confirmButton: 'btn btn-success',
-                    },
-                });
-            } else {
-                MySwal.close();
-            }
 
-        });
-    };
     return (
         <div>
             <div className="page-wrapper">
@@ -155,93 +140,26 @@ const ExpiredProduct = () => {
                             </div>
                         </div>
                         <ul className="table-top-head">
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderTooltip}>
-                                    <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderPrinterTooltip}>
-
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <i data-feather="printer" className="feather-printer" />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
-
-                                    <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <RotateCcw />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
-                            <li>
-                                <OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
-
-                                    <Link
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        id="collapse-header"
-                                        className={data ? "active" : ""}
-                                        onClick={() => { dispatch(setToogleHeader(!data)) }}
-                                    >
-                                        <ChevronUp />
-                                    </Link>
-                                </OverlayTrigger>
-                            </li>
+                           {/* Standard Icons */}
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'PDF')}><Link to="#"><ImageWithBasePath src="assets/img/icons/pdf.svg" alt="PDF" /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Excel')}><Link to="#"><ImageWithBasePath src="assets/img/icons/excel.svg" alt="Excel" /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Print')}><Link to="#"><FeatherIcon icon={Sliders} /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Refresh')}><Link to="#" onClick={fetchExpiredItems}><FeatherIcon icon={RotateCcw} /></Link></OverlayTrigger></li>
+                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Collapse')}><Link to="#" id="collapse-header" className={redux_data ? "active" : ""} onClick={() => { dispatch(setToogleHeader(!redux_data)); }}><FeatherIcon icon={ChevronUp} /></Link></OverlayTrigger></li>
                         </ul>
                     </div>
                     {/* /product list */}
                     <div className="card table-list-card">
                         <div className="card-body">
-                            <div className="table-top">
-                                <div className="search-set">
-                                    <div className="search-input">
-                                        <input
-                                            type="text"
-                                            placeholder="Search"
-                                            className="form-control form-control-sm formsearch"
-                                        />
-                                        <Link to className="btn btn-searchset">
-                                            <i data-feather="search" className="feather-search" />
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="search-path">
-                                    <div className="d-flex align-items-center">
-                                        <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                            <Filter
-                                                className="filter-icon"
-                                                onClick={toggleFilterVisibility}
-                                            />
-                                            <span onClick={toggleFilterVisibility}>
-                                                <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
-                                            </span>
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="form-sort">
-                                    <Sliders className="info-img" />
-                                    <Select
-                                        className="select"
-                                        options={oldandlatestvalue}
-                                        placeholder="Newest"
-                                    />
-                                </div>
+                             {/* Common Table Top Structure */}
+                             <div className="table-top">
+                                <div className="search-set"><div className="search-input"><input type="text" placeholder="Search Expired Products..." className="form-control form-control-sm formsearch"/><Link to="#" className="btn btn-searchset"><FeatherIcon icon={Filter}/></Link></div></div>
+                                <div className="search-path"><button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility}><FeatherIcon icon={Filter} className="filter-icon"/><span><ImageWithBasePath src="assets/img/icons/closes.svg" alt="Close"/></span></button></div>
+                                <div className="form-sort"><FeatherIcon icon={Sliders} className="info-img"/><Select className="select" options={oldandlatestvalue} placeholder="Sort by..."/></div>
                             </div>
                             {/* /Filter */}
                             <div
-                                className={`card${isFilterVisible ? " visible" : ""}`}
+                                className={`card filter_card ${isFilterVisible ? " visible" : ""}`}
                                 id="filter_inputs"
                                 style={{ display: isFilterVisible ? "block" : "none" }}
                             >
@@ -249,33 +167,25 @@ const ExpiredProduct = () => {
                                     <div className="row">
                                         <div className="col-lg-3 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <Box className="info-img" />
-
-                                                <Select options={brands} className="select" placeholder="Choose Type" />
-
+                                                <FeatherIcon icon={Box} className="info-img" />
+                                                {/* Use product options if needed */}
+                                                <Select options={productFilterOptions} className="select" placeholder="Choose Product" />
                                             </div>
                                         </div>
                                         <div className="col-lg-3 col-sm-6 col-12">
+                                             {/* Date Picker for filtering by expiry date range potentially */}
                                             <div className="input-blocks">
-                                                <div className="input-groupicon">
-                                                    <DatePicker
-                                                        selected={selectedDate}
-                                                        onChange={handleDateChange}
-                                                        type="date"
-                                                        className="filterdatepicker"
-                                                        dateFormat="dd-MM-yyyy"
-                                                        placeholder='Choose Date'
-                                                    />
-                                                </div>
+                                                <DatePicker
+                                                    value={selectedDate} // Bind state
+                                                    onChange={handleDateChange}
+                                                    className="form-control" // Style consistency
+                                                    placeholder='Filter by Expiry Date'
+                                                />
                                             </div>
                                         </div>
                                         <div className="col-lg-3 col-sm-6 col-12 ms-auto">
                                             <div className="input-blocks">
-                                                <Link className="btn btn-filters ms-auto">
-                                                    {" "}
-                                                    <i data-feather="search" className="feather-search" />{" "}
-                                                    Search{" "}
-                                                </Link>
+                                                 <button type="button" className="btn btn-filters ms-auto"><FeatherIcon icon={Filter} className="me-1" size={16}/> Search </button>
                                             </div>
                                         </div>
                                     </div>
@@ -283,17 +193,15 @@ const ExpiredProduct = () => {
                             </div>
                             {/* /Filter */}
                             <div className="table-responsive">
-                            <Table columns={columns} dataSource={dataSource} />
-
+                            <Table columns={columns} dataSource={expiredItems} loading={loading} rowKey="_id" />
                             </div>
                         </div>
                     </div>
                     {/* /product list */}
                 </div>
             </div>
-
         </div>
     )
 }
 
-export default ExpiredProduct
+export default ExpiredProduct;
