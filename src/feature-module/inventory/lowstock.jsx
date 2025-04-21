@@ -1,207 +1,241 @@
-import React, { useState, useEffect } from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
-import { Archive, Box, ChevronUp, Mail, RotateCcw, Sliders, Zap, Edit } from 'feather-icons-react'; // Import specific icons
-import { useDispatch, useSelector } from 'react-redux'; // Keep for header toggle if needed
-import { setToogleHeader } from '../../core/redux/action'; // Keep for header toggle if needed
+import React, { useState, useEffect, useCallback } from 'react';
+import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap'; // Added Button
+import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { Filter } from 'react-feather';
-// import EditLowStock from '../../core/modals/inventory/editlowstock'; // Keep if you have this modal and want to use it
-import Table from '../../core/pagination/datatable';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// Feather Icon Helper
-const FeatherIcon = ({ icon, ...props }) => {
-    const IconComponent = icon;
-    return <IconComponent {...props} />;
+// Icons using feather-icons-react
+import {
+    Archive, Box, ChevronUp, Mail, RotateCcw, Sliders, Zap, Edit,
+    Filter, Search, X // Added Search, X
+} from 'feather-icons-react/build/IconComponents';
+
+// Redux (Keep if used for header toggle)
+import { useDispatch, useSelector } from 'react-redux';
+import { setToogleHeader } from '../../core/redux/action';
+
+// Core Components
+import ImageWithBasePath from '../../core/img/imagewithbasebath'; // Keep for header icons if used there
+import Table from '../../core/pagination/datatable'; // Your custom Table component
+
+// Routes and Config
+import { all_routes } from "../../Router/all_routes"; // Your route definitions
+const API_URL = process.env.REACT_APP_API_URL; // API base URL from .env
+const BACKEND_BASE_URL = API_URL ? API_URL.replace('/api', '') : ''; // Base URL for images
+
+// Helper function to get Auth Header
+const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error("Authentication token not found.");
+        return null;
+    }
+    return { Authorization: `Bearer ${token}` };
 };
 
-const LowStock = () => {
-    // Redux state for header toggle (keep if needed)
-    const dispatch = useDispatch();
-    const redux_data = useSelector((state) => state.toggle_header); // Renamed to avoid conflict
+// Custom styles for react-select (Optional, for consistency)
+const selectStyles = {
+    control: (baseStyles, state) => ({
+        ...baseStyles, minHeight: 'calc(1.5em + 0.75rem + 2px)', borderColor: state.isFocused ? '#86b7fe' : '#ced4da', boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)' : 'none', '&:hover': { borderColor: state.isFocused ? '#86b7fe' : '#adb5bd' },
+    }),
+    menu: base => ({ ...base, zIndex: 5 }),
+};
 
-    // Component State
+// Feather Icon Helper (if still needed elsewhere, otherwise can remove)
+// const FeatherIcon = ({ icon, ...props }) => {
+//     const IconComponent = icon;
+//     return <IconComponent {...props} />;
+// };
+
+const LowStock = () => {
+    const route = all_routes;
+    const navigate = useNavigate();
+    // Redux state for header toggle
+    const dispatch = useDispatch();
+    const redux_data = useSelector((state) => state.toggle_header);
+
+    // --- Component State ---
     const [lowStockItems, setLowStockItems] = useState([]);
     const [outOfStockItems, setOutOfStockItems] = useState([]);
     const [loadingLow, setLoadingLow] = useState(true);
     const [loadingOut, setLoadingOut] = useState(true);
+    const [errorLow, setErrorLow] = useState(null);
+    const [errorOut, setErrorOut] = useState(null);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
-    // const [editingItem, setEditingItem] = useState(null); // State for editing modal if used
+    const [isFetchingFilters, setIsFetchingFilters] = useState(false);
 
-    const API_URL = process.env.REACT_APP_API_URL;
+    // --- Filter State ---
+    const [searchQueryLow, setSearchQueryLow] = useState(""); // Separate search for low stock
+    const [searchQueryOut, setSearchQueryOut] = useState(""); // Separate search for out of stock
+    const [locations, setLocations] = useState([]); // For location filter dropdown
+    const [selectedLocationFilterLow, setSelectedLocationFilterLow] = useState(null);
+    const [selectedLocationFilterOut, setSelectedLocationFilterOut] = useState(null);
+    // Add other filters like product/category if needed
+
+    // --- Fetch Location Filter Data ---
+    const fetchLocationFilterData = useCallback(async () => {
+        setIsFetchingFilters(true);
+        const authHeader = getAuthHeader();
+        if (!authHeader) { toast.error("Authentication required for fetching filters."); setIsFetchingFilters(false); return; }
+        if (!API_URL) { console.error("API_URL is not configured."); toast.error("Application configuration error (API URL)."); setIsFetchingFilters(false); return; }
+        try {
+            const response = await axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader });
+            setLocations(response.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
+        } catch (err) {
+            console.error("Error fetching location filter data:", err);
+            toast.error("Could not load location filter options.");
+             if (err.response && err.response.status === 401) { localStorage.removeItem('token'); navigate(route.login); }
+        } finally {
+            setIsFetchingFilters(false);
+        }
+    }, [API_URL, navigate, route.login]);
+
 
     // --- Fetching Functions ---
-    const fetchLowStock = async () => {
+    const fetchLowStock = useCallback(async () => {
         setLoadingLow(true);
+        setErrorLow(null);
+        const authHeader = getAuthHeader();
+        if (!authHeader) { toast.error("Authentication required."); setLoadingLow(false); navigate(route.login); return; }
+        if (!API_URL) { console.error("API_URL not configured."); toast.error("Config error."); setErrorLow("Config error."); setLoadingLow(false); return; }
+
+        const params = { // Backend needs to support these
+            search: searchQueryLow || undefined,
+            locationId: selectedLocationFilterLow?.value || undefined,
+        };
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
         try {
-            const response = await axios.get(`${API_URL}/inventory/low-stock`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const response = await axios.get(`${API_URL}/inventory/low-stock`, { headers: authHeader, params });
             setLowStockItems(response.data || []);
         } catch (error) {
             console.error("Error fetching low stock items:", error);
-            toast.error(error.response?.data?.message || "Failed to load low stock items");
+            const msg = error.response?.data?.message || "Failed to load low stock items";
+            setErrorLow(msg);
+            toast.error(msg);
             setLowStockItems([]);
+            if (error.response && error.response.status === 401) { localStorage.removeItem('token'); navigate(route.login); }
         } finally {
             setLoadingLow(false);
         }
-    };
+    }, [API_URL, navigate, route.login, searchQueryLow, selectedLocationFilterLow]);
 
-    const fetchOutOfStock = async () => {
+
+    const fetchOutOfStock = useCallback(async () => {
         setLoadingOut(true);
+        setErrorOut(null);
+        const authHeader = getAuthHeader();
+        if (!authHeader) { toast.error("Authentication required."); setLoadingOut(false); navigate(route.login); return; }
+        if (!API_URL) { console.error("API_URL not configured."); toast.error("Config error."); setErrorOut("Config error."); setLoadingOut(false); return; }
+
+        const params = { // Backend needs to support these
+            search: searchQueryOut || undefined,
+            locationId: selectedLocationFilterOut?.value || undefined,
+        };
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
         try {
-            const response = await axios.get(`${API_URL}/inventory/out-of-stock`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const response = await axios.get(`${API_URL}/inventory/out-of-stock`, { headers: authHeader, params });
             setOutOfStockItems(response.data || []);
         } catch (error) {
             console.error("Error fetching out of stock items:", error);
-            toast.error(error.response?.data?.message || "Failed to load out of stock items");
+             const msg = error.response?.data?.message || "Failed to load out of stock items";
+            setErrorOut(msg);
+            toast.error(msg);
             setOutOfStockItems([]);
+             if (error.response && error.response.status === 401) { localStorage.removeItem('token'); navigate(route.login); }
         } finally {
             setLoadingOut(false);
         }
-    };
+    }, [API_URL, navigate, route.login, searchQueryOut, selectedLocationFilterOut]);
 
-    // Fetch data on component mount
+    // --- Effects ---
     useEffect(() => {
-        fetchLowStock();
-        fetchOutOfStock();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        fetchLocationFilterData();
+    }, [fetchLocationFilterData]);
+
+    useEffect(() => {
+        // Debounce fetches when search/filters change
+        const lowStockTimer = setTimeout(() => fetchLowStock(), 300);
+        const outOfStockTimer = setTimeout(() => fetchOutOfStock(), 300);
+
+        return () => {
+            clearTimeout(lowStockTimer);
+            clearTimeout(outOfStockTimer);
+        };
+    }, [fetchLowStock, fetchOutOfStock]); // Depend on the fetch functions themselves
 
     // --- Handlers ---
     const toggleFilterVisibility = () => {
         setIsFilterVisible((prevVisibility) => !prevVisibility);
     };
 
-    // Edit Modal Handling (Keep if EditLowStock modal is implemented)
-    // const handleEditClick = (item) => {
-    //     setEditingItem(item);
-    //     const modalElement = document.getElementById(`edit-stock-${item._id}`); // Ensure modal has dynamic ID
-    //     if (modalElement) {
-    //         const bsModal = new bootstrap.Modal(modalElement);
-    //         bsModal.show();
-    //     }
-    // };
-    // const handleEditModalClose = () => setEditingItem(null);
-    // const handleUpdateSuccess = () => {
-    //     fetchLowStock(); // Re-fetch low stock after potential update
-    //     handleEditModalClose();
-    // };
+     const resetFilters = (type) => { // type can be 'low' or 'out'
+        if (type === 'low') {
+             setSearchQueryLow("");
+             setSelectedLocationFilterLow(null);
+        } else if (type === 'out') {
+             setSearchQueryOut("");
+             setSelectedLocationFilterOut(null);
+        }
+         setIsFilterVisible(false); // Hide filters on reset
+         toast.info(`Filters reset for ${type === 'low' ? 'Low Stock' : 'Out of Stock'}`);
+         // Data will refetch via useEffect
+    };
 
     // --- Tooltip Renderers ---
     const renderTooltip = (props, text) => (<Tooltip {...props}>{text}</Tooltip>);
 
+    // --- Common Image Rendering Function ---
+     const renderProductCell = (record) => {
+        let placeholderSrc = "/assets/img/placeholder-product.png";
+        let imageSrc = placeholderSrc;
+        const productImageUrl = record.product?.imageUrl;
+
+        if (productImageUrl) {
+            if (productImageUrl.startsWith('http://') || productImageUrl.startsWith('https://')) { imageSrc = productImageUrl; }
+            else if (productImageUrl.startsWith('/') && BACKEND_BASE_URL) { imageSrc = `${BACKEND_BASE_URL}${productImageUrl}`; }
+            else if (BACKEND_BASE_URL) { imageSrc = `${BACKEND_BASE_URL}/${productImageUrl.startsWith('/') ? productImageUrl.substring(1) : productImageUrl}`; }
+            else { console.warn(`Cannot construct image URL for product ${record.product?.name} without BACKEND_BASE_URL.`); }
+        }
+
+        return (
+            <span className="productimgname">
+                <Link to="#" className="product-img stock-img">
+                    <img
+                        alt={record.product?.name || 'Product'}
+                        src={imageSrc}
+                        style={{ objectFit: 'contain', width: '40px', height: '40px' }}
+                        onError={(e) => { console.error(`IMAGE LOAD ERROR: ${imageSrc}`); e.target.onerror = null; e.target.src = placeholderSrc; }}
+                    />
+                </Link>
+                 <Link to={record.product?._id ? route.productdetails.replace(':productId', record.product._id) : '#'}>
+                    {record.product?.name || <span className="text-muted">N/A</span>}
+                 </Link>
+            </span>
+        );
+    };
+
     // --- Column Definitions ---
     // Columns for Low Stock Table
     const columnsLow = [
-        {
-            title: "Location",
-            dataIndex: ['location', 'name'], // Access nested data
-            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
-            render: (name) => name || 'N/A',
-        },
-        {
-            title: "Product",
-            // dataIndex: ['product', 'name'], // Can't use dataIndex with custom render easily here
-            render: (record) => ( // Use record from render param
-                <span className="productimgname">
-                    <Link to="#" className="product-img stock-img">
-                        {/* Use actual image URL from product */}
-                        <ImageWithBasePath
-                            src={record.product?.imageUrl || 'assets/img/products/product1.jpg'} // Fallback image
-                            alt={record.product?.name || ''}
-                         />
-                    </Link>
-                    <Link to={`/products/view/${record.product?._id}`}> {/* Optional: Link to product details */}
-                     {record.product?.name || 'N/A'}
-                    </Link>
-                </span>
-            ),
-            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
-        },
-        // { // Category might require extra population or be omitted
-        //     title: "Category",
-        //     dataIndex: ['product', 'category', 'name'], // Requires category to be populated with name
-        //     sorter: (a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''),
-        //      render: (name) => name || 'N/A',
-        // },
-        {
-            title: "SKU",
-            dataIndex: ['product', 'sku'],
-            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
-            render: (sku) => sku || 'N/A',
-        },
-        {
-            title: "Current Qty",
-            dataIndex: 'quantity',
-            sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0), // Numeric sort, handle null/undefined
-             render: (qty) => qty ?? 0, // Display 0 if null/undefined
-        },
-        {
-            title: "Notify Qty",
-            dataIndex: 'notifyAt',
-            sorter: (a, b) => (a.notifyAt ?? 0) - (b.notifyAt ?? 0), // Numeric sort
-             render: (qty) => qty ?? 0,
-        },
-        // { // Actions column - Edit removed as purpose is unclear, Delete is wrong
-        //     title: 'Actions',
-        //     key: 'actions',
-        //     render: (record) => (
-        //         <td className="action-table-data">
-        //             <div className="edit-delete-action">
-        //                 <button className="me-2 p-2 btn btn-link action-icon" onClick={() => handleEditClick(record)}>
-        //                     <FeatherIcon icon={Edit} size={16}/>
-        //                 </button>
-        //                 {/* Delete action doesn't make sense here */}
-        //             </div>
-        //         </td>
-        //     )
-        // },
+        { title: "Location", dataIndex: ['location', 'name'], sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''), render: (name) => name || <span className="text-muted">N/A</span> },
+        { title: "Product", render: renderProductCell, sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || '') },
+        { title: "SKU", dataIndex: ['product', 'sku'], sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''), render: (sku) => sku || <span className="text-muted">N/A</span> },
+        { title: "Current Qty", dataIndex: 'quantity', sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0), render: (qty) => qty ?? 0, align: 'center' },
+        { title: "Notify Qty", dataIndex: 'notifyAt', sorter: (a, b) => (a.notifyAt ?? 0) - (b.notifyAt ?? 0), render: (qty) => qty ?? 0, align: 'center' },
+        // Add actions if needed (e.g., link to adjust stock page)
     ];
 
-    // Columns for Out of Stock Table (Simplified - no notify qty, no actions)
+    // Columns for Out of Stock Table
     const columnsOut = [
+         { title: "Location", dataIndex: ['location', 'name'], sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''), render: (name) => name || <span className="text-muted">N/A</span> },
+         { title: "Product", render: renderProductCell, sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || '') },
+         { title: "SKU", dataIndex: ['product', 'sku'], sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''), render: (sku) => sku || <span className="text-muted">N/A</span> },
+         { title: "Qty", dataIndex: 'quantity', sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0), render: (qty) => qty ?? 0, align: 'center' },
          {
-            title: "Location",
-            dataIndex: ['location', 'name'],
-            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
-             render: (name) => name || 'N/A',
-        },
-        {
-            title: "Product",
-            render: (record) => (
-                <span className="productimgname">
-                    <Link to="#" className="product-img stock-img">
-                         <ImageWithBasePath
-                             src={record.product?.imageUrl || 'assets/img/products/product1.jpg'}
-                             alt={record.product?.name || ''}
-                          />
-                    </Link>
-                     <Link to={`/products/view/${record.product?._id}`}>
-                        {record.product?.name || 'N/A'}
-                     </Link>
-                </span>
-            ),
-            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
-        },
-        {
-            title: "SKU",
-            dataIndex: ['product', 'sku'],
-            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
-             render: (sku) => sku || 'N/A',
-        },
-        {
-            title: "Qty",
-            dataIndex: 'quantity',
-             sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0),
-              render: (qty) => qty ?? 0,
-        },
-         { // Indicate if product/location itself is inactive
             title: "Status",
             render: (record) => (
                 <>
@@ -213,118 +247,151 @@ const LowStock = () => {
         }
     ];
 
-     // Filter Options - Replace with dynamic data if needed
-     const productlist = [{ value: 'all', label: 'All Products' }];
-     const category = [{ value: 'all', label: 'All Categories' }];
-     const warehouse = [{ value: 'all', label: 'All Locations' }];
-     const oldandlatestvalue = [{ value: 'newest', label: 'Newest' }];
+    // --- Common Filter/Search UI Component ---
+    const renderTableTop = (type) => { // type = 'low' or 'out'
+        const currentSearchQuery = type === 'low' ? searchQueryLow : searchQueryOut;
+        const setSearchQueryFn = type === 'low' ? setSearchQueryLow : setSearchQueryOut;
+        const fetchFn = type === 'low' ? fetchLowStock : fetchOutOfStock;
+        const selectedLocation = type === 'low' ? selectedLocationFilterLow : selectedLocationFilterOut;
+        const setSelectedLocationFn = type === 'low' ? setSelectedLocationFilterLow : setSelectedLocationFilterOut;
+
+        return (
+             <>
+                <div className="table-top">
+                    {/* Search */}
+                    <div className="search-set">
+                        <div className="search-input">
+                            <input
+                                type="text"
+                                placeholder={`Search ${type === 'low' ? 'Low Stock' : 'Out of Stock'}...`}
+                                className="form-control form-control-sm formsearch"
+                                value={currentSearchQuery}
+                                onChange={(e) => setSearchQueryFn(e.target.value)}
+                            />
+                            <button className="btn btn-searchset" onClick={fetchFn} title="Search">
+                                <Search size={18} />
+                            </button>
+                        </div>
+                    </div>
+                    {/* Filter Toggle */}
+                    <div className="search-path">
+                        <button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility} title={isFilterVisible ? "Hide Filters" : "Show Filters"}>
+                            <Filter className="filter-icon" />
+                            <span>{isFilterVisible ? <X size={14} style={{marginLeft: '5px'}}/> : ''}</span>
+                        </button>
+                    </div>
+                    {/* Sort (Example - needs state/logic) */}
+                    {/* <div className="form-sort"> <Sliders className="info-img" /> <Select className="select" styles={selectStyles} options={[{ value: 'qty_asc', label: 'Qty Asc' }]} placeholder="Sort by..." /> </div> */}
+                </div>
+
+                {/* Filter Card */}
+                <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
+                    <div className="card-body pb-0">
+                        <div className="row">
+                            {/* Location Filter */}
+                            <div className="col-lg-4 col-sm-6 col-12 mb-3">
+                                <Select
+                                    styles={selectStyles}
+                                    options={locations}
+                                    value={selectedLocation}
+                                    onChange={setSelectedLocationFn}
+                                    placeholder="Filter by Location..."
+                                    isClearable
+                                    isLoading={isFetchingFilters}
+                                    classNamePrefix="react-select"
+                                />
+                            </div>
+                            {/* Add other filters (Product, Category) here if needed */}
+                            {/* Reset Button */}
+                            <div className="col-lg-2 col-sm-6 col-12 mb-3 ms-auto">
+                                <Button variant="secondary" size="sm" onClick={() => resetFilters(type)} className="w-100">
+                                    <RotateCcw size={14} className="me-1"/> Reset
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    };
 
 
     return (
-        <div>
-            <div className="page-wrapper">
-                <div className="content">
-                    <div className="page-header">
-                        <div className="page-title me-auto">
-                            <h4>Stock Alerts</h4>
-                            <h6>Manage low and out of stock items</h6>
-                        </div>
-                        <ul className="table-top-head">
-                            {/* Notify Toggle & Send Email Button - UI only for now */}
-                            <li>
-                                <div className="status-toggle d-flex justify-content-between align-items-center">
-                                    <input type="checkbox" id="notifyCheck" className="check"/>
-                                    <label htmlFor="notifyCheck" className="checktoggle me-2">checkbox</label>
-                                    Notify
-                                </div>
-                            </li>
-                            <li>
-                                <button type="button" className="btn btn-secondary">
-                                    <FeatherIcon icon={Mail} className="feather-mail me-1" size={16}/>
-                                    Send Email
-                                </button>
-                            </li>
-                            {/* Standard Icons */}
-                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'PDF')}><Link to="#"><ImageWithBasePath src="assets/img/icons/pdf.svg" alt="PDF" /></Link></OverlayTrigger></li>
-                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Excel')}><Link to="#"><ImageWithBasePath src="assets/img/icons/excel.svg" alt="Excel" /></Link></OverlayTrigger></li>
-                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Print')}><Link to="#"><FeatherIcon icon={Sliders} /></Link></OverlayTrigger></li>
-                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Refresh')}><Link to="#" onClick={() => { fetchLowStock(); fetchOutOfStock(); }}><FeatherIcon icon={RotateCcw} /></Link></OverlayTrigger></li>
-                            <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Collapse')}><Link to="#" id="collapse-header" className={redux_data ? "active" : ""} onClick={() => { dispatch(setToogleHeader(!redux_data)); }}><FeatherIcon icon={ChevronUp} /></Link></OverlayTrigger></li>
-                        </ul>
+        <div className="page-wrapper">
+            <ToastContainer position="top-right" autoClose={3000} />
+            <div className="content">
+                <div className="page-header">
+                    <div className="page-title me-auto">
+                        <h4>Stock Alerts</h4>
+                        <h6>Manage low and out of stock items</h6>
                     </div>
+                    {/* Header buttons */}
+                    <ul className="table-top-head">
+                         {/* Notify/Email buttons - UI only */}
+                        {/* <li>...</li> */}
+                        <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Refresh All')}><Link to="#" onClick={() => { fetchLowStock(); fetchOutOfStock(); }}><RotateCcw /></Link></OverlayTrigger></li>
+                        <li><OverlayTrigger placement="top" overlay={(props) => renderTooltip(props, 'Collapse')}><Link to="#" id="collapse-header" className={redux_data ? "active" : ""} onClick={() => { dispatch(setToogleHeader(!redux_data)); }}><ChevronUp /></Link></OverlayTrigger></li>
+                    </ul>
+                </div>
 
-                    {/* Tabs */}
-                    <div className="table-tab">
-                        <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                            <li className="nav-item" role="presentation">
-                                <button className="nav-link active" id="pills-low-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-low-stock" type="button" role="tab" aria-controls="pills-low-stock" aria-selected="true">
-                                    Low Stocks
-                                </button>
-                            </li>
-                            <li className="nav-item" role="presentation">
-                                <button className="nav-link" id="pills-out-of-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-out-of-stock" type="button" role="tab" aria-controls="pills-out-of-stock" aria-selected="false">
-                                    Out of Stocks
-                                </button>
-                            </li>
-                        </ul>
+                {/* Tabs */}
+                <div className="table-tab">
+                    <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                        <li className="nav-item" role="presentation">
+                            <button className="nav-link active" id="pills-low-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-low-stock" type="button" role="tab" aria-controls="pills-low-stock" aria-selected="true">
+                                Low Stocks
+                            </button>
+                        </li>
+                        <li className="nav-item" role="presentation">
+                            <button className="nav-link" id="pills-out-of-stock-tab" data-bs-toggle="pill" data-bs-target="#pills-out-of-stock" type="button" role="tab" aria-controls="pills-out-of-stock" aria-selected="false">
+                                Out of Stocks
+                            </button>
+                        </li>
+                    </ul>
 
-                        {/* Tab Content */}
-                        <div className="tab-content" id="pills-tabContent">
-                            {/* Low Stock Pane */}
-                            <div className="tab-pane fade show active" id="pills-low-stock" role="tabpanel" aria-labelledby="pills-low-stock-tab">
-                                <div className="card table-list-card">
-                                    <div className="card-body">
-                                        {/* Common Table Top Structure */}
-                                        <div className="table-top">
-                                            <div className="search-set"><div className="search-input"><input type="text" placeholder="Search..." className="form-control form-control-sm formsearch"/><Link to="#" className="btn btn-searchset"><FeatherIcon icon={Filter}/></Link></div></div>
-                                            <div className="search-path"><button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility}><FeatherIcon icon={Filter} className="filter-icon"/><span><ImageWithBasePath src="assets/img/icons/closes.svg" alt="Close"/></span></button></div>
-                                            <div className="form-sort"><FeatherIcon icon={Sliders} className="info-img"/><Select className="select" options={oldandlatestvalue} placeholder="Sort by..."/></div>
-                                        </div>
-                                        {/* Filter Inputs */}
-                                        <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
-                                            <div className="card-body pb-0">
-                                                <div className="row">
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Box} className="info-img"/><Select options={productlist} className="select" placeholder="Choose Product"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Zap} className="info-img"/><Select options={category} className="select" placeholder="Choose Category"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Archive} className="info-img"/><Select options={warehouse} className="select" placeholder="Choose Location"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto"><div className="input-blocks"><button type="button" className="btn btn-filters ms-auto"><FeatherIcon icon={Filter} className="me-1" size={16}/> Search </button></div></div>
-                                                </div>
+                    {/* Tab Content */}
+                    <div className="tab-content" id="pills-tabContent">
+                        {/* Low Stock Pane */}
+                        <div className="tab-pane fade show active" id="pills-low-stock" role="tabpanel" aria-labelledby="pills-low-stock-tab">
+                            <div className="card table-list-card">
+                                <div className="card-body">
+                                    {renderTableTop('low')} {/* Render common top section */}
+                                    <div className="table-responsive">
+                                        <Table
+                                            columns={columnsLow}
+                                            dataSource={lowStockItems}
+                                            loading={loadingLow}
+                                            error={errorLow} // Pass error state if Table handles it
+                                            rowKey="_id"
+                                        />
+                                          {!loadingLow && !errorLow && lowStockItems.length === 0 && (
+                                             <div className="text-center p-5 text-muted">
+                                                {searchQueryLow || selectedLocationFilterLow ? "No low stock items match your filters." : "No low stock items found."}
                                             </div>
-                                        </div>
-                                        {/* Table */}
-                                        <div className="table-responsive">
-                                            <Table columns={columnsLow} dataSource={lowStockItems} loading={loadingLow} rowKey="_id" />
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Out of Stock Pane */}
-                            <div className="tab-pane fade" id="pills-out-of-stock" role="tabpanel" aria-labelledby="pills-out-of-stock-tab">
-                                 <div className="card table-list-card">
-                                    <div className="card-body">
-                                        {/* Re-use common Table Top Structure */}
-                                        <div className="table-top">
-                                            <div className="search-set"><div className="search-input"><input type="text" placeholder="Search..." className="form-control form-control-sm formsearch"/><Link to="#" className="btn btn-searchset"><FeatherIcon icon={Filter}/></Link></div></div>
-                                            <div className="search-path"><button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility}><FeatherIcon icon={Filter} className="filter-icon"/><span><ImageWithBasePath src="assets/img/icons/closes.svg" alt="Close"/></span></button></div>
-                                            <div className="form-sort"><FeatherIcon icon={Sliders} className="info-img"/><Select className="select" options={oldandlatestvalue} placeholder="Sort by..."/></div>
-                                        </div>
-                                        {/* Re-use Filter Inputs Structure */}
-                                         <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
-                                            <div className="card-body pb-0">
-                                                {/* Filter fields here */}
-                                                <div className="row">
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Box} className="info-img"/><Select options={productlist} className="select" placeholder="Choose Product"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Zap} className="info-img"/><Select options={category} className="select" placeholder="Choose Category"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12"><div className="input-blocks"><FeatherIcon icon={Archive} className="info-img"/><Select options={warehouse} className="select" placeholder="Choose Location"/></div></div>
-                                                    <div className="col-lg-3 col-sm-6 col-12 ms-auto"><div className="input-blocks"><button type="button" className="btn btn-filters ms-auto"><FeatherIcon icon={Filter} className="me-1" size={16}/> Search </button></div></div>
-                                                </div>
+                        {/* Out of Stock Pane */}
+                        <div className="tab-pane fade" id="pills-out-of-stock" role="tabpanel" aria-labelledby="pills-out-of-stock-tab">
+                             <div className="card table-list-card">
+                                <div className="card-body">
+                                    {renderTableTop('out')} {/* Render common top section */}
+                                    <div className="table-responsive">
+                                        <Table
+                                            columns={columnsOut}
+                                            dataSource={outOfStockItems}
+                                            loading={loadingOut}
+                                            error={errorOut} // Pass error state if Table handles it
+                                            rowKey="_id"
+                                        />
+                                        {!loadingOut && !errorOut && outOfStockItems.length === 0 && (
+                                             <div className="text-center p-5 text-muted">
+                                                {searchQueryOut || selectedLocationFilterOut ? "No out of stock items match your filters." : "No out of stock items found."}
                                             </div>
-                                        </div>
-                                        {/* Table */}
-                                        <div className="table-responsive">
-                                            <Table columns={columnsOut} dataSource={outOfStockItems} loading={loadingOut} rowKey="_id" />
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -332,16 +399,8 @@ const LowStock = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Render Edit modal conditionally if implemented */}
-            {/* {editingItem && (
-                <EditLowStock
-                    key={editingItem._id}
-                    inventoryItem={editingItem} // Pass the whole item or specific props
-                    onUpdate={handleUpdateSuccess}
-                    onModalClose={handleEditModalClose}
-                 />
-            )} */}
+            {/* Modal placeholder */}
+            {/* {editingItem && <EditLowStock ... />} */}
         </div>
     )
 }
