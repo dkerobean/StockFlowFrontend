@@ -6,23 +6,21 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { OverlayTrigger, Tooltip, Button, ProgressBar } from "react-bootstrap";
+import { OverlayTrigger, Tooltip, Button, ProgressBar, Badge } from "react-bootstrap"; // Added Badge
 import './managestock.css'; // Import the CSS file
 
 // Icons (Import necessary icons)
 import {
     Filter, Edit, Trash2, Search, RotateCcw, Upload, Download,
     Eye, ChevronUp, PlusCircle, X // Ensure Eye and X are imported
-} from "react-feather"; // Removed unused icons like Sliders, Archive, Box
+} from "react-feather";
 
-// Redux (Optional, but kept for consistency if used elsewhere)
+// Redux (Optional)
 import { useDispatch, useSelector } from "react-redux";
 import { setToogleHeader } from "../../core/redux/action"; // Example action
 
 // Components
 import Breadcrumbs from "../../core/breadcrumbs"; // Assuming this component exists
-// ImageWithBasePath is not used directly in rendering logic now, using standard img
-// import ImageWithBasePath from "../../core/img/imagewithbasebath";
 import Table from "../../core/pagination/datatable"; // Your custom Table component
 import { all_routes } from "../../Router/all_routes"; // Your route definitions
 
@@ -34,13 +32,12 @@ const getAuthHeader = () => {
     const token = localStorage.getItem('token');
     if (!token) {
         console.error("Authentication token not found.");
-        // toast.error("Authentication required. Please log in."); // Consider adding toast here if needed repeatedly
         return null;
     }
     return { Authorization: `Bearer ${token}` };
 };
 
-// Custom styles for react-select (Matches ProductList)
+// Custom styles for react-select
 const selectStyles = {
     control: (baseStyles, state) => ({
         ...baseStyles,
@@ -80,13 +77,19 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
         statusText = "Low Stock";
         variant = "warning";
     } else if (percentage <= 25) {
-        status = "danger";
-        statusText = "Critical";
-        variant = "danger";
+        // Keep Low Stock/Below Minimum if applicable, otherwise Critical
+        if (status === 'success') {
+            status = "danger";
+            statusText = "Critical";
+            variant = "danger";
+        }
     } else if (percentage <= 50) {
-        status = "warning";
-        statusText = "Moderate";
-        variant = "warning";
+         // Keep Low Stock/Below Minimum if applicable, otherwise Moderate
+        if (status === 'success') {
+            status = "warning";
+            statusText = "Moderate";
+            variant = "warning";
+        }
     }
 
     const tooltipText = (
@@ -94,7 +97,7 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
             <div className="mb-1"><strong>Current Stock:</strong> {quantity}</div>
             {minStock !== undefined && <div><strong>Minimum:</strong> {minStock}</div>}
             {notifyAt !== undefined && <div><strong>Notify At:</strong> {notifyAt}</div>}
-            {maxStock !== undefined && <div><strong>Maximum:</strong> {maxStock}</div>}
+            {maxStock !== undefined && <div><strong>Maximum:</strong> {maxStock ?? 'N/A'}</div>}
             <div className="mt-1"><strong>Status:</strong> {statusText}</div>
         </div>
     );
@@ -107,8 +110,9 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
             >
                 <div className="stock-level-wrapper">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                        <span className={`badge bg-${status}`}>{statusText}</span>
-                        <span className="text-muted small">{percentage.toFixed(0)}%</span>
+                        {/* Use Bootstrap Badge for status */}
+                        <Badge bg={variant} className="text-capitalize stock-status-badge">{statusText}</Badge>
+                        <span className="text-muted small">{percentage.toFixed(0)}% Full</span>
                     </div>
                     <ProgressBar
                         now={percentage}
@@ -120,7 +124,7 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
                             backgroundColor: '#e9ecef'
                         }}
                     />
-                    <div className="d-flex justify-content-between align-items-center mt-1">
+                    <div className="d-flex justify-content-between align-items-center mt-1 quantity-indicators">
                         <span className="text-muted small">0</span>
                         <span className="fw-bold">{quantity}</span>
                         <span className="text-muted small">{effectiveMax}</span>
@@ -209,8 +213,8 @@ const Managestock = () => {
         }
 
         const params = {
-            // *** CRITICAL: Ensure backend API populates 'product' with 'name', 'sku', 'imageUrl', and 'price' ***
-            populate: 'product,location',
+            // *** UPDATED POPULATE: Ensure backend populates product.category ***
+            populate: 'product,location,product.category', // Include product.category
             search: searchQuery || undefined,
             locationId: selectedLocationFilter?.value || undefined,
             productId: selectedProductFilter?.value || undefined,
@@ -229,7 +233,11 @@ const Managestock = () => {
             const items = response.data.data || response.data || []; // Adapt based on backend response structure
             const totalItems = response.data.pagination?.total ?? (response.data.totalCount ?? items.length); // Get total count for pagination
 
-            console.log("Fetched Items (Check product.imageUrl & product.price here):", items); // Log the actual items
+            // *** LOGGING ADDED ***
+            console.log("Fetched Items (Check product.category and product.isActive here):", items);
+            if (items.length > 0) {
+                console.log("Example item product data:", items[0].product);
+            }
             console.log("Total Items:", totalItems);
 
             setInventoryItems(items);
@@ -339,9 +347,7 @@ const Managestock = () => {
         if (pagination.current !== 1) {
             setPagination(prev => ({ ...prev, current: 1 }));
         } else {
-             // If already on page 1, fetch might need manual trigger if state didn't *really* change
-             // But the change in filters/search should trigger the other useEffect.
-             // Let's rely on the filter/search useEffect for the fetch trigger.
+             // If already on page 1, the filter/search useEffect will trigger fetch.
         }
         toast.info("Filters reset");
     };
@@ -407,73 +413,7 @@ const Managestock = () => {
 
     // --- Table Column Definitions ---
     const columns = [
-        {
-            title: "Product",
-            dataIndex: ["product", "name"],
-            key: 'productName',
-            render: (text, record) => {
-    const product = record.product;
-    if (!product) {
-        console.warn(`Inventory record ${record._id} is missing product data.`);
-        return <span className="text-muted fst-italic">Product Data Missing</span>;
-    }
-
-    // --- Image Rendering Logic ---
-    let imageSrc = "/assets/img/placeholder-product.png"; // Default placeholder
-
-    if (product.imageUrl) {
-        if (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) {
-            // Absolute URL - use as-is
-            imageSrc = product.imageUrl;
-        } else if (product.imageUrl.startsWith('/uploads/')) {
-            // Relative URL starting with '/uploads/' - prepend backend base URL
-            imageSrc = `${BACKEND_BASE_URL}${product.imageUrl}`;
-        } else {
-            // Other relative paths - prepend backend base URL and add slash if needed
-            imageSrc = `${BACKEND_BASE_URL}/${product.imageUrl}`;
-        }
-    }
-
-    const productDetailsPath = route.productdetails?.replace(':productId', product._id) || '#';
-
-    return (
-        <span className="productimgname d-flex align-items-center">
-            <Link to={productDetailsPath} className="product-img stock-img flex-shrink-0 me-2" title={`View details for ${product.name}`}>
-                <img
-                    alt={product.name || 'Product Image'}
-                    src={imageSrc}
-                    style={{
-                        width: '40px',
-                        height: '40px',
-                        objectFit: 'cover',
-                        border: '1px solid #eee',
-                        borderRadius: '4px',
-                        backgroundColor: '#f8f9fa'
-                    }}
-                    onError={(e) => {
-                        console.error(`Image load error for product: ${product.name}`);
-                        e.target.onerror = null;
-                        e.target.src = "/assets/img/placeholder-product.png";
-                    }}
-                />
-            </Link>
-            <Link to={productDetailsPath} className="text-truncate" title={product.name}>
-                {product.name || <span className="text-muted fst-italic">Unknown Product</span>}
-            </Link>
-        </span>
-    );
-},
-            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
-            width: '250px',
-        },
-        {
-            title: "SKU",
-            dataIndex: ["product", "sku"], // Access nested sku
-            key: 'sku',
-            render: (sku) => sku || <span className="text-muted">N/A</span>,
-            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
-            width: '120px',
-        },
+        // *** MOVED LOCATION COLUMN TO THE START ***
         {
             title: "Location",
             dataIndex: ["location", "name"], // Access nested location name
@@ -487,6 +427,82 @@ const Managestock = () => {
             width: '180px',
         },
         {
+            title: "Product",
+            dataIndex: ["product", "name"], // Access nested name
+            key: 'productName',
+            render: (text, record) => {
+                const product = record.product;
+                if (!product) {
+                    console.warn(`Inventory record ${record._id} is missing product data.`);
+                    return <span className="text-muted fst-italic">Product Data Missing</span>;
+                }
+
+                // --- Image Rendering Logic ---
+                let placeholderSrc = "/assets/img/placeholder-product.png"; // Ensure this path is correct
+                let imageSrc = placeholderSrc;
+
+                 if (product.imageUrl) {
+                     if (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) {
+                         imageSrc = product.imageUrl;
+                     } else if (product.imageUrl.startsWith('/') && BACKEND_BASE_URL) {
+                         imageSrc = `${BACKEND_BASE_URL}${product.imageUrl}`;
+                     } else if (BACKEND_BASE_URL) {
+                         imageSrc = `${BACKEND_BASE_URL}/${product.imageUrl.startsWith('/') ? product.imageUrl.substring(1) : product.imageUrl}`;
+                     } else {
+                        console.warn(`Cannot construct image URL for product ${product.name} (${product.imageUrl}) without BACKEND_BASE_URL.`);
+                     }
+                 }
+
+                const productDetailsPath = route.productdetails?.replace(':productId', product._id) || '#';
+
+                return (
+                    <span className="productimgname d-flex align-items-center">
+                        <Link to={productDetailsPath} className="product-img stock-img flex-shrink-0 me-2" title={`View details for ${product.name}`}>
+                            <img
+                                alt={product.name || 'Product Image'}
+                                src={imageSrc}
+                                style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    objectFit: 'cover', // Changed to cover for potentially better aspect ratio handling
+                                    border: '1px solid #eee',
+                                    borderRadius: '4px',
+                                    backgroundColor: '#f8f9fa' // Added background for empty space
+                                }}
+                                onError={(e) => {
+                                    console.error(`Image load error for product: ${product.name} (ID: ${product._id}) from src: ${imageSrc}`);
+                                    e.target.onerror = null;
+                                    e.target.src = placeholderSrc; // Fallback to placeholder
+                                }}
+                            />
+                        </Link>
+                        <Link to={productDetailsPath} className="text-truncate product-link" title={product.name}>
+                            {product.name || <span className="text-muted fst-italic">Unknown Product</span>}
+                        </Link>
+                    </span>
+                );
+            },
+            sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
+            width: '250px', // Adjust width if needed
+        },
+        {
+            title: "SKU",
+            dataIndex: ["product", "sku"], // Access nested sku
+            key: 'sku',
+            render: (sku) => sku || <span className="text-muted">N/A</span>,
+            sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
+            width: '120px',
+        },
+        // *** ADDED CATEGORY COLUMN ***
+        {
+            title: "Category",
+            dataIndex: ["product", "category", "name"], // Access nested category name
+            key: 'categoryName',
+            render: (categoryName) => categoryName || <span className="text-muted">N/A</span>,
+            sorter: (a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''),
+            width: '150px',
+        },
+        {
             title: "Price",
             dataIndex: ["product", "price"], // Access nested price
             key: 'price',
@@ -495,6 +511,25 @@ const Managestock = () => {
                                : <span className="text-muted">N/A</span>,
             sorter: (a, b) => (a.product?.price ?? 0) - (b.product?.price ?? 0), // Sort numerically, handle null/undefined
             align: 'right',
+            width: '100px',
+        },
+        // *** ADDED STATUS COLUMN ***
+        {
+            title: "Status",
+            dataIndex: ["product", "isActive"], // Access nested status
+            key: 'productStatus',
+            render: (isActive) => (
+                isActive === true ? <Badge bg="success">Active</Badge> :
+                isActive === false ? <Badge bg="danger">Inactive</Badge> :
+                <Badge bg="secondary">Unknown</Badge> // Handle undefined/null case
+            ),
+            sorter: (a, b) => {
+                // Handle undefined/null values for sorting
+                const valA = a.product?.isActive === true ? 1 : a.product?.isActive === false ? 0 : -1;
+                const valB = b.product?.isActive === true ? 1 : b.product?.isActive === false ? 0 : -1;
+                return valA - valB;
+            },
+            align: 'center',
             width: '100px',
         },
         {
@@ -518,39 +553,56 @@ const Managestock = () => {
                     // maxStock={record.maxStock} // Pass max stock if available
                 />
             ),
-            width: '150px',
+            width: '170px', // Slightly wider for the new layout
             align: 'center', // Center align the progress bar visually
         },
-        {
+               {
             title: "Action",
             key: "action",
             render: (_, record) => {
-                 // Define path for product details, handle missing product defensively
-                 const productDetailsPath = record.product ? (route.productdetails?.replace(':productId', record.product._id) || '#') : '#';
+                 // --- Get Product Details Path ---
+                 const productDetailsPath = record.product
+                    ? (route.productdetails?.replace(':productId', record.product._id) || '#')
+                    : '#';
+
+                 // --- Get Product Edit Path ---
+                 const editProductPath = record.product
+                    ? (route.editproduct?.replace(':productId', record.product._id) || '#')
+                    : '#';
+
+                 // Log warnings if routes seem misconfigured
+                 if (record.product && editProductPath === '#') {
+                    console.warn("Edit product route not configured correctly in all_routes.");
+                 }
+                 if (record.product && productDetailsPath === '#') {
+                     console.warn("Product details route not configured correctly in all_routes.");
+                 }
+
 
                  return (
                     <div className="edit-delete-action d-flex justify-content-end align-items-center gap-1">
                         {/* View Product Details Action */}
-                        {record.product && ( // Only show view icon if product data exists
-                            <Link className="p-1 action-icon" to={productDetailsPath} title="View Product Details">
+                        {record.product && (
+                            <Link className="action-icon p-1" to={productDetailsPath} title="View Product Details">
                                 <Eye size={18} />
                             </Link>
                         )}
-                        {/* Adjust Stock Action Button */}
+
+                        {/* --- UPDATED: Edit Product Action --- */}
+                        {record.product && ( // Only show edit icon if product exists
+                             <Link
+                                className="action-icon p-1" // Keep consistent styling
+                                to={editProductPath} // Link to the product edit page
+                                title="Edit Product Details" // Updated title
+                            >
+                                <Edit size={18} />
+                            </Link>
+                        )}
+                        {/* --- END UPDATED Edit Product Action --- */}
+
+                        {/* Remove Inventory Record Action Button (Remains the same) */}
                         <Link
-                            className="p-1 action-icon"
-                            to="#"
-                            onClick={(e) => {
-                                e.preventDefault(); // Prevent default link behavior
-                                handleOpenAdjustModal(record._id, record.product?.name, record.quantity);
-                            }}
-                            title="Adjust Stock Quantity"
-                        >
-                            <Edit size={18} />
-                        </Link>
-                        {/* Remove Inventory Record Action Button */}
-                        <Link
-                            className="p-1 action-icon text-danger" // Add text-danger for visual cue
+                            className="action-icon text-danger p-1"
                             to="#"
                              onClick={(e) => {
                                 e.preventDefault(); // Prevent default link behavior
@@ -567,6 +619,9 @@ const Managestock = () => {
             align: 'right', // Align action icons to the right
         },
     ];
+
+    // *** Log columns structure for verification ***
+    console.log("Table Columns Definition:", columns);
 
 
     // --- Tooltips for Header Buttons ---
@@ -587,9 +642,7 @@ const Managestock = () => {
 
                  {/* Page Header with Action Buttons */}
                  <div className="page-header">
-                     <div className="add-item d-flex">
-                        {/* Title can go here if needed, but breadcrumbs cover it */}
-                     </div>
+                     <div className="add-item d-flex"></div>
                      {/* Right-aligned action buttons */}
                      <ul className="table-top-head">
                          <li><OverlayTrigger placement="top" overlay={renderImportTooltip}><Link to="#" onClick={handleBulkImport}><Upload size={18} /></Link></OverlayTrigger></li>
@@ -675,8 +728,6 @@ const Managestock = () => {
                                             isClearable
                                             isLoading={isFetchingFilters}
                                             classNamePrefix="react-select"
-                                            // Add filterOption for better search within dropdown if needed
-                                            // filterOption={(option, rawInput) => option.label.toLowerCase().includes(rawInput.toLowerCase())}
                                         />
                                     </div>
                                      {/* Reset Filters Button */}
@@ -728,14 +779,13 @@ const Managestock = () => {
                                     }}
                                     onChange={handleTableChange} // Handle pagination/sorting changes
                                     loading={isLoading} // Pass loading state to Table component if it supports it
-                                    // Add other props your Table component accepts (e.g., sorting, filtering if handled internally)
+                                    // Add other props your Table component accepts
                                 />
                             )}
                             {/* No Results Messages */}
                              {!isLoading && !error && inventoryItems.length === 0 && !(searchQuery || selectedLocationFilter || selectedProductFilter) && (
                                 <div className="text-center p-5 text-muted">
                                     No stock records found in the inventory.
-                                    {/* Optional: Link to add products or perform initial stock count */}
                                 </div>
                             )}
                              {!isLoading && !error && inventoryItems.length === 0 && (searchQuery || selectedLocationFilter || selectedProductFilter) && (
@@ -747,8 +797,7 @@ const Managestock = () => {
                     </div>
                 </div>
             </div>
-             {/* Modal Placeholder - Add your Stock Adjustment Modal component here */}
-             {/* Example: <StockAdjustmentModal isOpen={isAdjustModalOpen} onClose={() => setIsAdjustModalOpen(false)} data={adjustModalInfo} onAdjustSuccess={refreshData} /> */}
+             {/* Modal Placeholder */}
         </div>
     );
 };
