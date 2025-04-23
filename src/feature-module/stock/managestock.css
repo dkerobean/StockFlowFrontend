@@ -1,0 +1,69 @@
+/* Stock Level Styles */
+.stock-level-container {
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stock-level-wrapper {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stock-level-wrapper:hover {
+    transform: translateY(-1px);
+}
+
+.stock-progress-bar {
+    transition: all 0.3s ease;
+}
+
+.stock-progress-bar .progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Tooltip Styles */
+.stock-tooltip {
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stock-tooltip div {
+    margin-bottom: 4px;
+}
+
+.stock-tooltip div:last-child {
+    margin-bottom: 0;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Product Image Styles */
+.product-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.product-img:hover {
+    transform: scale(1.05);
+}
+
+.product-img img {
+    transition: all 0.2s ease;
+}
+
+.product-img:hover img {
+    transform: scale(1.1);
+}
