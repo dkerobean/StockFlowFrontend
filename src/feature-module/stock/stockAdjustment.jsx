@@ -7,22 +7,54 @@ import 'react-toastify/dist/ReactToastify.css';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { OverlayTrigger, Tooltip, Button, Badge } from "react-bootstrap";
+import DatePicker from "react-datepicker"; // Import DatePicker
+import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker CSS
 import Breadcrumbs from "../../core/breadcrumbs";
-import Table from "../../core/pagination/datatable";
+import Table from "../../core/pagination/datatable"; // Assuming this is your custom Table component
 import StockadjustmentModal from "../../core/modals/stocks/stockadjustmentModal";
-import { Filter, Sliders, Edit, Trash2, Search, RotateCcw, X } from "react-feather";
+import { Filter, Sliders, Edit, Trash2, Search, RotateCcw, X, Calendar } from "react-feather"; // Added Calendar icon
+import { Modal } from 'bootstrap';
 
+// Environment variables
 const API_URL = process.env.REACT_APP_API_URL;
 const BACKEND_BASE_URL = API_URL ? API_URL.replace('/api', '') : '';
 
+// Helper function to get Auth Header
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
     if (!token) {
         console.error("Authentication token not found.");
+        toast.error("Authentication required. Please log in again.");
+        // Optionally redirect to login
         return null;
     }
     return { Authorization: `Bearer ${token}` };
 };
+
+// Helper function for formatting product options (can be shared)
+const formatOptionLabel = ({ label, sku, imageUrl }) => {
+    const imageSource = imageUrl
+           ? `${BACKEND_BASE_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`
+           : '/assets/img/placeholder-product.png'; // Ensure you have a placeholder
+
+       return (
+           <div className="d-flex align-items-center">
+               <img
+                   src={imageSource}
+                   alt={label || 'Product'}
+                   style={{ width: '30px', height: '30px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                   onError={(e) => {
+                       e.target.onerror = null;
+                       e.target.src = '/assets/img/placeholder-product.png'; // Fallback on error
+                   }}
+               />
+               <div>
+                   <div>{label || 'No Name'}</div>
+                   <div className="text-muted small">{sku || 'No SKU'}</div>
+               </div>
+           </div>
+       );
+}
 
 const StockAdjustment = () => {
     const [adjustments, setAdjustments] = useState([]);
@@ -37,8 +69,11 @@ const StockAdjustment = () => {
     const [selectedAdjustmentType, setSelectedAdjustmentType] = useState(null);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
     const MySwal = withReactContent(Swal);
+    const [selectedNotes, setSelectedNotes] = useState('');
+    const [showNotesModal, setShowNotesModal] = useState(false);
+    const [notesModal, setNotesModal] = useState(null);
 
-    // Adjustment type options
+    // Adjustment type options (centralized)
     const adjustmentTypeOptions = [
         { value: 'Addition', label: 'Addition' },
         { value: 'Subtraction', label: 'Subtraction' },
@@ -49,7 +84,7 @@ const StockAdjustment = () => {
         { value: 'Return', label: 'Return' },
         { value: 'Transfer Out', label: 'Transfer Out' },
         { value: 'Transfer In', label: 'Transfer In' },
-        { value: 'Cycle Count Adj', label: 'Cycle Count Adjustment' },
+        { value: 'Cycle Count Adj', label: 'Cycle Count Adj' }, // Corrected Label
         { value: 'Obsolete', label: 'Obsolete' },
         { value: 'Other', label: 'Other' }
     ];
@@ -61,8 +96,8 @@ const StockAdjustment = () => {
 
         try {
             const [locRes, prodRes] = await Promise.all([
-                axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader }),
-                axios.get(`${API_URL}/products?fields=name,_id,sku&limit=500&isActive=true`, { headers: authHeader })
+                axios.get(`${API_URL}/locations?fields=name,type&limit=1000`, { headers: authHeader }), // Increased limit for locations
+                axios.get(`${API_URL}/products?fields=name,_id,sku,imageUrl&limit=1000&isActive=true`, { headers: authHeader }) // Increased limit for products
             ]);
 
             setLocations(locRes.data.map(loc => ({
@@ -70,23 +105,30 @@ const StockAdjustment = () => {
                 label: `${loc.name} (${loc.type || 'N/A'})`
             })));
 
-            setProducts(prodRes.data.map(prod => ({
-                value: prod._id,
-                label: `${prod.name} (${prod.sku || 'No SKU'})`
-            })));
+            const productData = Array.isArray(prodRes.data) ? prodRes.data : (prodRes.data.data || []);
+            const mappedProducts = productData.map(prod => ({
+                value: prod._id, // Use _id as value
+                label: prod.name || 'Unnamed Product', // Use name as label
+                sku: prod.sku || 'No SKU',
+                imageUrl: prod.imageUrl
+            })).filter(p => p.value && p.label); // Filter out invalid entries
+
+            setProducts(mappedProducts);
+
         } catch (err) {
             console.error("Error fetching filter data:", err);
             toast.error("Could not load filter options.");
         }
-    }, []);
+    }, []); // No dependencies needed if API_URL is stable
 
-    
-
-    // Fetch stock adjustments
-    const fetchAdjustments = useCallback(async (page = 1, pageSize = 10) => {
+    // Fetch stock adjustments based on current state (filters, pagination, search)
+    const fetchAdjustments = useCallback(async (page = pagination.current, pageSize = pagination.pageSize) => {
         setIsLoading(true);
         const authHeader = getAuthHeader();
-        if (!authHeader) return;
+        if (!authHeader) {
+            setIsLoading(false);
+            return;
+        }
 
         const params = {
             page,
@@ -95,8 +137,16 @@ const StockAdjustment = () => {
             locationId: selectedLocation?.value || undefined,
             productId: selectedProduct?.value || undefined,
             adjustmentType: selectedAdjustmentType?.value || undefined,
-            startDate: selectedDate ? selectedDate.toISOString() : undefined
+            // Send date in ISO format if backend expects it, otherwise adjust as needed
+            startDate: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
+            // endDate: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined, // If filtering for a single day
+            // Add sort parameters if your backend supports them
+            // sortBy: 'adjustmentDate',
+            // sortOrder: 'desc'
         };
+
+        // Remove undefined params
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         try {
             const response = await axios.get(`${API_URL}/stock-adjustments`, {
@@ -106,30 +156,37 @@ const StockAdjustment = () => {
 
             setAdjustments(response.data.data || []);
             setPagination({
-                current: page,
-                pageSize,
+                current: response.data.pagination?.page || page,
+                pageSize: response.data.pagination?.limit || pageSize,
                 total: response.data.pagination?.total || 0
             });
         } catch (err) {
             console.error("Error fetching adjustments:", err);
-            toast.error("Failed to fetch adjustments.");
+            toast.error(`Failed to fetch adjustments: ${err.response?.data?.message || err.message}`);
         } finally {
             setIsLoading(false);
         }
-    }, [searchQuery, selectedLocation, selectedProduct, selectedAdjustmentType, selectedDate]);
+    }, [searchQuery, selectedLocation, selectedProduct, selectedAdjustmentType, selectedDate, pagination.current, pagination.pageSize]); // Add pagination state as dependency
 
-    // Handle table change (pagination, sorting)
-    const handleTableChange = (paginationConfig) => {
+
+    // Handle table changes (e.g., pagination)
+    const handleTableChange = (paginationConfig, filters, sorter) => {
         setPagination(prev => ({
             ...prev,
             current: paginationConfig.current || 1,
             pageSize: paginationConfig.pageSize || 10
         }));
+        // Add sorting logic here if backend supports it
+        // if (sorter && sorter.field) {
+        //     console.log('Sorting:', sorter.field, sorter.order);
+        //     // Set sorting state and refetch
+        // }
     };
 
-    // Handle filter changes
+    // Generic handler for filter dropdown changes
     const handleFilterChange = (setter) => (option) => {
         setter(option);
+        setPagination(prev => ({ ...prev, current: 1 })); // Reset to page 1 on filter change
     };
 
     // Reset all filters
@@ -139,78 +196,108 @@ const StockAdjustment = () => {
         setSelectedProduct(null);
         setSelectedAdjustmentType(null);
         setSelectedDate(null);
-        setIsFilterVisible(false);
-        setPagination(prev => ({ ...prev, current: 1 }));
+        setIsFilterVisible(false); // Optionally close filter section
+        setPagination(prev => ({ ...prev, current: 1 })); // Reset page
+        // Trigger fetch immediately after resetting
+        // fetchAdjustments(1, pagination.pageSize); // Or let the useEffect handle it
     };
 
     // Delete adjustment
     const handleDeleteAdjustment = (adjustmentId, referenceNumber) => {
         MySwal.fire({
             title: "Are you sure?",
-            text: `This will delete adjustment ${referenceNumber || ''}`,
+            html: `This action cannot be undone. <br/> You are attempting to delete adjustment: <strong>${referenceNumber || adjustmentId}</strong>. <br/> <strong style='color: red;'>Deleting adjustments can break audit trails. Consider creating a correcting adjustment instead.</strong>`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const authHeader = getAuthHeader();
                 if (!authHeader) return;
 
+                // --- Check backend setting for deletion ---
+                // Ideally, the backend should control if deletion is allowed.
+                // If the backend strictly forbids it (like in the provided controller),
+                // this frontend call will fail with a 403 or similar error.
+
                 try {
+                    setIsLoading(true); // Show loading indicator during delete
                     await axios.delete(`${API_URL}/stock-adjustments/${adjustmentId}`, {
                         headers: authHeader
                     });
 
-                    toast.success("Adjustment deleted successfully");
+                    toast.success(`Adjustment ${referenceNumber || adjustmentId} deleted successfully`);
+                    // Refetch data for the current page after deletion
                     fetchAdjustments(pagination.current, pagination.pageSize);
                 } catch (err) {
                     console.error("Error deleting adjustment:", err);
-                    toast.error("Failed to delete adjustment.");
+                    toast.error(`Failed to delete adjustment: ${err.response?.data?.message || err.message}`);
+                    setIsLoading(false); // Ensure loading is turned off on error
                 }
+                // No need for finally { setIsLoading(false); } here as fetchAdjustments handles it
             }
         });
     };
 
-    // Fetch data on component mount
+    // Initialize modal when component mounts
+    useEffect(() => {
+        const modal = new Modal(document.getElementById('viewNotesModal'));
+        setNotesModal(modal);
+    }, []);
+
+    // Function to handle showing notes
+    const handleShowNotes = (notes) => {
+        setSelectedNotes(notes || 'No notes available');
+        notesModal?.show();
+    };
+
+    // Function to handle hiding notes
+    const handleHideNotes = () => {
+        notesModal?.hide();
+    };
+
+    // Fetch filter data on component mount
     useEffect(() => {
         fetchFilterData();
     }, [fetchFilterData]);
 
-    // Fetch data when filters or pagination changes
+    // Fetch adjustments when filters or pagination change (debounced)
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchAdjustments(pagination.current, pagination.pageSize);
-        }, 300);
+            fetchAdjustments(); // Uses state for page and pageSize
+        }, 500); // Debounce requests
 
-        return () => clearTimeout(timer);
-    }, [fetchAdjustments, pagination.current, pagination.pageSize]);
+        return () => clearTimeout(timer); // Cleanup timer on unmount or dependency change
+    }, [fetchAdjustments]); // fetchAdjustments is memoized and includes its own dependencies
 
-    // Table columns
+
+    // Table columns definition
     const columns = [
         {
-            title: "Adjustment #",
+            title: "Adj #", // Shortened title
             dataIndex: "adjustmentNumber",
             key: "adjustmentNumber",
-            render: (text) => text || <span className="text-muted">N/A</span>,
-            sorter: true,
-            width: '150px'
+            render: (text) => text || <Badge bg="light" text="dark">N/A</Badge>,
+            sorter: (a, b) => (a.adjustmentNumber || '').localeCompare(b.adjustmentNumber || ''), // Basic client-side sort
+            width: '120px'
         },
         {
             title: "Reference",
             dataIndex: "referenceNumber",
             key: "referenceNumber",
-            render: (text) => text || <span className="text-muted">N/A</span>,
-            sorter: true,
+            render: (text) => text || <i className="text-muted">None</i>,
+            sorter: (a, b) => (a.referenceNumber || '').localeCompare(b.referenceNumber || ''),
             width: '150px'
         },
         {
             title: "Date",
             dataIndex: "adjustmentDate",
             key: "adjustmentDate",
-            render: (date) => new Date(date).toLocaleDateString(),
-            sorter: true,
+            render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
+            sorter: (a, b) => new Date(a.adjustmentDate) - new Date(b.adjustmentDate),
             width: '120px'
         },
         {
@@ -218,77 +305,90 @@ const StockAdjustment = () => {
             dataIndex: ["location", "name"],
             key: "location",
             render: (text, record) => (
-                <span>
+                <span title={record.location?.type ? `${text} (${record.location.type})` : text}>
                     {text || <span className="text-muted">N/A</span>}
                     {record.location?.type && ` (${record.location.type})`}
                 </span>
             ),
-            sorter: true,
+            sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
             width: '180px'
         },
         {
             title: "Product",
-            dataIndex: ["product", "name"],
-            key: "product",
-            render: (text, record) => {
+            key: "product", // Use key for uniqueness
+            render: (_, record) => {
                 const product = record.product;
                 if (!product) return <span className="text-muted">N/A</span>;
+                const imageUrl = product.imageUrl
+                    ? `${BACKEND_BASE_URL}${product.imageUrl.startsWith('/') ? product.imageUrl : `/${product.imageUrl}`}`
+                    : '/assets/img/placeholder-product.png';
 
                 return (
-                    <span className="userimgname">
-                        <Link to="#" className="product-img">
+                    <div className="userimgname d-flex align-items-center"> {/* Use flex */}
+                        <Link to="#" className="product-img me-2"> {/* Added margin */}
                             <img
                                 alt={product.name}
-                                src={product.imageUrl ? `${BACKEND_BASE_URL}${product.imageUrl}` : '/assets/img/placeholder-product.png'}
+                                src={imageUrl}
                                 onError={(e) => {
                                     e.target.onerror = null;
                                     e.target.src = '/assets/img/placeholder-product.png';
                                 }}
-                                style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
                             />
                         </Link>
-                        <Link to="#">{product.name}</Link>
-                    </span>
+                        <div style={{ lineHeight: '1.2' }}> {/* Adjust line height */}
+                            <Link to="#" title={product.name}>{product.name?.length > 30 ? product.name.substring(0, 27) + '...' : product.name}</Link>
+                            <br />
+                            <small className="text-muted">{product.sku || 'No SKU'}</small>
+                        </div>
+                    </div>
                 );
             },
-            sorter: true,
+             sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
             width: '250px'
         },
         {
             title: "Type",
             dataIndex: "adjustmentType",
             key: "adjustmentType",
-            render: (type) => (
-                <Badge bg={
-                    type === 'Addition' || type === 'Transfer In' || type === 'Return' ? 'success' :
-                    type === 'Subtraction' || type === 'Damage' || type === 'Theft' || type === 'Transfer Out' ? 'danger' :
-                    'secondary'
-                }>
-                    {type}
-                </Badge>
-            ),
-            sorter: true,
+            render: (type) => {
+                 let badgeBg = 'secondary'; // Default
+                 if (['Addition', 'Transfer In', 'Return', 'Initial Stock', 'Correction'].includes(type)) badgeBg = 'success';
+                 if (['Subtraction', 'Damage', 'Theft', 'Transfer Out', 'Obsolete'].includes(type)) badgeBg = 'danger';
+                 // 'Other' remains secondary
+                 return <Badge bg={badgeBg}>{type}</Badge>;
+            },
+            sorter: (a, b) => (a.adjustmentType || '').localeCompare(b.adjustmentType || ''),
+            filters: adjustmentTypeOptions.map(opt => ({ text: opt.label, value: opt.value })), // Add client-side filters if needed
+            onFilter: (value, record) => record.adjustmentType === value,
             width: '150px'
         },
         {
-            title: "Quantity",
+            title: "Qty Adj.", // Shortened title
             dataIndex: "quantityAdjusted",
-            key: "quantity",
-            render: (qty, record) => (
-                <span className={record.adjustmentType === 'Addition' ? 'text-success' : 'text-danger'}>
-                    {record.adjustmentType === 'Addition' ? '+' : '-'}{qty}
-                </span>
-            ),
-            sorter: true,
+            key: "quantityAdjusted",
+            render: (qty, record) => {
+                 let sign = '';
+                 let textClass = 'text-dark'; // Default
+                 if (['Addition', 'Transfer In', 'Return', 'Initial Stock', 'Correction'].includes(record.adjustmentType)) {
+                     sign = '+';
+                     textClass = 'text-success fw-bold';
+                 } else if (['Subtraction', 'Damage', 'Theft', 'Transfer Out', 'Obsolete'].includes(record.adjustmentType)) {
+                     sign = '-';
+                     textClass = 'text-danger fw-bold';
+                 }
+                 return <span className={textClass}>{sign}{qty ?? 0}</span>;
+            },
+            sorter: (a, b) => a.quantityAdjusted - b.quantityAdjusted,
             align: 'center',
             width: '100px'
         },
-        {
-            title: "Previous Qty",
+         {
+            title: "Prev Qty",
             dataIndex: "previousQuantity",
             key: "previousQuantity",
-            render: (qty) => qty ?? 0,
-            sorter: true,
+            render: (qty) => qty ?? <Badge bg="light" text="dark">N/A</Badge>,
+            sorter: (a, b) => (a.previousQuantity ?? 0) - (b.previousQuantity ?? 0),
             align: 'center',
             width: '100px'
         },
@@ -296,155 +396,215 @@ const StockAdjustment = () => {
             title: "New Qty",
             dataIndex: "newQuantity",
             key: "newQuantity",
-            render: (qty) => qty ?? 0,
-            sorter: true,
+            render: (qty) => qty ?? <Badge bg="light" text="dark">N/A</Badge>,
+            sorter: (a, b) => (a.newQuantity ?? 0) - (b.newQuantity ?? 0),
             align: 'center',
             width: '100px'
         },
         {
-            title: "By",
+            title: "Adjusted By",
             dataIndex: ["adjustedBy", "name"],
             key: "adjustedBy",
-            render: (text) => text || <span className="text-muted">N/A</span>,
-            sorter: true,
+            render: (text) => text || <span className="text-muted">System/Unknown</span>,
+             sorter: (a, b) => (a.adjustedBy?.name || '').localeCompare(b.adjustedBy?.name || ''),
             width: '150px'
+        },
+        {
+            title: "Notes",
+            key: "notes",
+            render: (_, record) => (
+                <div>
+                    {record.reason ? (
+                        <>
+                            <span className="d-inline-block text-truncate" style={{ maxWidth: '150px' }}>
+                                {record.reason}
+                            </span>
+                            <button
+                                className="btn btn-link btn-sm p-0 ms-2"
+                                onClick={() => handleShowNotes(record.reason)}
+                                title="View full notes"
+                            >
+                                <i className="fas fa-expand-alt"></i>
+                            </button>
+                        </>
+                    ) : (
+                        <span className="text-muted">No notes</span>
+                    )}
+                </div>
+            ),
+            width: '200px'
         },
         {
             title: "Action",
             key: "action",
             render: (_, record) => (
-                <div className="edit-delete-action">
-                    <Link
-                        className="me-2 p-2"
-                        to="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#edit-units"
-                    >
-                        <Edit className="feather-edit" />
-                    </Link>
-                    <Link
-                        className="confirm-text p-2"
-                        to="#"
-                        onClick={() => handleDeleteAdjustment(record._id, record.referenceNumber)}
-                    >
-                        <Trash2 className="feather-trash-2" />
-                    </Link>
+                <div className="edit-delete-action d-flex justify-content-center">
+                    {/* Edit Button (If you implement editing) */}
+                    {/* <OverlayTrigger overlay={<Tooltip>Edit Adjustment</Tooltip>}>
+                        <Link
+                            className="me-2 p-2"
+                            to="#" // Link to an edit route or trigger an edit modal
+                            // onClick={() => handleEditAdjustment(record)} // Example handler
+                        >
+                             <Edit size={18} />
+                        </Link>
+                     </OverlayTrigger> */}
+                    <OverlayTrigger overlay={<Tooltip>Delete Adjustment (Caution!)</Tooltip>}>
+                        <Link
+                            className="confirm-text p-2"
+                            to="#"
+                            onClick={() => handleDeleteAdjustment(record._id, record.referenceNumber || record.adjustmentNumber)}
+                        >
+                            <Trash2 size={18} className="text-danger" />
+                        </Link>
+                    </OverlayTrigger>
                 </div>
             ),
-            width: '120px'
+            width: '80px',
+            align: 'center',
         }
     ];
 
+
     return (
         <div className="page-wrapper">
-            <ToastContainer position="top-right" autoClose={3000} />
+            {/* Toast Container for Notifications */}
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
 
             <div className="content">
                 <Breadcrumbs
                     maintitle="Stock Adjustment"
-                    subtitle="Manage your stock adjustment"
-                    addButton="Add New"
+                    subtitle="Manage stock level changes"
+                    addButton="Add New Adjustment" // Clearer button text
+                    modalTarget="#add-units"        // Target the modal ID
                 />
 
                 <div className="card table-list-card">
                     <div className="card-body">
+                        {/* Table Top Section (Search, Filter Toggle) */}
                         <div className="table-top">
                             <div className="search-set">
                                 <div className="search-input">
                                     <input
                                         type="text"
-                                        placeholder="Search"
+                                        placeholder="Search by Adj#, Ref#, Product..."
                                         className="form-control form-control-sm formsearch"
                                         value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchQuery(e.target.value);
+                                            setPagination(prev => ({ ...prev, current: 1 })); // Reset page on search change
+                                        }}
                                     />
-                                    <button className="btn btn-searchset" onClick={() => fetchAdjustments(1, pagination.pageSize)}>
-                                        <Search className="feather-search" />
+                                    <button className="btn btn-searchset" type="button">
+                                        <Search size={18} />
                                     </button>
                                 </div>
                             </div>
                             <div className="search-path">
-                                <Link
-                                    className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                                    onClick={() => setIsFilterVisible(!isFilterVisible)}
-                                >
-                                    <Filter className="filter-icon" />
-                                    <span>
-                                        <X className="filter-close" />
-                                    </span>
-                                </Link>
+                                <OverlayTrigger overlay={<Tooltip>{isFilterVisible ? 'Hide Filters' : 'Show Filters'}</Tooltip>}>
+                                    <Link
+                                        className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
+                                        to="#"
+                                        onClick={() => setIsFilterVisible(!isFilterVisible)}
+                                    >
+                                        <Filter className="filter-icon" />
+                                        <span>
+                                            <X className={`filter-close ${isFilterVisible ? 'd-inline' : 'd-none'}`} />
+                                        </span>
+                                    </Link>
+                                 </OverlayTrigger>
                             </div>
-                            <div className="form-sort stylewidth">
+                            {/* Optional: Add sort dropdown if needed */}
+                            {/* <div className="form-sort">
                                 <Sliders className="info-img" />
-                                <Select
-                                    className="select"
-                                    options={[
-                                        { value: "sortByDate", label: "Sort by Date" },
-                                        { value: "sortByQuantity", label: "Sort by Quantity" }
-                                    ]}
-                                    placeholder="Sort by"
-                                />
-                            </div>
+                                <Select ... />
+                            </div> */}
                         </div>
 
-                        {/* Filter Section */}
+                        {/* Filter Section (Conditionally Rendered) */}
                         {isFilterVisible && (
-                            <div className="card visible" id="filter_inputs">
+                            <div className="card filter-card mb-3"> {/* Added margin */}
                                 <div className="card-body pb-0">
                                     <div className="row">
-                                        <div className="col-lg-2 col-sm-6 col-12">
+                                        <div className="col-lg-3 col-sm-6 col-12 mb-3">
                                             <div className="input-blocks">
                                                 <Select
-                                                    options={locations}
+                                                    options={[{ value: '', label: 'All Locations' }, ...locations]}
                                                     value={selectedLocation}
                                                     onChange={handleFilterChange(setSelectedLocation)}
-                                                    placeholder="Choose Location"
+                                                    placeholder="Filter by Location"
                                                     className="select"
+                                                    classNamePrefix="react-select"
+                                                    isClearable
                                                 />
                                             </div>
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
+                                        <div className="col-lg-3 col-sm-6 col-12 mb-3">
                                             <div className="input-blocks">
                                                 <Select
-                                                    options={products}
-                                                    value={selectedProduct}
-                                                    onChange={handleFilterChange(setSelectedProduct)}
-                                                    placeholder="Choose Product"
-                                                    className="select"
+                                                     options={[{ value: '', label: 'All Products' }, ...products]}
+                                                     value={selectedProduct}
+                                                     onChange={handleFilterChange(setSelectedProduct)}
+                                                     placeholder="Filter by Product"
+                                                     className="select"
+                                                     classNamePrefix="react-select"
+                                                     formatOptionLabel={formatOptionLabel} // Reuse label formatting
+                                                     isClearable
+                                                     filterOption={(option, rawInput) => { // Basic search
+                                                        const input = rawInput.toLowerCase();
+                                                        const label = option.label?.toLowerCase() || '';
+                                                        const sku = option.data?.sku?.toLowerCase() || option.sku?.toLowerCase() || '';
+                                                        return label.includes(input) || sku.includes(input);
+                                                     }}
                                                 />
                                             </div>
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
+                                        <div className="col-lg-2 col-sm-6 col-12 mb-3">
                                             <div className="input-blocks">
                                                 <Select
-                                                    options={adjustmentTypeOptions}
+                                                    options={[{ value: '', label: 'All Types' }, ...adjustmentTypeOptions]}
                                                     value={selectedAdjustmentType}
                                                     onChange={handleFilterChange(setSelectedAdjustmentType)}
-                                                    placeholder="Choose Type"
+                                                    placeholder="Filter by Type"
                                                     className="select"
+                                                    classNamePrefix="react-select"
+                                                    isClearable
                                                 />
                                             </div>
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <DatePicker
-                                                    selected={selectedDate}
-                                                    onChange={setSelectedDate}
-                                                    dateFormat="dd/MM/yyyy"
-                                                    placeholderText="Choose Date"
-                                                    className="form-control datetimepicker"
-                                                />
+                                        <div className="col-lg-2 col-sm-6 col-12 mb-3">
+                                             <div className="input-blocks">
+                                                <div className="input-groupicon calender-input">
+                                                    <DatePicker
+                                                        selected={selectedDate}
+                                                        onChange={(date) => {
+                                                            setSelectedDate(date);
+                                                            setPagination(prev => ({ ...prev, current: 1 }));
+                                                        }}
+                                                        dateFormat="dd/MM/yyyy"
+                                                        placeholderText="Filter by Date"
+                                                        className="form-control form-control-sm datetimepicker" // Use sm control
+                                                        isClearable
+                                                        peekNextMonth
+                                                        showMonthDropdown
+                                                        showYearDropdown
+                                                        dropdownMode="select"
+                                                    />
+                                                     <span className="addon-icon">
+                                                         <Calendar size={18} />
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-lg-4 col-sm-6 col-12 ms-auto">
-                                            <div className="input-blocks">
-                                                <button
-                                                    className="btn btn-filters ms-auto"
-                                                    onClick={resetFilters}
-                                                >
-                                                    Reset Filters
-                                                </button>
-                                            </div>
+                                        <div className="col-lg-2 col-12 mb-3 d-flex align-items-center">
+                                            <button
+                                                className="btn btn-cancel btn-sm w-100" // Use cancel style, small size
+                                                onClick={resetFilters}
+                                                title="Reset all filters"
+                                            >
+                                                <RotateCcw className="me-1" size={16} />
+                                                Reset Filters
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -453,29 +613,23 @@ const StockAdjustment = () => {
 
                         {/* Table Section */}
                         <div className="table-responsive">
-                            {isLoading ? (
-                                <div className="text-center p-5">
-                                    <div className="spinner-border text-primary" role="status">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <Table
-                                    className="table datanew"
-                                    columns={columns}
-                                    dataSource={adjustments}
-                                    pagination={{
-                                        current: pagination.current,
-                                        pageSize: pagination.pageSize,
-                                        total: pagination.total,
-                                        showSizeChanger: true,
-                                        onChange: (page, pageSize) => {
-                                            setPagination({ current: page, pageSize, total: pagination.total });
-                                        }
-                                    }}
-                                    onChange={handleTableChange}
-                                />
-                            )}
+                             {/* Use the custom Table component */}
+                             <Table
+                                loading={isLoading}
+                                columns={columns}
+                                dataSource={adjustments}
+                                rowKey="_id" // Use MongoDB _id as the key
+                                pagination={{
+                                    current: pagination.current,
+                                    pageSize: pagination.pageSize,
+                                    total: pagination.total,
+                                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ['10', '25', '50', '100'],
+                                }}
+                                onChange={handleTableChange} // Pass the handler
+                                className="table datanew dataTable no-footer" // Add necessary classes
+                            />
                         </div>
                     </div>
                 </div>
@@ -483,10 +637,51 @@ const StockAdjustment = () => {
 
             {/* Modals */}
             <StockadjustmentModal
-                onAdjustmentCreated={() => fetchAdjustments(pagination.current, pagination.pageSize)}
-                locations={locations}
-                products={products}
+                // Pass the function to refetch data on successful creation
+                onAdjustmentCreated={() => fetchAdjustments(1, pagination.pageSize)} // Reset to page 1
+                locations={locations} // Pass fetched locations
+                products={products} // Pass fetched and mapped products
+                adjustmentTypes={adjustmentTypeOptions} // Pass types
+                backendBaseUrl={BACKEND_BASE_URL} // Pass base URL for images
+                apiUrl={API_URL} // Pass API URL
+                getAuthHeader={getAuthHeader} // Pass auth header function
             />
+
+            {/* Notes View Modal */}
+            <div
+                className="modal fade"
+                id="viewNotesModal"
+                tabIndex={-1}
+                aria-hidden="true"
+            >
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Adjustment Notes</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                onClick={handleHideNotes}
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="p-3" style={{ whiteSpace: 'pre-wrap' }}>
+                                {selectedNotes}
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handleHideNotes}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

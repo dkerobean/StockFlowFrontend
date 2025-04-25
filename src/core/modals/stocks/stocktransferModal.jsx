@@ -1,32 +1,101 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import ImageWithBasePath from "../../img/imagewithbasebath";
 import { Link } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-const StockTransferModal = () => {
-  const optionsChoose = [
-    { value: "choose", label: "Choose" },
-    { value: "lobarHandy", label: "Lobar Handy" },
-    { value: "quaintWarehouse", label: "Quaint Warehouse" },
-  ];
+const API_URL = process.env.REACT_APP_API_URL;
 
-  const optionsSelosyLogerro = [
-    { value: "choose", label: "Choose" },
-    { value: "selosy", label: "Selosy" },
-    { value: "logerro", label: "Logerro" },
-  ];
+const StockTransferModal = ({ onTransferCreated, locations, products }) => {
+  const [formData, setFormData] = useState({
+    fromLocation: null,
+    toLocation: null,
+    selectedProduct: null,
+    quantity: 1,
+    notes: '',
+    responsiblePerson: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [productOptions, setProductOptions] = useState([]);
 
-  const optionsStore1Store2 = [
-    { value: "choose", label: "Choose" },
-    { value: "store1", label: "Store 1" },
-    { value: "store2", label: "Store 2" },
-  ];
+  useEffect(() => {
+    if (products && Array.isArray(products)) {
+      const options = products.map(product => ({
+        value: product._id,
+        label: product.name,
+        sku: product.sku,
+        imageUrl: product.imageUrl
+      }));
+      setProductOptions(options);
+    }
+  }, [products]);
 
-  const optionsSentPending = [
-    { value: "choose", label: "Choose" },
-    { value: "sent", label: "Sent" },
-    { value: "pending", label: "Pending" },
-  ];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!formData.fromLocation || !formData.toLocation || !formData.selectedProduct) {
+      toast.error("Please select source location, destination location, and product");
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.fromLocation.value === formData.toLocation.value) {
+      toast.error("Source and destination locations cannot be the same");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const payload = {
+        productId: formData.selectedProduct.value,
+        quantity: parseInt(formData.quantity),
+        fromLocationId: formData.fromLocation.value,
+        toLocationId: formData.toLocation.value,
+        notes: formData.notes || undefined
+      };
+
+      console.log('Creating stock transfer with payload:', payload);
+
+      const response = await axios.post(`${API_URL}/transfers`, payload, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Transfer creation response:', response.data);
+      toast.success("Stock transfer created successfully");
+
+      if (onTransferCreated) {
+        onTransferCreated();
+      }
+
+      // Close modal and reset form
+      const closeButton = document.getElementById('add-units').querySelector('.close');
+      if (closeButton) {
+        closeButton.click();
+      }
+
+      setFormData({
+        fromLocation: null,
+        toLocation: null,
+        selectedProduct: null,
+        quantity: 1,
+        notes: '',
+        responsiblePerson: ''
+      });
+    } catch (err) {
+      console.error("Error creating transfer:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to create transfer");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       {/* Add Stock */}
@@ -49,12 +118,18 @@ const StockTransferModal = () => {
                   </button>
                 </div>
                 <div className="modal-body custom-modal-body">
-                  <form>
+                  <form onSubmit={handleSubmit}>
                     <div className="row">
                       <div className="col-lg-6">
                         <div className="input-blocks">
                           <label>Warehouse From</label>
-                          <Select className="select" options={optionsChoose} />
+                          <Select
+                            className="select"
+                            options={locations}
+                            value={formData.fromLocation}
+                            onChange={(selected) => setFormData({...formData, fromLocation: selected})}
+                            placeholder="Select Source Location"
+                          />
                         </div>
                       </div>
                       <div className="col-lg-6">
@@ -62,41 +137,62 @@ const StockTransferModal = () => {
                           <label>Warehouse To</label>
                           <Select
                             className="select"
-                            options={optionsSelosyLogerro}
+                            options={locations}
+                            value={formData.toLocation}
+                            onChange={(selected) => setFormData({...formData, toLocation: selected})}
+                            placeholder="Select Destination Location"
                           />
                         </div>
                       </div>
                       <div className="col-lg-12">
                         <div className="input-blocks">
                           <label>Responsible Person</label>
-                          <input type="text" className="form-control" />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="input-blocks search-form mb-3">
-                          <label>Product</label>
                           <input
                             type="text"
                             className="form-control"
+                            value={formData.responsiblePerson}
+                            onChange={(e) => setFormData({...formData, responsiblePerson: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-lg-8">
+                        <div className="input-blocks">
+                          <label>Product</label>
+                          <Select
+                            className="select"
+                            options={productOptions}
+                            value={formData.selectedProduct}
+                            onChange={(selected) => setFormData({...formData, selectedProduct: selected})}
                             placeholder="Select Product"
                           />
-                          <i
-                            data-feather="search"
-                            className="feather-search custom-search"
+                        </div>
+                      </div>
+                      <div className="col-lg-4">
+                        <div className="input-blocks">
+                          <label>Quantity</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={formData.quantity}
+                            onChange={(e) => setFormData({...formData, quantity: Math.max(1, parseInt(e.target.value) || 1)})}
+                            min="1"
                           />
                         </div>
                       </div>
                       <div className="col-lg-12">
-                        <div className="input-blocks search-form mb-0">
+                        <div className="input-blocks">
                           <label>Notes</label>
                           <textarea
                             className="form-control"
-                            defaultValue={""}
+                            value={formData.notes}
+                            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                            rows="3"
                           />
                         </div>
                       </div>
                     </div>
-                    <div className="modal-footer-btn">
+
+                    <div className="modal-footer-btn mt-3">
                       <button
                         type="button"
                         className="btn btn-cancel me-2"
@@ -104,8 +200,12 @@ const StockTransferModal = () => {
                       >
                         Cancel
                       </button>
-                      <button type="submit" className="btn btn-submit">
-                        Create
+                      <button
+                        type="submit"
+                        className="btn btn-submit"
+                        disabled={isLoading || !formData.fromLocation || !formData.toLocation || !formData.selectedProduct}
+                      >
+                        {isLoading ? 'Processing...' : 'Create Transfer'}
                       </button>
                     </div>
                   </form>
@@ -153,16 +253,13 @@ const StockTransferModal = () => {
                       <div className="col-lg-6">
                         <div className="input-blocks">
                           <label>Warehouse From</label>
-                          <Select className="select" options={optionsChoose} />
+                          <Select className="select" options={locations} />
                         </div>
                       </div>
                       <div className="col-lg-6">
                         <div className="input-blocks">
                           <label>Warehouse To</label>
-                          <Select
-                            className="select"
-                            options={optionsSelosyLogerro}
-                          />
+                          <Select className="select" options={locations} />
                         </div>
                       </div>
                       <div className="col-lg-12">
@@ -330,7 +427,7 @@ const StockTransferModal = () => {
                         <label>From</label>
                         <Select
                           className="select"
-                          options={optionsStore1Store2}
+                          options={locations}
                         />
                       </div>
                     </div>
@@ -339,7 +436,7 @@ const StockTransferModal = () => {
                         <label>To</label>
                         <Select
                           className="select"
-                          options={optionsStore1Store2}
+                          options={locations}
                         />
                       </div>
                     </div>
@@ -348,7 +445,7 @@ const StockTransferModal = () => {
                         <label>Satus</label>
                         <Select
                           className="select"
-                          options={optionsSentPending}
+                          options={["choose", "sent", "pending"]}
                         />
                       </div>
                     </div>
