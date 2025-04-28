@@ -81,57 +81,54 @@ const StockadjustmentModal = ({
     };
 
     // Function to fetch available products for a location
-    const fetchAvailableProducts = async (locationId) => {
-        if (!locationId) return;
+   // Function to fetch available products for a location
+const fetchAvailableProducts = async (locationId) => {
+    if (!locationId) {
+        setAvailableProducts([]); // Clear products if no location is selected
+        return;
+    }
 
-        setIsLoadingProducts(true);
-        const authHeader = getAuthHeader();
-        if (!authHeader) {
-            setIsLoadingProducts(false);
-            return;
+    setIsLoadingProducts(true);
+    const authHeader = getAuthHeader();
+    if (!authHeader) {
+        setIsLoadingProducts(false);
+        return;
+    }
+
+    try {
+        // Fetch products based on the selected location
+        const response = await axios.get(`${apiUrl}/products?locationId=${locationId}`, {
+            headers: authHeader,
+        });
+
+        if (response.data && Array.isArray(response.data)) {
+            const mappedProducts = response.data.map((product) => ({
+                value: product._id,
+                label: product.name || 'Unnamed Product',
+                sku: product.sku || 'No SKU',
+                imageUrl: product.imageUrl,
+            }));
+            setAvailableProducts(mappedProducts);
+        } else {
+            setAvailableProducts([]);
         }
+    } catch (err) {
+        console.error("Error fetching available products:", err);
+        toast.error("Failed to load products for the selected location.");
+        setAvailableProducts([]);
+    } finally {
+        setIsLoadingProducts(false);
+    }
+};
 
-        try {
-            // Always start with all products
-            setAvailableProducts(products);
-
-            // Only check inventory if not doing initial stock
-            if (selectedAdjTypeOption?.value !== 'Initial Stock') {
-                const response = await axios.get(`${apiUrl}/inventory?locationId=${locationId}`, {
-                    headers: authHeader
-                });
-
-                if (response.data && Array.isArray(response.data)) {
-                    const inventoryProducts = response.data.map(inv => inv.product?._id).filter(Boolean);
-
-                    if (inventoryProducts.length > 0) {
-                        // Filter products that have inventory
-                        const filteredProducts = products.filter(product =>
-                            inventoryProducts.includes(product.value)
-                        );
-                        setAvailableProducts(filteredProducts);
-                    } else {
-                        // If no inventory found, show a message but still allow Initial Stock
-                        toast.info("This location has no existing inventory. You can:");
-                        toast.info("1. Select 'Initial Stock' type to add new products");
-                        toast.info("2. Or continue with current type to adjust existing products");
-
-                        // Automatically switch to Initial Stock type if no inventory exists
-                        const initialStockType = adjustmentTypes.find(t => t.value === 'Initial Stock');
-                        if (initialStockType) {
-                            setSelectedAdjTypeOption(initialStockType);
-                        }
-                    }
-                }
-            }
-        } catch (err) {
-            console.error("Error fetching available products:", err);
-            // Don't show error, just set all products as available
-            setAvailableProducts(products);
-        } finally {
-            setIsLoadingProducts(false);
-        }
-    };
+// Update available products when location changes
+useEffect(() => {
+    if (location) {
+        fetchAvailableProducts(location.value);
+    } else {
+        setAvailableProducts([]);
+    }
+}, [location]);
 
     // Update available products when location or adjustment type changes
     useEffect(() => {

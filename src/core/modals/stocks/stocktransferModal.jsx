@@ -15,8 +15,7 @@ const StockTransferModal = ({ onTransferCreated, locations, products }) => {
     toLocation: null,
     selectedProduct: null,
     quantity: 1,
-    notes: '',
-    responsiblePerson: ''
+    notes: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [productOptions, setProductOptions] = useState([]);
@@ -33,68 +32,92 @@ const StockTransferModal = ({ onTransferCreated, locations, products }) => {
     }
   }, [products]);
 
+  useEffect(() => {
+    const fetchProductsForLocation = async () => {
+        if (!formData.fromLocation) {
+            setProductOptions([]);
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${API_URL}/products?locationId=${formData.fromLocation.value}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            const options = response.data.map(product => ({
+                value: product._id,
+                label: product.name,
+                sku: product.sku,
+                imageUrl: product.imageUrl
+            }));
+            setProductOptions(options);
+        } catch (error) {
+            console.error("Error fetching products for location:", error);
+            toast.error("Failed to fetch products for the selected location");
+        }
+    };
+
+    fetchProductsForLocation();
+}, [formData.fromLocation]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     if (!formData.fromLocation || !formData.toLocation || !formData.selectedProduct) {
-      toast.error("Please select source location, destination location, and product");
-      setIsLoading(false);
-      return;
+        toast.error("Please select source location, destination location, and product");
+        setIsLoading(false);
+        return;
     }
 
     if (formData.fromLocation.value === formData.toLocation.value) {
-      toast.error("Source and destination locations cannot be the same");
-      setIsLoading(false);
-      return;
+        toast.error("Source and destination locations cannot be the same");
+        setIsLoading(false);
+        return;
     }
 
     try {
-      const payload = {
-        productId: formData.selectedProduct.value,
-        quantity: parseInt(formData.quantity),
-        fromLocationId: formData.fromLocation.value,
-        toLocationId: formData.toLocation.value,
-        notes: formData.notes || undefined
-      };
+        const payload = {
+            productId: formData.selectedProduct.value,
+            quantity: parseInt(formData.quantity),
+            fromLocationId: formData.fromLocation.value,
+            toLocationId: formData.toLocation.value,
+            notes: formData.notes || undefined
+        };
 
-      console.log('Creating stock transfer with payload:', payload);
+        const response = await axios.post(`${API_URL}/transfers`, payload, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-      const response = await axios.post(`${API_URL}/transfers`, payload, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+        toast.success("Stock transfer request has been placed successfully!");
+
+        if (onTransferCreated) {
+            onTransferCreated(); // Notify parent component
         }
-      });
 
-      console.log('Transfer creation response:', response.data);
-      toast.success("Stock transfer created successfully");
+        // Reset form and close modal
+        setFormData({
+            fromLocation: null,
+            toLocation: null,
+            selectedProduct: null,
+            quantity: 1,
+            notes: ''
+        });
 
-      if (onTransferCreated) {
-        onTransferCreated();
-      }
-
-      // Close modal and reset form
-      const closeButton = document.getElementById('add-units').querySelector('.close');
-      if (closeButton) {
-        closeButton.click();
-      }
-
-      setFormData({
-        fromLocation: null,
-        toLocation: null,
-        selectedProduct: null,
-        quantity: 1,
-        notes: '',
-        responsiblePerson: ''
-      });
+        const closeButton = document.querySelector('#add-units .close');
+        if (closeButton) closeButton.click();
     } catch (err) {
-      console.error("Error creating transfer:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Failed to create transfer");
+        console.error("Error creating transfer:", err.response?.data || err.message);
+        toast.error(err.response?.data?.message || "Failed to create transfer");
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
 
   return (
     <div>
@@ -141,17 +164,6 @@ const StockTransferModal = ({ onTransferCreated, locations, products }) => {
                             value={formData.toLocation}
                             onChange={(selected) => setFormData({...formData, toLocation: selected})}
                             placeholder="Select Destination Location"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="input-blocks">
-                          <label>Responsible Person</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={formData.responsiblePerson}
-                            onChange={(e) => setFormData({...formData, responsiblePerson: e.target.value})}
                           />
                         </div>
                       </div>
