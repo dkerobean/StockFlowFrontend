@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Filter, Sliders } from "react-feather";
 import { Link } from "react-router-dom";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
@@ -7,9 +7,25 @@ import { User, Zap } from "react-feather";
 import { Calendar } from "react-feather";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import Breadcrumbs from "../../core/breadcrumbs";
+import { fetchExpenses } from "../FinanceAccounts/expenseService";
 
 const ExpenseReport = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [expenses, setExpenses] = useState([]);
+
+  useEffect(() => {
+    const loadExpenses = async () => {
+      try {
+        const data = await fetchExpenses();
+        setExpenses(data);
+      } catch (error) {
+        console.error("Error loading expenses:", error);
+      }
+    };
+
+    loadExpenses();
+  }, []);
+
   const toggleFilterVisibility = () => {
     setIsFilterVisible((prevVisibility) => !prevVisibility);
   };
@@ -173,119 +189,21 @@ const ExpenseReport = () => {
               <table className="table datanew">
                 <thead>
                   <tr>
-                    <th className="no-sort">
-                      <label className="checkboxs">
-                        <input type="checkbox" id="select-all" />
-                        <span className="checkmarks" />
-                      </label>
-                    </th>
                     <th>Date</th>
                     <th>Expense Category</th>
-                    <th>User</th>
+                    <th>Description</th>
                     <th>Amount</th>
                   </tr>
                 </thead>
-                <tbody className="Expense-list">
-                  <tr>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>01 Jan 2024</td>
-                    <td>Printing</td>
-                    <td className="userimgname">
-                      <Link to="#" className="product-img">
-                        <ImageWithBasePath
-                          src="assets/img/users/user-01.jpg"
-                          alt="product"
-                        />
-                      </Link>
-                      <Link to="#">Mitchum Daniel</Link>
-                    </td>
-                    <td>$14,174</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>14 Jan 2024</td>
-                    <td>Utilities</td>
-                    <td className="userimgname">
-                      <Link to="#" className="product-img">
-                        <ImageWithBasePath
-                          src="assets/img/users/user-02.jpg"
-                          alt="product"
-                        />
-                      </Link>
-                      <Link to="#">Susan Lopez</Link>
-                    </td>
-                    <td>$19,474</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>25 Jan 2024</td>
-                    <td>Travel</td>
-                    <td className="userimgname">
-                      <Link to="#" className="product-img">
-                        <ImageWithBasePath
-                          src="assets/img/users/user-03.jpg"
-                          alt="product"
-                        />
-                      </Link>
-                      <Link to="#">Robert Grossman</Link>
-                    </td>
-                    <td>$20,744</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>01 May 2024</td>
-                    <td>Purchase</td>
-                    <td className="userimgname">
-                      <Link to="#" className="product-img">
-                        <ImageWithBasePath
-                          src="assets/img/users/user-04.jpg"
-                          alt="product"
-                        />
-                      </Link>
-                      <Link to="#">Russell Belle</Link>
-                    </td>
-                    <td>$25,474</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>14 Oct 2024</td>
-                    <td>Printing</td>
-                    <td className="userimgname">
-                      <Link to="#" className="product-img">
-                        <ImageWithBasePath
-                          src="assets/img/users/user-05.jpg"
-                          alt="product"
-                        />
-                      </Link>
-                      <Link to="#">Edward K. Muniz</Link>
-                    </td>
-                    <td>$12,436</td>
-                  </tr>
+                <tbody>
+                  {expenses.map((expense) => (
+                    <tr key={expense._id}>
+                      <td>{new Date(expense.date).toLocaleDateString()}</td>
+                      <td>{expense.category}</td>
+                      <td>{expense.description}</td>
+                      <td>${expense.amount.toFixed(2)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
