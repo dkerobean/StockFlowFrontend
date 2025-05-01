@@ -76,10 +76,10 @@ const SalesList = () => {
         }
     };
 
-    // Format product options for select dropdown
+    // Helper function for formatting product options
     const formatOptionLabel = ({ label, sku, imageUrl }) => {
         const imageSource = imageUrl
-            ? `${process.env.REACT_APP_API_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`
+            ? `${process.env.REACT_APP_FILE_BASE_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`
             : '/assets/img/placeholder-product.png';
 
         return (
@@ -99,6 +99,16 @@ const SalesList = () => {
                 </div>
             </div>
         );
+    };
+
+    // Helper function to get image URL safely
+    const getImageUrl = (imageUrl) => {
+        if (!imageUrl) return '/assets/img/placeholder-product.png';
+        const base = process.env.REACT_APP_FILE_BASE_URL.endsWith('/')
+            ? process.env.REACT_APP_FILE_BASE_URL.slice(0, -1)
+            : process.env.REACT_APP_FILE_BASE_URL;
+        const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        return `${base}${path}`;
     };
 
     // Fetch products based on location
@@ -388,6 +398,35 @@ const SalesList = () => {
         { value: 'mobile_payment', label: 'Mobile Payment' }
     ];
 
+    const columns = [
+        {
+            title: "Product Image",
+            dataIndex: "items",
+            render: (items) => {
+                const backendBaseUrl = process.env.REACT_APP_FILE_BASE_URL; // Use base URL from .env
+                return items.map((item, index) => {
+                    const imageSource = item.product.imageUrl
+                        ? `${backendBaseUrl}${item.product.imageUrl.startsWith('/') ? item.product.imageUrl : `/${item.product.imageUrl}`}`
+                        : '/assets/img/placeholder-product.png';
+
+                    return (
+                        <img
+                            key={index}
+                            src={imageSource}
+                            alt={item.product.name || 'Product'}
+                            style={{ width: '50px', height: '50px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/assets/img/placeholder-product.png';
+                            }}
+                        />
+                    );
+                });
+            },
+        },
+        // Other columns...
+    ];
+
     return (
         <div>
             <ToastContainer />
@@ -597,11 +636,33 @@ const SalesList = () => {
                                                 <td>{sale.paymentMethod}</td>
                                                 <td>{sale.location?.name || 'N/A'}</td>
                                                 <td>
-                                                    {sale.items?.map(item => (
-                                                        <div key={item._id}>
-                                                            {item.product?.name} (Qty: {item.quantity})
-                                                        </div>
-                                                    ))}
+                                                    {sale.items?.map((item, index) => {
+                                                        // Get the image URL from the product object
+                                                        const productImageUrl = item.product?.imageUrl || null;
+                                                        const imageUrl = productImageUrl
+                                                            ? `${process.env.REACT_APP_FILE_BASE_URL}${productImageUrl}`
+                                                            : '/assets/img/placeholder-product.png';
+
+                                                        return (
+                                                            <div key={`${sale._id}-${index}`} className="d-flex align-items-center mb-2">
+                                                                <img
+                                                                    src={imageUrl}
+                                                                    alt={item.product?.name || 'Product'}
+                                                                    style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                                                                    onError={(e) => {
+                                                                        e.target.onerror = null;
+                                                                        e.target.src = '/assets/img/placeholder-product.png';
+                                                                    }}
+                                                                />
+                                                                <div>
+                                                                    <div className="fw-bold">{item.product?.name || 'Unknown Product'}</div>
+                                                                    <div className="text-muted small">
+                                                                        Qty: {item.quantity} × ${item.price?.toFixed(2) || '0.00'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </td>
                                                 <td>${sale.subtotal?.toFixed(2) || '0.00'}</td>
                                                 <td>${(sale.tax || 0).toFixed(2)}</td>
@@ -1957,6 +2018,15 @@ const SalesList = () => {
                                                         isClearable
                                                         required
                                                         isDisabled={!newSale.locationId}
+                                                        className="select"
+                                                        classNamePrefix="react-select"
+                                                        noOptionsMessage={() =>
+                                                            !newSale.locationId
+                                                                ? "Please select a location first"
+                                                                : products.length === 0
+                                                                    ? "No products available"
+                                                                    : "No products match your search"
+                                                        }
                                                     />
                                                 </td>
                                                 <td>
