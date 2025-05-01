@@ -8,7 +8,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Filter } from 'react-feather';
 import Select from 'react-select';
 import { DatePicker } from 'antd';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Create axios instance with base configuration
+const api = axios.create({
+    baseURL: 'http://localhost:3001',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Add request interceptor to add token to all requests
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 const SalesList = () => {
     const dispatch = useDispatch();
@@ -28,9 +52,7 @@ const SalesList = () => {
         paymentMethod: '',
         locationId: '',
         customer: {
-            name: '',
-            contact: '',
-            email: ''
+            name: ''
         },
         notes: '',
         tax: 0,
@@ -47,39 +69,94 @@ const SalesList = () => {
     // Fetch sales from the backend
     const fetchSales = async () => {
         try {
-            const response = await axios.get('/api/sales'); // Adjust the endpoint if necessary
+            const response = await api.get('/api/sales');
             setSales(response.data);
         } catch (error) {
             console.error('Error fetching sales:', error);
         }
     };
 
-    // Fetch products from the backend
+    // Format product options for select dropdown
+    const formatOptionLabel = ({ label, sku, imageUrl }) => {
+        const imageSource = imageUrl
+            ? `${process.env.REACT_APP_API_URL}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`
+            : '/assets/img/placeholder-product.png';
+
+        return (
+            <div className="d-flex align-items-center">
+                <img
+                    src={imageSource}
+                    alt={label || 'Product'}
+                    style={{ width: '30px', height: '30px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/assets/img/placeholder-product.png';
+                    }}
+                />
+                <div>
+                    <div>{label || 'No Name'}</div>
+                    <div className="text-muted small">{sku || 'No SKU'}</div>
+                </div>
+            </div>
+        );
+    };
+
+    // Fetch products based on location
     const fetchProducts = async (locationId) => {
         try {
-            const response = await axios.get(`/api/products?locationId=${locationId}`);
-            setProducts(response.data);
+            const response = await api.get('/api/products', {
+                params: {
+                    includeInactive: false,
+                    populate: 'category,brand',
+                    locationId: locationId
+                }
+            });
+            const productData = Array.isArray(response.data) ? response.data : (response.data.data || []);
+            const mappedProducts = productData.map(prod => ({
+                value: prod._id,
+                label: prod.name || 'Unnamed Product',
+                sku: prod.sku || 'No SKU',
+                imageUrl: prod.imageUrl,
+                price: prod.price
+            })).filter(p => p.value && p.label);
+            setProducts(mappedProducts);
         } catch (error) {
             console.error('Error fetching products:', error);
         }
     };
 
-    // Fetch locations from the backend
+    // Fetch locations
     const fetchLocations = async () => {
         try {
-            const response = await axios.get('/api/locations');
-            setLocations(response.data);
+            const response = await api.get('/api/locations');
+            const locationData = Array.isArray(response.data) ? response.data : [];
+            const mappedLocations = locationData
+                .filter(loc => loc.isActive)
+                .map(loc => ({
+                    value: loc._id,
+                    label: `${loc.name} (${loc.type || 'Store'})`
+                }));
+            setLocations(mappedLocations);
         } catch (error) {
             console.error('Error fetching locations:', error);
+            setLocations([]);
         }
     };
 
     // Create a new sale
     const createSale = async () => {
         try {
-            const response = await axios.post('/api/sales', newSale);
-            setSales([...sales, response.data]); // Add the new sale to the list
-            setShowAddModal(false); // Close modal after successful creation
+            const response = await api.post('/api/sales', newSale);
+            setSales([...sales, response.data]);
+            setShowAddModal(false);
+            toast.success('Sale created successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
             setNewSale({
                 items: [{
                     product: '',
@@ -90,25 +167,31 @@ const SalesList = () => {
                 paymentMethod: '',
                 locationId: '',
                 customer: {
-                    name: '',
-                    contact: '',
-                    email: ''
+                    name: ''
                 },
                 notes: '',
                 tax: 0,
                 discount: 0
-            }); // Reset form
+            });
         } catch (error) {
             console.error('Error creating sale:', error);
+            toast.error('Failed to create sale. Please try again.', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         }
     };
 
     // Edit an existing sale
     const editSale = async (saleId, updatedSale) => {
         try {
-            const response = await axios.put(`/api/sales/${saleId}`, updatedSale); // Assuming PUT endpoint exists
-            setSales(sales.map((sale) => (sale._id === saleId ? response.data : sale))); // Update the sale in the list
-            setEditingSale(null); // Exit editing mode
+            const response = await api.put(`/api/sales/${saleId}`, updatedSale);
+            setSales(sales.map((sale) => (sale._id === saleId ? response.data : sale)));
+            setEditingSale(null);
         } catch (error) {
             console.error('Error editing sale:', error);
         }
@@ -142,7 +225,7 @@ const SalesList = () => {
         setNewSale({ ...newSale, items: updatedItems });
     };
 
-    // Calculate item total based on quantity and price
+    // Calculate item total with discount
     const calculateItemTotal = (item) => {
         const price = item.price || 0;
         const quantity = item.quantity || 0;
@@ -150,17 +233,17 @@ const SalesList = () => {
         return price * quantity * (1 - discount / 100);
     };
 
-    // Calculate sale total
+    // Calculate sale total with tax and discount
     const calculateSaleTotal = () => {
         const itemsTotal = newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0);
         const tax = newSale.tax || 0;
         const discount = newSale.discount || 0;
-        return itemsTotal + tax - discount;
+        return itemsTotal + (itemsTotal * tax / 100) - (itemsTotal * discount / 100);
     };
 
     // Handle product selection
     const handleProductSelect = (index, productId) => {
-        const selectedProduct = products.find(p => p._id === productId);
+        const selectedProduct = products.find(p => p.value === productId);
         if (selectedProduct) {
             const updatedItems = [...newSale.items];
             updatedItems[index] = {
@@ -203,10 +286,23 @@ const SalesList = () => {
     };
 
     // Handle location change
-    const handleLocationChange = (locationId) => {
-        setSelectedLocation(locationId);
-        setNewSale({ ...newSale, locationId }); // Update location in the new sale
-        fetchProducts(locationId); // Fetch products for the selected location
+    const handleLocationChange = (option) => {
+        const locationId = option ? option.value : null;
+        setNewSale(prev => ({
+            ...prev,
+            locationId,
+            items: [{
+                product: '',
+                quantity: 1,
+                price: 0,
+                discount: 0
+            }]
+        }));
+        if (locationId) {
+            fetchProducts(locationId);
+        } else {
+            setProducts([]);
+        }
     };
 
     useEffect(() => {
@@ -283,8 +379,18 @@ const SalesList = () => {
             Collapse
         </Tooltip>
     )
+
+    // Payment method options
+    const paymentMethods = [
+        { value: 'cash', label: 'Cash' },
+        { value: 'credit_card', label: 'Credit Card' },
+        { value: 'debit_card', label: 'Debit Card' },
+        { value: 'mobile_payment', label: 'Mobile Payment' }
+    ];
+
     return (
         <div>
+            <ToastContainer />
             <div className="page-wrapper">
                 <div className="content">
                     <div className="page-header">
@@ -455,7 +561,7 @@ const SalesList = () => {
                             </div>
                             {/* /Filter */}
                             <div className="table-responsive">
-                                <table className="table  datanew">
+                                <table className="table datanew">
                                     <thead>
                                         <tr>
                                             <th className="no-sort">
@@ -465,14 +571,15 @@ const SalesList = () => {
                                                 </label>
                                             </th>
                                             <th>Customer Name</th>
-                                            <th>Reference</th>
                                             <th>Date</th>
+                                            <th>Payment Method</th>
+                                            <th>Location</th>
+                                            <th>Items</th>
+                                            <th>Subtotal</th>
+                                            <th>Tax</th>
+                                            <th>Discount</th>
+                                            <th>Total</th>
                                             <th>Status</th>
-                                            <th>Grand Total</th>
-                                            <th>Paid</th>
-                                            <th>Due</th>
-                                            <th>Payment Status</th>
-                                            <th>Biller</th>
                                             <th className="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -485,19 +592,26 @@ const SalesList = () => {
                                                         <span className="checkmarks" />
                                                     </label>
                                                 </td>
-                                                <td>{sale.customer?.name || 'N/A'}</td>
-                                                <td>{sale.reference}</td>
-                                                <td>{sale.date}</td>
+                                                <td>{sale.customer?.name || 'Walk-in Customer'}</td>
+                                                <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
+                                                <td>{sale.paymentMethod}</td>
+                                                <td>{sale.location?.name || 'N/A'}</td>
                                                 <td>
-                                                    <span className={`badge badge-${sale.status === 'Completed' ? 'bgsuccess' : 'bgdanger'}`}>{sale.status}</span>
+                                                    {sale.items?.map(item => (
+                                                        <div key={item._id}>
+                                                            {item.product?.name} (Qty: {item.quantity})
+                                                        </div>
+                                                    ))}
                                                 </td>
-                                                <td>{sale.grandTotal}</td>
-                                                <td>{sale.paid}</td>
-                                                <td>{sale.due}</td>
+                                                <td>${sale.subtotal?.toFixed(2) || '0.00'}</td>
+                                                <td>${(sale.tax || 0).toFixed(2)}</td>
+                                                <td>${(sale.discount || 0).toFixed(2)}</td>
+                                                <td>${sale.total?.toFixed(2) || '0.00'}</td>
                                                 <td>
-                                                    <span className={`badge badge-line${sale.paymentStatus === 'Paid' ? 'success' : 'danger'}`}>{sale.paymentStatus}</span>
+                                                    <span className={`badge badge-${sale.status === 'Completed' ? 'bgsuccess' : 'bgdanger'}`}>
+                                                        {sale.status || 'Pending'}
+                                                    </span>
                                                 </td>
-                                                <td>{sale.biller}</td>
                                                 <td className="text-center">
                                                     <Link
                                                         className="action-set"
@@ -1754,6 +1868,21 @@ const SalesList = () => {
                         <div className="row">
                             <div className="col-md-6">
                                 <Form.Group className="mb-3">
+                                    <Form.Label>Store Location</Form.Label>
+                                    <Select
+                                        options={locations}
+                                        value={locations.find(loc => loc.value === newSale.locationId)}
+                                        onChange={handleLocationChange}
+                                        placeholder="Select Store Location"
+                                        isClearable
+                                        required
+                                        className="basic-single"
+                                        classNamePrefix="select"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
                                     <Form.Label>Customer Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -1763,43 +1892,34 @@ const SalesList = () => {
                                     />
                                 </Form.Group>
                             </div>
-                            <div className="col-md-6">
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Contact Number (Optional)</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={newSale.customer.contact}
-                                        onChange={(e) => handleNewSaleChange('customer.contact', e.target.value)}
-                                        placeholder="Enter contact number"
-                                    />
-                                </Form.Group>
-                            </div>
                         </div>
+
                         <div className="row">
                             <div className="col-md-6">
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Email (Optional)</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        value={newSale.customer.email}
-                                        onChange={(e) => handleNewSaleChange('customer.email', e.target.value)}
-                                        placeholder="Enter email address"
+                                    <Form.Label>Payment Method</Form.Label>
+                                    <Select
+                                        options={paymentMethods}
+                                        value={paymentMethods.find(method => method.value === newSale.paymentMethod)}
+                                        onChange={(option) => handleNewSaleChange('paymentMethod', option?.value)}
+                                        placeholder="Select Payment Method"
+                                        isClearable
+                                        required
+                                        className="basic-single"
+                                        classNamePrefix="select"
                                     />
                                 </Form.Group>
                             </div>
                             <div className="col-md-6">
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Payment Method</Form.Label>
-                                    <Form.Select
-                                        value={newSale.paymentMethod}
-                                        onChange={(e) => handleNewSaleChange('paymentMethod', e.target.value)}
-                                    >
-                                        <option value="">Select Payment Method</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="credit_card">Credit Card</option>
-                                        <option value="debit_card">Debit Card</option>
-                                        <option value="mobile_payment">Mobile Payment</option>
-                                    </Form.Select>
+                                    <Form.Label>Notes</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={newSale.notes}
+                                        onChange={(e) => handleNewSaleChange('notes', e.target.value)}
+                                        placeholder="Enter any additional notes"
+                                    />
                                 </Form.Group>
                             </div>
                         </div>
@@ -1828,17 +1948,16 @@ const SalesList = () => {
                                         {newSale.items.map((item, index) => (
                                             <tr key={index}>
                                                 <td>
-                                                    <Form.Select
-                                                        value={item.product}
-                                                        onChange={(e) => handleProductSelect(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select Product</option>
-                                                        {products.map(product => (
-                                                            <option key={product._id} value={product._id}>
-                                                                {product.name} - ${product.price}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
+                                                    <Select
+                                                        options={products}
+                                                        value={products.find(p => p.value === item.product)}
+                                                        onChange={(option) => handleProductSelect(index, option?.value)}
+                                                        placeholder="Select Product"
+                                                        formatOptionLabel={formatOptionLabel}
+                                                        isClearable
+                                                        required
+                                                        isDisabled={!newSale.locationId}
+                                                    />
                                                 </td>
                                                 <td>
                                                     <Form.Control
@@ -1846,6 +1965,8 @@ const SalesList = () => {
                                                         min="1"
                                                         value={item.quantity}
                                                         onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                        required
+                                                        disabled={!item.product}
                                                     />
                                                 </td>
                                                 <td>${item.price.toFixed(2)}</td>
@@ -1860,6 +1981,7 @@ const SalesList = () => {
                                                             updatedItems[index].discount = parseFloat(e.target.value) || 0;
                                                             setNewSale({ ...newSale, items: updatedItems });
                                                         }}
+                                                        disabled={!item.product}
                                                     />
                                                 </td>
                                                 <td>${calculateItemTotal(item).toFixed(2)}</td>
@@ -1917,12 +2039,12 @@ const SalesList = () => {
                                             <span>${newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0).toFixed(2)}</span>
                                         </div>
                                         <div className="d-flex justify-content-between mb-2">
-                                            <span>Tax:</span>
-                                            <span>${newSale.tax.toFixed(2)}</span>
+                                            <span>Tax ({newSale.tax}%):</span>
+                                            <span>${(newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0) * newSale.tax / 100).toFixed(2)}</span>
                                         </div>
                                         <div className="d-flex justify-content-between mb-2">
-                                            <span>Discount:</span>
-                                            <span>${newSale.discount.toFixed(2)}</span>
+                                            <span>Discount ({newSale.discount}%):</span>
+                                            <span>${(newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0) * newSale.discount / 100).toFixed(2)}</span>
                                         </div>
                                         <hr />
                                         <div className="d-flex justify-content-between">
@@ -1933,24 +2055,17 @@ const SalesList = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Notes</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={newSale.notes}
-                                onChange={(e) => handleNewSaleChange('notes', e.target.value)}
-                                placeholder="Enter any additional notes"
-                            />
-                        </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant="primary" onClick={createSale}>
+                    <Button
+                        variant="primary"
+                        onClick={createSale}
+                        disabled={!newSale.locationId || !newSale.items.some(item => item.product) || !newSale.paymentMethod}
+                    >
                         Create Sale
                     </Button>
                 </Modal.Footer>
