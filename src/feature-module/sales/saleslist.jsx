@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { OverlayTrigger, Tooltip, Modal, Button, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import ImageWithBasePath from '../../core/img/imagewithbasebath';
 import { ChevronUp, FileText, PlusCircle, RotateCcw, Sliders, StopCircle, User } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
@@ -8,15 +8,212 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Filter } from 'react-feather';
 import Select from 'react-select';
 import { DatePicker } from 'antd';
+import axios from 'axios'; // Import axios
 
 const SalesList = () => {
     const dispatch = useDispatch();
     const data = useSelector((state) => state.toggle_header);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [sales, setSales] = useState([]); // State to store sales data
+    const [products, setProducts] = useState([]); // State for available products
+    const [locations, setLocations] = useState([]); // State for available locations
+    const [selectedLocation, setSelectedLocation] = useState(''); // Selected location
+    const [newSale, setNewSale] = useState({
+        items: [{
+            product: '',
+            quantity: 1,
+            price: 0,
+            discount: 0
+        }],
+        paymentMethod: '',
+        locationId: '',
+        customer: {
+            name: '',
+            contact: '',
+            email: ''
+        },
+        notes: '',
+        tax: 0,
+        discount: 0
+    });
+    const [editingSale, setEditingSale] = useState(null); // State for editing a sale
+    const [showAddModal, setShowAddModal] = useState(false);
 
+    // Define the toggleFilterVisibility function
     const toggleFilterVisibility = () => {
-        setIsFilterVisible((prevVisibility) => !prevVisibility);
+        setIsFilterVisible((prev) => !prev);
     };
+
+    // Fetch sales from the backend
+    const fetchSales = async () => {
+        try {
+            const response = await axios.get('/api/sales'); // Adjust the endpoint if necessary
+            setSales(response.data);
+        } catch (error) {
+            console.error('Error fetching sales:', error);
+        }
+    };
+
+    // Fetch products from the backend
+    const fetchProducts = async (locationId) => {
+        try {
+            const response = await axios.get(`/api/products?locationId=${locationId}`);
+            setProducts(response.data);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    };
+
+    // Fetch locations from the backend
+    const fetchLocations = async () => {
+        try {
+            const response = await axios.get('/api/locations');
+            setLocations(response.data);
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+        }
+    };
+
+    // Create a new sale
+    const createSale = async () => {
+        try {
+            const response = await axios.post('/api/sales', newSale);
+            setSales([...sales, response.data]); // Add the new sale to the list
+            setShowAddModal(false); // Close modal after successful creation
+            setNewSale({
+                items: [{
+                    product: '',
+                    quantity: 1,
+                    price: 0,
+                    discount: 0
+                }],
+                paymentMethod: '',
+                locationId: '',
+                customer: {
+                    name: '',
+                    contact: '',
+                    email: ''
+                },
+                notes: '',
+                tax: 0,
+                discount: 0
+            }); // Reset form
+        } catch (error) {
+            console.error('Error creating sale:', error);
+        }
+    };
+
+    // Edit an existing sale
+    const editSale = async (saleId, updatedSale) => {
+        try {
+            const response = await axios.put(`/api/sales/${saleId}`, updatedSale); // Assuming PUT endpoint exists
+            setSales(sales.map((sale) => (sale._id === saleId ? response.data : sale))); // Update the sale in the list
+            setEditingSale(null); // Exit editing mode
+        } catch (error) {
+            console.error('Error editing sale:', error);
+        }
+    };
+
+    // Handle input changes for new sale
+    const handleNewSaleChange = (field, value) => {
+        if (field.startsWith('customer.')) {
+            const customerField = field.split('.')[1];
+            setNewSale({
+                ...newSale,
+                customer: {
+                    ...newSale.customer,
+                    [customerField]: value
+                }
+            });
+        } else {
+            setNewSale({ ...newSale, [field]: value });
+        }
+    };
+
+    // Handle input changes for editing sale
+    const handleEditSaleChange = (field, value) => {
+        setEditingSale({ ...editingSale, [field]: value });
+    };
+
+    // Handle changes for items array
+    const handleItemChange = (index, field, value) => {
+        const updatedItems = [...newSale.items];
+        updatedItems[index][field] = value;
+        setNewSale({ ...newSale, items: updatedItems });
+    };
+
+    // Calculate item total based on quantity and price
+    const calculateItemTotal = (item) => {
+        const price = item.price || 0;
+        const quantity = item.quantity || 0;
+        const discount = item.discount || 0;
+        return price * quantity * (1 - discount / 100);
+    };
+
+    // Calculate sale total
+    const calculateSaleTotal = () => {
+        const itemsTotal = newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0);
+        const tax = newSale.tax || 0;
+        const discount = newSale.discount || 0;
+        return itemsTotal + tax - discount;
+    };
+
+    // Handle product selection
+    const handleProductSelect = (index, productId) => {
+        const selectedProduct = products.find(p => p._id === productId);
+        if (selectedProduct) {
+            const updatedItems = [...newSale.items];
+            updatedItems[index] = {
+                ...updatedItems[index],
+                product: productId,
+                price: selectedProduct.price,
+                quantity: 1
+            };
+            setNewSale({ ...newSale, items: updatedItems });
+        }
+    };
+
+    // Handle quantity change
+    const handleQuantityChange = (index, quantity) => {
+        const updatedItems = [...newSale.items];
+        updatedItems[index] = {
+            ...updatedItems[index],
+            quantity: parseInt(quantity) || 0
+        };
+        setNewSale({ ...newSale, items: updatedItems });
+    };
+
+    // Add new item row
+    const addItemRow = () => {
+        setNewSale({
+            ...newSale,
+            items: [...newSale.items, {
+                product: '',
+                quantity: 1,
+                price: 0,
+                discount: 0
+            }]
+        });
+    };
+
+    // Remove item row
+    const removeItemRow = (index) => {
+        const updatedItems = newSale.items.filter((_, i) => i !== index);
+        setNewSale({ ...newSale, items: updatedItems });
+    };
+
+    // Handle location change
+    const handleLocationChange = (locationId) => {
+        setSelectedLocation(locationId);
+        setNewSale({ ...newSale, locationId }); // Update location in the new sale
+        fetchProducts(locationId); // Fetch products for the selected location
+    };
+
+    useEffect(() => {
+        fetchSales();
+        fetchLocations();
+    }, []);
+
     const oldandlatestvalue = [
         { value: 'Sort by Date', label: 'Sort by Date' },
         { value: '07 09 23', label: '07 09 23' },
@@ -144,16 +341,10 @@ const SalesList = () => {
                             </li>
                         </ul>
                         <div className="page-btn">
-                            <Link
-                                to="#"
-                                className="btn btn-added"
-                                data-bs-toggle="modal"
-                                data-bs-target="#add-sales-new"
-                            >
-
+                            <Button onClick={() => setShowAddModal(true)} className="btn btn-added">
                                 <PlusCircle className="me-2" />
                                 Add New Sales
-                            </Link>
+                            </Button>
                         </div>
                     </div>
                     {/* /product list */}
@@ -286,926 +477,100 @@ const SalesList = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="sales-list">
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Thomas</td>
-                                            <td>SL0101</td>
-                                            <td>19 Jan 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$550</td>
-                                            <td>$550</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Rose</td>
-                                            <td>SL0102</td>
-                                            <td>26 Jan 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$250</td>
-                                            <td>$250</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Benjamin</td>
-                                            <td>SL0103</td>
-                                            <td>08 Feb 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$570</td>
-                                            <td>$570</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Lilly</td>
-                                            <td>SL0104</td>
-                                            <td>12 Feb 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgdanger">Pending</span>
-                                            </td>
-                                            <td>$300</td>
-                                            <td>$0.00</td>
-                                            <td>$300</td>
-                                            <td>
-                                                <span className="badge badge-linedanger">Due</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Freda</td>
-                                            <td>SL0105</td>
-                                            <td>17 Mar 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgdanger">Pending</span>
-                                            </td>
-                                            <td>$700</td>
-                                            <td>$0.00</td>
-                                            <td>$700</td>
-                                            <td>
-                                                <span className="badge badge-linedanger">Due</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Alwin</td>
-                                            <td>SL0106</td>
-                                            <td>24 Mar 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$400</td>
-                                            <td>$400</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Maybelle</td>
-                                            <td>SL0107</td>
-                                            <td>06 Apr 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgdanger">Pending</span>
-                                            </td>
-                                            <td>$120</td>
-                                            <td>$0.00</td>
-                                            <td>$120</td>
-                                            <td>
-                                                <span className="badge badge-linedanger">Due</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Ellen</td>
-                                            <td>SL0108</td>
-                                            <td>16 Apr 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$830</td>
-                                            <td>$830</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Kaitlin</td>
-                                            <td>SL0109</td>
-                                            <td>04 May 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgdanger">Pending</span>
-                                            </td>
-                                            <td>$800</td>
-                                            <td>$0.00</td>
-                                            <td>$800</td>
-                                            <td>
-                                                <span className="badge badge-linedanger">Due</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label className="checkboxs">
-                                                    <input type="checkbox" />
-                                                    <span className="checkmarks" />
-                                                </label>
-                                            </td>
-                                            <td>Grace</td>
-                                            <td>SL0110</td>
-                                            <td>29 May 2023</td>
-                                            <td>
-                                                <span className="badge badge-bgsuccess">Completed</span>
-                                            </td>
-                                            <td>$460</td>
-                                            <td>$460</td>
-                                            <td>$0.00</td>
-                                            <td>
-                                                <span className="badge badge-linesuccess">Paid</span>
-                                            </td>
-                                            <td>Admin</td>
-                                            <td className="text-center">
-                                                <Link
-                                                    className="action-set"
-                                                    to="#"
-                                                    data-bs-toggle="dropdown"
-                                                    aria-expanded="true"
-                                                >
-                                                    <i className="fa fa-ellipsis-v" aria-hidden="true" />
-                                                </Link>
-                                                <ul className="dropdown-menu">
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#sales-details-new"
-                                                        >
-                                                            <i data-feather="eye" className="info-img" />
-                                                            Sale Detail
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#edit-sales-new"
-                                                        >
-                                                            <i data-feather="edit" className="info-img" />
-                                                            Edit Sale
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#showpayment"
-                                                        >
-                                                            <i data-feather="dollar-sign" className="info-img" />
-                                                            Show Payments
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#createpayment"
-                                                        >
-                                                            <i data-feather="plus-circle" className="info-img" />
-                                                            Create Payment
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link to="#" className="dropdown-item">
-                                                            <i data-feather="download" className="info-img" />
-                                                            Download pdf
-                                                        </Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link
-                                                            to="#"
-                                                            className="dropdown-item confirm-text mb-0"
-                                                        >
-                                                            <i data-feather="trash-2" className="info-img" />
-                                                            Delete Sale
-                                                        </Link>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                        {sales.map((sale) => (
+                                            <tr key={sale._id}>
+                                                <td>
+                                                    <label className="checkboxs">
+                                                        <input type="checkbox" />
+                                                        <span className="checkmarks" />
+                                                    </label>
+                                                </td>
+                                                <td>{sale.customer?.name || 'N/A'}</td>
+                                                <td>{sale.reference}</td>
+                                                <td>{sale.date}</td>
+                                                <td>
+                                                    <span className={`badge badge-${sale.status === 'Completed' ? 'bgsuccess' : 'bgdanger'}`}>{sale.status}</span>
+                                                </td>
+                                                <td>{sale.grandTotal}</td>
+                                                <td>{sale.paid}</td>
+                                                <td>{sale.due}</td>
+                                                <td>
+                                                    <span className={`badge badge-line${sale.paymentStatus === 'Paid' ? 'success' : 'danger'}`}>{sale.paymentStatus}</span>
+                                                </td>
+                                                <td>{sale.biller}</td>
+                                                <td className="text-center">
+                                                    <Link
+                                                        className="action-set"
+                                                        to="#"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="true"
+                                                    >
+                                                        <i className="fa fa-ellipsis-v" aria-hidden="true" />
+                                                    </Link>
+                                                    <ul className="dropdown-menu">
+                                                        <li>
+                                                            <Link
+                                                                to="#"
+                                                                className="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#sales-details-new"
+                                                            >
+                                                                <i data-feather="eye" className="info-img" />
+                                                                Sale Detail
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link
+                                                                to="#"
+                                                                className="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#edit-sales-new"
+                                                            >
+                                                                <i data-feather="edit" className="info-img" />
+                                                                Edit Sale
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link
+                                                                to="#"
+                                                                className="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#showpayment"
+                                                            >
+                                                                <i data-feather="dollar-sign" className="info-img" />
+                                                                Show Payments
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link
+                                                                to="#"
+                                                                className="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#createpayment"
+                                                            >
+                                                                <i data-feather="plus-circle" className="info-img" />
+                                                                Create Payment
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link to="#" className="dropdown-item">
+                                                                <i data-feather="download" className="info-img" />
+                                                                Download pdf
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link
+                                                                to="#"
+                                                                className="dropdown-item confirm-text mb-0"
+                                                            >
+                                                                <i data-feather="trash-2" className="info-img" />
+                                                                Delete Sale
+                                                            </Link>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -2223,7 +1588,7 @@ const SalesList = () => {
                                         <div className="col-lg-4 col-sm-12 col-12">
                                             <div className="input-blocks">
                                                 <label>Payment type</label>
-                                               
+
                                                 <Select
                                                 className="select"
                                                 options={paymenttype}
@@ -2379,8 +1744,219 @@ const SalesList = () => {
                 </div>
             </>
 
+            {/* Add Sale Modal */}
+            <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Sale</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Customer Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newSale.customer.name}
+                                        onChange={(e) => handleNewSaleChange('customer.name', e.target.value)}
+                                        placeholder="Enter customer name"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Contact Number (Optional)</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newSale.customer.contact}
+                                        onChange={(e) => handleNewSaleChange('customer.contact', e.target.value)}
+                                        placeholder="Enter contact number"
+                                    />
+                                </Form.Group>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Email (Optional)</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        value={newSale.customer.email}
+                                        onChange={(e) => handleNewSaleChange('customer.email', e.target.value)}
+                                        placeholder="Enter email address"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Payment Method</Form.Label>
+                                    <Form.Select
+                                        value={newSale.paymentMethod}
+                                        onChange={(e) => handleNewSaleChange('paymentMethod', e.target.value)}
+                                    >
+                                        <option value="">Select Payment Method</option>
+                                        <option value="cash">Cash</option>
+                                        <option value="credit_card">Credit Card</option>
+                                        <option value="debit_card">Debit Card</option>
+                                        <option value="mobile_payment">Mobile Payment</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </div>
+                        </div>
+
+                        {/* Items Section */}
+                        <div className="mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Items</h5>
+                                <Button variant="outline-primary" onClick={addItemRow}>
+                                    Add Item
+                                </Button>
+                            </div>
+                            <div className="table-responsive">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Discount (%)</th>
+                                            <th>Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {newSale.items.map((item, index) => (
+                                            <tr key={index}>
+                                                <td>
+                                                    <Form.Select
+                                                        value={item.product}
+                                                        onChange={(e) => handleProductSelect(index, e.target.value)}
+                                                    >
+                                                        <option value="">Select Product</option>
+                                                        {products.map(product => (
+                                                            <option key={product._id} value={product._id}>
+                                                                {product.name} - ${product.price}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        min="1"
+                                                        value={item.quantity}
+                                                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                    />
+                                                </td>
+                                                <td>${item.price.toFixed(2)}</td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        min="0"
+                                                        max="100"
+                                                        value={item.discount}
+                                                        onChange={(e) => {
+                                                            const updatedItems = [...newSale.items];
+                                                            updatedItems[index].discount = parseFloat(e.target.value) || 0;
+                                                            setNewSale({ ...newSale, items: updatedItems });
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td>${calculateItemTotal(item).toFixed(2)}</td>
+                                                <td>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        onClick={() => removeItemRow(index)}
+                                                        disabled={newSale.items.length === 1}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Tax (%)</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={newSale.tax}
+                                        onChange={(e) => handleNewSaleChange('tax', parseFloat(e.target.value))}
+                                        min="0"
+                                        max="100"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Discount (%)</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={newSale.discount}
+                                        onChange={(e) => handleNewSaleChange('discount', parseFloat(e.target.value))}
+                                        min="0"
+                                        max="100"
+                                    />
+                                </Form.Group>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col-md-6 offset-md-6">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <h5>Total Summary</h5>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>Subtotal:</span>
+                                            <span>${newSale.items.reduce((sum, item) => sum + calculateItemTotal(item), 0).toFixed(2)}</span>
+                                        </div>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>Tax:</span>
+                                            <span>${newSale.tax.toFixed(2)}</span>
+                                        </div>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span>Discount:</span>
+                                            <span>${newSale.discount.toFixed(2)}</span>
+                                        </div>
+                                        <hr />
+                                        <div className="d-flex justify-content-between">
+                                            <strong>Total:</strong>
+                                            <strong>${calculateSaleTotal().toFixed(2)}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Notes</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={newSale.notes}
+                                onChange={(e) => handleNewSaleChange('notes', e.target.value)}
+                                placeholder="Enter any additional notes"
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={createSale}>
+                        Create Sale
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }
 
-export default SalesList
+export default SalesList;
