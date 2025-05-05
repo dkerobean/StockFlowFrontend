@@ -34,21 +34,6 @@ api.interceptors.request.use(
     }
 );
 
-const getStatusBadgeClass = (status) => {
-    switch (status?.toLowerCase()) {
-        case 'completed':
-            return 'badge-success';
-        case 'pending':
-            return 'badge-warning';
-        case 'cancelled':
-            return 'badge-danger';
-        case 'refunded':
-            return 'badge-info';
-        default:
-            return 'badge-secondary';
-    }
-};
-
 const SalesList = () => {
     const dispatch = useDispatch();
     const data = useSelector((state) => state.toggle_header);
@@ -57,6 +42,8 @@ const SalesList = () => {
     const [products, setProducts] = useState([]); // State for available products
     const [locations, setLocations] = useState([]); // State for available locations
     const [selectedLocation, setSelectedLocation] = useState(''); // Selected location
+    const [editingSale, setEditingSale] = useState(null); // State for editing a sale
+    const [showEditModal, setShowEditModal] = useState(false); // State for edit modal visibility
     const [newSale, setNewSale] = useState({
         items: [{
             product: '',
@@ -73,7 +60,6 @@ const SalesList = () => {
         tax: 0,
         discount: 0
     });
-    const [editingSale, setEditingSale] = useState(null); // State for editing a sale
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [saleToDelete, setSaleToDelete] = useState(null);
@@ -174,11 +160,7 @@ const SalesList = () => {
     const createSale = async () => {
         try {
             const response = await api.post('/api/sales', newSale);
-
-            // Fetch the updated sales list with populated data
-            const updatedSalesResponse = await api.get('/api/sales');
-            setSales(updatedSalesResponse.data);
-
+            await fetchSales(); // Refresh the sales list
             setShowAddModal(false);
             toast.success('Sale created successfully!', {
                 position: "top-right",
@@ -205,18 +187,12 @@ const SalesList = () => {
                 discount: 0
             });
         } catch (error) {
-            // Get the clean error message from the backend
-            const errorMessage = error.response?.data?.message || 'Failed to create sale';
-
-            // Display the error message
-            toast.error(errorMessage, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            console.error('Error creating sale:', error);
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to create sale';
+            toast.error(message);
         }
     };
 
@@ -249,7 +225,10 @@ const SalesList = () => {
 
     // Handle input changes for editing sale
     const handleEditSaleChange = (field, value) => {
-        setEditingSale({ ...editingSale, [field]: value });
+        setEditingSale(prev => ({
+            ...prev,
+            [field]: value
+        }));
     };
 
     // Handle changes for items array
@@ -356,6 +335,94 @@ const SalesList = () => {
         } catch (error) {
             console.error('Error deleting sale:', error);
             toast.error(error.response?.data?.message || 'Failed to delete sale');
+        }
+    };
+
+    const handleEditClick = (sale) => {
+        setEditingSale({
+            ...sale,
+            locationId: sale.location._id,
+            items: sale.items.map(item => ({
+                ...item,
+                product: item.product._id
+            }))
+        });
+        setShowEditModal(true);
+    };
+
+    const handleEditItemChange = (index, field, value) => {
+        const updatedItems = [...editingSale.items];
+        updatedItems[index] = {
+            ...updatedItems[index],
+            [field]: value
+        };
+        setEditingSale(prev => ({
+            ...prev,
+            items: updatedItems
+        }));
+    };
+
+    const handleEditProductSelect = (index, productId) => {
+        const selectedProduct = products.find(p => p.value === productId);
+        if (selectedProduct) {
+            const updatedItems = [...editingSale.items];
+            updatedItems[index] = {
+                ...updatedItems[index],
+                product: productId,
+                price: selectedProduct.price,
+                quantity: 1
+            };
+            setEditingSale(prev => ({
+                ...prev,
+                items: updatedItems
+            }));
+        }
+    };
+
+    const handleEditQuantityChange = (index, quantity) => {
+        const updatedItems = [...editingSale.items];
+        updatedItems[index] = {
+            ...updatedItems[index],
+            quantity: parseInt(quantity) || 0
+        };
+        setEditingSale(prev => ({
+            ...prev,
+            items: updatedItems
+        }));
+    };
+
+    const handleEditLocationChange = (option) => {
+        const locationId = option ? option.value : null;
+        setEditingSale(prev => ({
+            ...prev,
+            locationId
+        }));
+        if (locationId) {
+            fetchProducts(locationId);
+        }
+    };
+
+    const updateSale = async () => {
+        try {
+            await api.put(`/api/sales/${editingSale._id}`, editingSale);
+            await fetchSales(); // Refresh the sales list
+            setShowEditModal(false);
+            setEditingSale(null);
+            toast.success('Sale updated successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        } catch (error) {
+            console.error('Error updating sale:', error);
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to update sale';
+            toast.error(message);
         }
     };
 
@@ -713,8 +780,14 @@ const SalesList = () => {
                                                 <td>${(sale.discount || 0).toFixed(2)}</td>
                                                 <td>${sale.total?.toFixed(2) || '0.00'}</td>
                                                 <td>
-                                                    <span className={`badge ${getStatusBadgeClass(sale.status)}`}>
-                                                        {sale.status?.charAt(0).toUpperCase() + sale.status?.slice(1) || 'Completed'}
+                                                    <span className={`badge ${
+                                                        sale.status === 'completed' ? 'bg-success' :
+                                                        sale.status === 'pending' ? 'bg-warning' :
+                                                        sale.status === 'cancelled' ? 'bg-danger' :
+                                                        sale.status === 'refunded' ? 'bg-info' :
+                                                        'bg-secondary'
+                                                    }`}>
+                                                        {sale.status || 'Pending'}
                                                     </span>
                                                 </td>
                                                 <td className="text-center">
@@ -744,6 +817,7 @@ const SalesList = () => {
                                                                 className="dropdown-item"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#edit-sales-new"
+                                                                onClick={() => handleEditClick(sale)}
                                                             >
                                                                 <i data-feather="edit" className="info-img" />
                                                                 Edit Sale
@@ -782,8 +856,6 @@ const SalesList = () => {
                                                                 to="#"
                                                                 className="dropdown-item confirm-text mb-0"
                                                                 onClick={() => handleDeleteClick(sale)}
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#delete-sale-modal"
                                                             >
                                                                 <i data-feather="trash-2" className="info-img" />
                                                                 Delete Sale
@@ -2189,83 +2261,92 @@ const SalesList = () => {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <div className="modal fade" id="delete-sale-modal">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="page-wrapper p-0 m-0">
-                            <div className="content p-0">
-                                <div className="modal-header border-0 custom-modal-header">
-                                    <div className="page-title">
-                                        <h4>Delete Sale</h4>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                        onClick={() => setShowDeleteModal(false)}
-                                    >
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="row">
-                                            <div className="col-12">
-                                                <div className="input-blocks">
-                                                    <p className="mb-4">Are you sure you want to delete this sale? This action cannot be undone.</p>
-                                                    {saleToDelete && (
-                                                        <div className="sale-details mb-4">
-                                                            <div className="table-responsive">
-                                                                <table className="table">
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td><strong>Sale ID:</strong></td>
-                                                                            <td>{saleToDelete._id}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Customer:</strong></td>
-                                                                            <td>{saleToDelete.customer?.name || 'Walk-in Customer'}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Date:</strong></td>
-                                                                            <td>{new Date(saleToDelete.createdAt).toLocaleDateString()}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Total:</strong></td>
-                                                                            <td>${saleToDelete.total?.toFixed(2) || '0.00'}</td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    )}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} size="lg">
+                <div className="page-wrapper p-0 m-0">
+                    <div className="content p-0">
+                        <div className="modal-header border-0 custom-modal-header">
+                            <div className="page-title">
+                                <h4>Delete Sale</h4>
+                            </div>
+                            <button
+                                type="button"
+                                className="close"
+                                onClick={() => setShowDeleteModal(false)}
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div className="card">
+                            <div className="card-body">
+                                <div className="row">
+                                    <div className="col-12">
+                                        <div className="input-blocks">
+                                            <p className="mb-4">Are you sure you want to delete this sale? This action cannot be undone.</p>
+                                            {saleToDelete && (
+                                                <div className="sale-details mb-4">
+                                                    <div className="table-responsive">
+                                                        <table className="table">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td><strong>Sale ID:</strong></td>
+                                                                    <td>{saleToDelete._id}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Customer:</strong></td>
+                                                                    <td>{saleToDelete.customer?.name || 'Walk-in Customer'}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Date:</strong></td>
+                                                                    <td>{new Date(saleToDelete.createdAt).toLocaleDateString()}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Total:</strong></td>
+                                                                    <td>${saleToDelete.total?.toFixed(2) || '0.00'}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Status:</strong></td>
+                                                                    <td>
+                                                                        <span className={`badge ${
+                                                                            saleToDelete.status === 'completed' ? 'bg-success' :
+                                                                            saleToDelete.status === 'pending' ? 'bg-warning' :
+                                                                            saleToDelete.status === 'cancelled' ? 'bg-danger' :
+                                                                            saleToDelete.status === 'refunded' ? 'bg-info' :
+                                                                            'bg-secondary'
+                                                                        }`}>
+                                                                            {saleToDelete.status || 'Pending'}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="col-lg-12 text-end">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-cancel add-cancel me-3"
-                                                    onClick={() => setShowDeleteModal(false)}
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-submit add-sale"
-                                                    onClick={handleDeleteConfirm}
-                                                >
-                                                    Delete Sale
-                                                </button>
-                                            </div>
+                                            )}
                                         </div>
+                                    </div>
+                                    <div className="col-lg-12 text-end">
+                                        <button
+                                            type="button"
+                                            className="btn btn-cancel add-cancel me-3"
+                                            onClick={() => setShowDeleteModal(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-submit add-sale"
+                                            onClick={handleDeleteConfirm}
+                                        >
+                                            Delete Sale
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </Modal>
         </div>
     )
 }
