@@ -60,6 +60,8 @@ const SalesList = () => {
     });
     const [editingSale, setEditingSale] = useState(null); // State for editing a sale
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [saleToDelete, setSaleToDelete] = useState(null);
 
     // Define the toggleFilterVisibility function
     const toggleFilterVisibility = () => {
@@ -312,6 +314,26 @@ const SalesList = () => {
             fetchProducts(locationId);
         } else {
             setProducts([]);
+        }
+    };
+
+    const handleDeleteClick = (sale) => {
+        setSaleToDelete(sale);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!saleToDelete) return;
+
+        try {
+            await api.delete(`/api/sales/${saleToDelete._id}`);
+            setSales(sales.filter(sale => sale._id !== saleToDelete._id));
+            toast.success('Sale deleted successfully');
+            setShowDeleteModal(false);
+            setSaleToDelete(null);
+        } catch (error) {
+            console.error('Error deleting sale:', error);
+            toast.error(error.response?.data?.message || 'Failed to delete sale');
         }
     };
 
@@ -737,6 +759,9 @@ const SalesList = () => {
                                                             <Link
                                                                 to="#"
                                                                 className="dropdown-item confirm-text mb-0"
+                                                                onClick={() => handleDeleteClick(sale)}
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#delete-sale-modal"
                                                             >
                                                                 <i data-feather="trash-2" className="info-img" />
                                                                 Delete Sale
@@ -2140,6 +2165,85 @@ const SalesList = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <div className="modal fade" id="delete-sale-modal">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="page-wrapper p-0 m-0">
+                            <div className="content p-0">
+                                <div className="modal-header border-0 custom-modal-header">
+                                    <div className="page-title">
+                                        <h4>Delete Sale</h4>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                        onClick={() => setShowDeleteModal(false)}
+                                    >
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                </div>
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="row">
+                                            <div className="col-12">
+                                                <div className="input-blocks">
+                                                    <p className="mb-4">Are you sure you want to delete this sale? This action cannot be undone.</p>
+                                                    {saleToDelete && (
+                                                        <div className="sale-details mb-4">
+                                                            <div className="table-responsive">
+                                                                <table className="table">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td><strong>Sale ID:</strong></td>
+                                                                            <td>{saleToDelete._id}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><strong>Customer:</strong></td>
+                                                                            <td>{saleToDelete.customer?.name || 'Walk-in Customer'}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><strong>Date:</strong></td>
+                                                                            <td>{new Date(saleToDelete.createdAt).toLocaleDateString()}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td><strong>Total:</strong></td>
+                                                                            <td>${saleToDelete.total?.toFixed(2) || '0.00'}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-lg-12 text-end">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-cancel add-cancel me-3"
+                                                    onClick={() => setShowDeleteModal(false)}
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-submit add-sale"
+                                                    onClick={handleDeleteConfirm}
+                                                >
+                                                    Delete Sale
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
