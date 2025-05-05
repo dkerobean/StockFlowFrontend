@@ -349,7 +349,7 @@ const Pos = () => {
                                 alt="Products"
                               />
                               <span>
-                         
+
                                 <Check className="feather-16"/>
                               </span>
                             </Link>

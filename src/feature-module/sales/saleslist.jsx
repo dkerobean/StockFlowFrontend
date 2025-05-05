@@ -65,6 +65,8 @@ const SalesList = () => {
     const [saleToDelete, setSaleToDelete] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedSaleForInvoice, setSelectedSaleForInvoice] = useState(null);
+    const [showSaleDetailModal, setShowSaleDetailModal] = useState(false);
+    const [selectedSaleForDetail, setSelectedSaleForDetail] = useState(null);
 
     // Define the toggleFilterVisibility function
     const toggleFilterVisibility = () => {
@@ -437,6 +439,11 @@ const SalesList = () => {
     const handleGenerateInvoice = (sale) => {
         setSelectedSaleForInvoice(sale);
         setShowInvoiceModal(true);
+    };
+
+    const handleSaleDetailClick = (sale) => {
+        setSelectedSaleForDetail(sale);
+        setShowSaleDetailModal(true);
     };
 
     useEffect(() => {
@@ -817,8 +824,7 @@ const SalesList = () => {
                                                             <Link
                                                                 to="#"
                                                                 className="dropdown-item"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#sales-details-new"
+                                                                onClick={() => handleSaleDetailClick(sale)}
                                                             >
                                                                 <i data-feather="eye" className="info-img" />
                                                                 Sale Detail
@@ -832,28 +838,6 @@ const SalesList = () => {
                                                             >
                                                                 <i data-feather="edit" className="info-img" />
                                                                 Edit Sale
-                                                            </Link>
-                                                        </li>
-                                                        <li>
-                                                            <Link
-                                                                to="#"
-                                                                className="dropdown-item"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#showpayment"
-                                                            >
-                                                                <i data-feather="dollar-sign" className="info-img" />
-                                                                Show Payments
-                                                            </Link>
-                                                        </li>
-                                                        <li>
-                                                            <Link
-                                                                to="#"
-                                                                className="dropdown-item"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#createpayment"
-                                                            >
-                                                                <i data-feather="plus-circle" className="info-img" />
-                                                                Create Payment
                                                             </Link>
                                                         </li>
                                                         <li>
@@ -2403,6 +2387,144 @@ const SalesList = () => {
                 </Modal.Footer>
             </Modal>
 
+            {/* Sale Detail Modal */}
+            <Modal show={showSaleDetailModal} onHide={() => setShowSaleDetailModal(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Sale Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedSaleForDetail && (
+                        <div className="sale-detail-container">
+                            <div className="sale-header mb-4">
+                                <div className="row">
+                                    <div className="col-6">
+                                        <h4>StockFlow</h4>
+                                        <p>123 Business Street</p>
+                                        <p>City, State 12345</p>
+                                        <p>Phone: (123) 456-7890</p>
+                                    </div>
+                                    <div className="col-6 text-end">
+                                        <h4>SALE DETAILS</h4>
+                                        <p>Sale ID: {selectedSaleForDetail._id.slice(-6).toUpperCase()}</p>
+                                        <p>Date: {new Date(selectedSaleForDetail.createdAt).toLocaleDateString()}</p>
+                                        <p>Status: <span className={`badge ${
+                                            selectedSaleForDetail.status === 'completed' ? 'bg-success' :
+                                            selectedSaleForDetail.status === 'pending' ? 'bg-warning' :
+                                            selectedSaleForDetail.status === 'cancelled' ? 'bg-danger' :
+                                            selectedSaleForDetail.status === 'refunded' ? 'bg-info' :
+                                            'bg-secondary'
+                                        }`}>{selectedSaleForDetail.status || 'Pending'}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="sale-customer mb-4">
+                                <div className="row">
+                                    <div className="col-6">
+                                        <h5>Customer Information</h5>
+                                        <p>Name: {selectedSaleForDetail.customer?.name || 'Walk-in Customer'}</p>
+                                        {selectedSaleForDetail.customer?.email && <p>Email: {selectedSaleForDetail.customer.email}</p>}
+                                        {selectedSaleForDetail.customer?.contact && <p>Contact: {selectedSaleForDetail.customer.contact}</p>}
+                                    </div>
+                                    <div className="col-6 text-end">
+                                        <h5>Store Information</h5>
+                                        <p>Location: {selectedSaleForDetail.location?.name || 'N/A'}</p>
+                                        <p>Payment Method: {selectedSaleForDetail.paymentMethod}</p>
+                                        {selectedSaleForDetail.notes && <p>Notes: {selectedSaleForDetail.notes}</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="sale-items mb-4">
+                                <h5>Items</h5>
+                                <div className="table-responsive">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>SKU</th>
+                                                <th className="text-end">Quantity</th>
+                                                <th className="text-end">Price</th>
+                                                <th className="text-end">Discount</th>
+                                                <th className="text-end">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {selectedSaleForDetail.items.map((item, index) => (
+                                                <tr key={index}>
+                                                    <td>
+                                                        <div className="d-flex align-items-center">
+                                                            <img
+                                                                src={item.product?.imageUrl ? `${process.env.REACT_APP_FILE_BASE_URL}${item.product.imageUrl}` : '/assets/img/placeholder-product.png'}
+                                                                alt={item.product?.name}
+                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = '/assets/img/placeholder-product.png';
+                                                                }}
+                                                            />
+                                                            <span>{item.product?.name || 'Unknown Product'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>{item.product?.sku || 'N/A'}</td>
+                                                    <td className="text-end">{item.quantity}</td>
+                                                    <td className="text-end">${item.price.toFixed(2)}</td>
+                                                    <td className="text-end">{item.discount}%</td>
+                                                    <td className="text-end">${(item.price * item.quantity * (1 - item.discount / 100)).toFixed(2)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="sale-summary">
+                                <div className="row">
+                                    <div className="col-6">
+                                        <h5>Additional Information</h5>
+                                        <p>Created By: {selectedSaleForDetail.createdBy?.name || 'System'}</p>
+                                        <p>Created At: {new Date(selectedSaleForDetail.createdAt).toLocaleString()}</p>
+                                        {selectedSaleForDetail.updatedAt && (
+                                            <p>Last Updated: {new Date(selectedSaleForDetail.updatedAt).toLocaleString()}</p>
+                                        )}
+                                    </div>
+                                    <div className="col-6">
+                                        <table className="table table-borderless">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Subtotal:</td>
+                                                    <td className="text-end">${selectedSaleForDetail.subtotal?.toFixed(2) || '0.00'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Tax ({selectedSaleForDetail.tax || 0}%):</td>
+                                                    <td className="text-end">${((selectedSaleForDetail.subtotal || 0) * (selectedSaleForDetail.tax || 0) / 100).toFixed(2)}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Discount ({selectedSaleForDetail.discount || 0}%):</td>
+                                                    <td className="text-end">${((selectedSaleForDetail.subtotal || 0) * (selectedSaleForDetail.discount || 0) / 100).toFixed(2)}</td>
+                                                </tr>
+                                                <tr className="fw-bold">
+                                                    <td>Total:</td>
+                                                    <td className="text-end">${selectedSaleForDetail.total?.toFixed(2) || '0.00'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowSaleDetailModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={() => window.print()}>
+                        Print Details
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             <style jsx>{`
                 @media print {
                     body * {
@@ -2420,6 +2542,21 @@ const SalesList = () => {
                     .modal-footer {
                         display: none !important;
                     }
+                    .sale-detail-container, .sale-detail-container * {
+                        visibility: visible;
+                    }
+                    .sale-detail-container {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                    }
+                    .modal-footer {
+                        display: none !important;
+                    }
+                }
+                .sale-detail-container {
+                    padding: 20px;
                 }
             `}</style>
         </div>
