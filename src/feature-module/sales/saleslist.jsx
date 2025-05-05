@@ -34,6 +34,21 @@ api.interceptors.request.use(
     }
 );
 
+const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+        case 'completed':
+            return 'badge-success';
+        case 'pending':
+            return 'badge-warning';
+        case 'cancelled':
+            return 'badge-danger';
+        case 'refunded':
+            return 'badge-info';
+        default:
+            return 'badge-secondary';
+    }
+};
+
 const SalesList = () => {
     const dispatch = useDispatch();
     const data = useSelector((state) => state.toggle_header);
@@ -159,7 +174,11 @@ const SalesList = () => {
     const createSale = async () => {
         try {
             const response = await api.post('/api/sales', newSale);
-            setSales([...sales, response.data]);
+
+            // Fetch the updated sales list with populated data
+            const updatedSalesResponse = await api.get('/api/sales');
+            setSales(updatedSalesResponse.data);
+
             setShowAddModal(false);
             toast.success('Sale created successfully!', {
                 position: "top-right",
@@ -186,10 +205,13 @@ const SalesList = () => {
                 discount: 0
             });
         } catch (error) {
-            console.error('Error creating sale:', error);
-            toast.error('Failed to create sale. Please try again.', {
+            // Get the clean error message from the backend
+            const errorMessage = error.response?.data?.message || 'Failed to create sale';
+
+            // Display the error message
+            toast.error(errorMessage, {
                 position: "top-right",
-                autoClose: 3000,
+                autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -691,8 +713,8 @@ const SalesList = () => {
                                                 <td>${(sale.discount || 0).toFixed(2)}</td>
                                                 <td>${sale.total?.toFixed(2) || '0.00'}</td>
                                                 <td>
-                                                    <span className={`badge badge-${sale.status === 'Completed' ? 'bgsuccess' : 'bgdanger'}`}>
-                                                        {sale.status || 'Pending'}
+                                                    <span className={`badge ${getStatusBadgeClass(sale.status)}`}>
+                                                        {sale.status?.charAt(0).toUpperCase() + sale.status?.slice(1) || 'Completed'}
                                                     </span>
                                                 </td>
                                                 <td className="text-center">
