@@ -163,7 +163,19 @@ const SalesList = () => {
     // Create a new sale
     const createSale = async () => {
         try {
-            const response = await api.post('/api/sales', newSale);
+            // Transform the data to match backend expectations
+            const saleData = {
+                ...newSale,
+                location: newSale.locationId, // Map locationId to location
+                items: newSale.items.map(item => ({
+                    product: item.product,
+                    quantity: parseInt(item.quantity),
+                    price: parseFloat(item.price),
+                    discount: parseFloat(item.discount)
+                }))
+            };
+
+            const response = await api.post('/api/sales', saleData);
             await fetchSales(); // Refresh the sales list
             setShowAddModal(false);
             toast.success('Sale created successfully!', {
