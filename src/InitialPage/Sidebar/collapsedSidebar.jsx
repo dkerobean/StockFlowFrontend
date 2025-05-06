@@ -314,11 +314,11 @@ const CollapsedSidebar = () => {
                   <span>Sales</span>
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="invoice-report">
                   <span>Invoices</span>
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="sales-returns">
                   <span>Sales Return</span>
