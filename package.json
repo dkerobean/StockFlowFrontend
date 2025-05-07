@@ -6,6 +6,8 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^41.2.0",
     "@ckeditor/ckeditor5-react": "^6.2.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -13,6 +15,8 @@
     "@fullcalendar/interaction": "^6.1.11",
     "@fullcalendar/react": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.11",
+    "@mui/icons-material": "^7.1.0",
+    "@mui/material": "^7.1.0",
     "@react-latest-ui/react-sticky-notes": "^0.2.6",
     "@reduxjs/toolkit": "^2.2.1",
     "@types/react-slick": "^0.23.13",

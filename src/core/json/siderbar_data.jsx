@@ -95,15 +95,15 @@ export const SidebarData = [
           { label: "POS", link: "/pos", icon:  <Icon.HardDrive />,showSubRoute: false,submenu: false }
         ]
       },
-      {
-        label: "Promo",
-        submenuOpen: true,
-        submenuHdr: "Promo",
-        showSubRoute: false,
-        submenuItems: [
-          { label: "Coupons", link: "/coupons", icon:  <Icon.ShoppingCart />,showSubRoute: false, submenu: false }
-        ]
-      },
+      // {
+      //   label: "Promo",
+      //   submenuOpen: true,
+      //   submenuHdr: "Promo",
+      //   showSubRoute: false,
+      //   submenuItems: [
+      //     { label: "Coupons", link: "/coupons", icon:  <Icon.ShoppingCart />,showSubRoute: false, submenu: false }
+      //   ]
+      // },
       {
         label: "Purchases",
         submenuOpen: true,
@@ -132,6 +132,16 @@ export const SidebarData = [
             submenuItems: [
               {label: "Expenses", link: "/expense-list",showSubRoute: false},
               {label: "Expense Category", link: "/expense-category",showSubRoute: false}
+            ]
+          },
+          {
+            label: "Income",
+            submenu: true,
+            showSubRoute: false,
+            icon: <Icon.DollarSign />,
+            submenuItems: [
+              {label: "Income", link: "/income-list",showSubRoute: false},
+              {label: "Income Category", link: "/income-category",showSubRoute: false}
             ]
           }
         ]
