@@ -9,6 +9,7 @@ import { all_routes } from "../../Router/all_routes";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Modal as BootstrapModal, Button as BootstrapButton } from 'react-bootstrap'; // Import react-bootstrap components
 
 const API_URL = `${process.env.REACT_APP_API_URL}/categories`;
 
@@ -17,7 +18,6 @@ const ExpenseCategory = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({ name: "", description: "" });
   const [selectedId, setSelectedId] = useState(null);
@@ -25,6 +25,9 @@ const ExpenseCategory = () => {
   const addModalRef = useRef();
   const editModalRef = useRef();
   const isMounted = useRef(true);
+
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false); // State for delete confirmation modal
+  const [categoryToDelete, setCategoryToDelete] = useState(null); // State for category to be deleted
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible((prevVisibility) => !prevVisibility);
@@ -124,19 +127,28 @@ const ExpenseCategory = () => {
     }
   };
 
-  // Delete category
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
+  // Delete category - updated to show confirmation modal
+  const handleDelete = async (category) => {
+    setCategoryToDelete(category); // Store the whole category object
+    setShowDeleteConfirmModal(true); // Show the confirmation modal
+  };
+
+  // Confirm delete category - new function
+  const confirmDeleteCategory = async () => {
+    if (!categoryToDelete) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/${id}`, {
+      await axios.delete(`${API_URL}/${categoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Category deleted successfully");
-      fetchCategories(false);
+      fetchCategories(false); // Refresh list
     } catch (err) {
       console.error('Delete error:', err);
       toast.error(err.response?.data?.message || "Error deleting category");
+    } finally {
+      setShowDeleteConfirmModal(false); // Hide modal
+      setCategoryToDelete(null); // Reset category to delete
     }
   };
 
@@ -271,7 +283,7 @@ const ExpenseCategory = () => {
                                 </Link>
                                 <Link
                                   className="me-0 confirm-text p-2 mb-0"
-                                  onClick={() => handleDelete(cat._id)}
+                                  onClick={() => handleDelete(cat)} // Pass the whole category object
                                 >
                                   <i data-feather="trash-2" className="feather-trash-2" />
                                 </Link>
@@ -433,6 +445,25 @@ const ExpenseCategory = () => {
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Modal (using react-bootstrap) */}
+        <BootstrapModal show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)} centered>
+          <BootstrapModal.Header closeButton>
+            <BootstrapModal.Title>Delete Expense Category</BootstrapModal.Title>
+          </BootstrapModal.Header>
+          <BootstrapModal.Body>
+            <p>Are you sure you want to delete the category "<strong>{categoryToDelete?.name}</strong>"?</p>
+            <p>This action cannot be undone.</p>
+          </BootstrapModal.Body>
+          <BootstrapModal.Footer>
+            <BootstrapButton variant="secondary" onClick={() => setShowDeleteConfirmModal(false)}>
+              Cancel
+            </BootstrapButton>
+            <BootstrapButton variant="danger" onClick={confirmDeleteCategory}>
+              Delete Category
+            </BootstrapButton>
+          </BootstrapModal.Footer>
+        </BootstrapModal>
       </div>
     </>
   );

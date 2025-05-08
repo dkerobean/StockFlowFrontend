@@ -9,6 +9,7 @@ import ImageWithBasePath from "../../core/img/imagewithbasebath";
 import { Calendar, StopCircle, User, FileText } from "react-feather";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Modal, Button } from 'react-bootstrap'; // Added Modal and Button
 import Swal from "sweetalert2";
 import { all_routes } from "../../Router/all_routes";
 
@@ -17,6 +18,8 @@ const ExpensesList = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDateTwo, setSelectedDateTwo] = useState(null);
   const [selectedDateModal, setSelectedDateModal] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Added state for delete modal
+  const [expenseToDelete, setExpenseToDelete] = useState(null); // Added state for expense to delete
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -53,6 +56,28 @@ const ExpensesList = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const toggleFilterVisibility = () => {
     setIsFilterVisible((prevVisibility) => !prevVisibility);
+  };
+
+  // Dummy data for expenses - replace with actual data fetching
+  const [expenses, setExpenses] = useState([
+    { id: 'PT001', category: 'Employee Benefits', reference: 'PT001', date: '19 Jan 2023', status: 'Active', amount: '$550', description: 'Employee Vehicle' },
+    { id: 'PT002', category: 'Foods & Snacks', reference: 'PT002', date: '27 Jan 2023', status: 'Active', amount: '$570', description: 'Employee Foods' },
+    // Add other expenses here
+  ]);
+
+  const handleDeleteClick = (expense) => {
+    setExpenseToDelete(expense);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!expenseToDelete) return;
+    // Perform the actual delete operation here (e.g., API call)
+    setExpenses(expenses.filter(exp => exp.id !== expenseToDelete.id));
+    console.log("Deleting expense:", expenseToDelete);
+    setShowDeleteModal(false);
+    setExpenseToDelete(null);
+    // You might want to add a toast notification for success here
   };
 
   const confirmText = () => {
@@ -231,21 +256,22 @@ const ExpensesList = () => {
                     </tr>
                   </thead>
                   <tbody className="Expense-list-blk">
-                    <tr>
+                    {expenses.map((expense) => (
+                    <tr key={expense.id}>
                       <td>
                         <label className="checkboxs">
                           <input type="checkbox" />
                           <span className="checkmarks" />
                         </label>
                       </td>
-                      <td>Employee Benefits</td>
-                      <td>PT001</td>
-                      <td>19 Jan 2023</td>
+                      <td>{expense.category}</td>
+                      <td>{expense.reference}</td>
+                      <td>{expense.date}</td>
                       <td>
-                        <span className="badge badge-linesuccess">Active</span>
+                        <span className={`badge ${expense.status === 'Active' ? 'badge-linesuccess' : 'badge-linedanger'}`}>{expense.status}</span>
                       </td>
-                      <td>$550</td>
-                      <td>Employee Vehicle</td>
+                      <td>{expense.amount}</td>
+                      <td>{expense.description}</td>
                       <td className="action-table-data">
                         <div className="edit-delete-action">
                           <Link className="me-2 p-2 mb-0" to="#">
@@ -258,423 +284,20 @@ const ExpensesList = () => {
                           >
                             <i data-feather="edit" className="feather-edit" />
                           </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Foods &amp; Snacks</td>
-                      <td>PT002</td>
-                      <td>27 Jan 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$570</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
                           <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
+                            className="me-3 confirm-text p-2 mb-0"
+                            to="#"
+                            onClick={() => handleDeleteClick(expense)} // Updated onClick
                           >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
                             <i
                               data-feather="trash-2"
                               className="feather-trash-2"
-                              onClick={confirmText}
                             />
                           </Link>
                         </div>
                       </td>
                     </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Entertainment</td>
-                      <td>PT003</td>
-                      <td>03 Feb 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$400</td>
-                      <td>Office Vehicle</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Office Expenses &amp; Postage </td>
-                      <td>PT004</td>
-                      <td>17 Feb 2023</td>
-                      <td>
-                        <span className="badge badge-linedanger">Inactive</span>
-                      </td>
-                      <td>$750</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Employee Benefits</td>
-                      <td>PT005</td>
-                      <td>14 Mar 2023</td>
-                      <td>
-                        <span className="badge badge-linedanger">Inactive</span>
-                      </td>
-                      <td>$470</td>
-                      <td>Employee Vehicle</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Foods &amp; Snacks</td>
-                      <td>PT006</td>
-                      <td>28 Mar 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$200</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Entertainment</td>
-                      <td>PT007</td>
-                      <td>06 Apr 2023</td>
-                      <td>
-                        <span className="badge badge-linedanger">Inactive</span>
-                      </td>
-                      <td>$380</td>
-                      <td>Office Vehicle</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Office Expenses &amp; Postage </td>
-                      <td>PT008</td>
-                      <td>19 Apr 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$620</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Employee Benefits</td>
-                      <td>PT009</td>
-                      <td>08 May 2023</td>
-                      <td>
-                        <span className="badge badge-linedanger">Inactive</span>
-                      </td>
-                      <td>$430</td>
-                      <td>Employee Vehicle</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Foods &amp; Snacks</td>
-                      <td>PT010</td>
-                      <td>23 May 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$120</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Entertainment</td>
-                      <td>PT011</td>
-                      <td>24 Nov 2023</td>
-                      <td>
-                        <span className="badge badge-linedanger">Inactive</span>
-                      </td>
-                      <td>$620</td>
-                      <td>Office Vehicle</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td>Office Expenses &amp; Postage </td>
-                      <td>PT012</td>
-                      <td>19 Nov 2023</td>
-                      <td>
-                        <span className="badge badge-linesuccess">Active</span>
-                      </td>
-                      <td>$430</td>
-                      <td>Employee Foods</td>
-                      <td className="action-table-data">
-                        <div className="edit-delete-action">
-                          <Link className="me-2 p-2 mb-0" to="#">
-                            <Eye className="action-eye" />
-                          </Link>
-                          <Link
-                            className="me-2 p-2 mb-0"
-                            data-bs-toggle="modal"
-                            data-bs-target="#edit-units"
-                          >
-                            <i data-feather="edit" className="feather-edit" />
-                          </Link>
-                          <Link className="me-3 confirm-text p-2 mb-0" to="#">
-                            <i
-                              data-feather="trash-2"
-                              className="feather-trash-2"
-                              onClick={confirmText}
-                            />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -898,6 +521,31 @@ const ExpensesList = () => {
         </div>
       </div>
       {/* /Edit Expense */}
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Expense</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this expense? This action cannot be undone.</p>
+          {expenseToDelete && (
+            <div>
+              <p><strong>Category:</strong> {expenseToDelete.category}</p>
+              <p><strong>Reference:</strong> {expenseToDelete.reference}</p>
+              <p><strong>Amount:</strong> {expenseToDelete.amount}</p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Delete Expense
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
