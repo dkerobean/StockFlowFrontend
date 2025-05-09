@@ -420,18 +420,20 @@ const ExpensesList = () => {
                           {/* <Link className="me-2 p-2 mb-0" to="#">
                             <Eye className="action-eye" />
                           </Link> */}
-                          <button
-                            className="me-2 p-2 btn-edit"
+                          <Link
+                            className="me-2 p-2"
+                            to="#"
                             onClick={() => openEditModal(expense)}
                           >
                             <i data-feather="edit" className="feather-edit" />
-                          </button>
-                          <button
-                            className="p-2 btn-delete"
+                          </Link>
+                          <Link
+                            className="confirm-text p-2"
+                            to="#"
                             onClick={() => handleDeleteClick(expense)}
                           >
                             <i data-feather="trash-2" className="feather-trash-2"/>
-                          </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>

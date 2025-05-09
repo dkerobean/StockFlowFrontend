@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import Select from "react-select";
 import { Sliders, Filter } from "react-feather";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
 import Breadcrumbs from "../../core/breadcrumbs";
@@ -10,20 +9,21 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Modal as BootstrapModal, Button as BootstrapButton, Form } from 'react-bootstrap';
 
-const API_URL = `${process.env.REACT_APP_API_URL}/categories`;
+// Ensure this API endpoint is set up in your backend to manage income categories
+const API_URL = `${process.env.REACT_APP_API_URL}/income-categories`; // Or your actual endpoint for income categories
 
-const ExpenseCategory = () => {
+const IncomeCategory = () => {
   const route = all_routes;
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ name: "", description: "" }); // Renamed 'form' to 'formData' to avoid conflict with react-bootstrap Form
+  const [formData, setFormData] = useState({ name: "", description: "" });
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState("");
   const isMounted = useRef(true);
 
-  const [showAddEditModal, setShowAddEditModal] = useState(false); // Combined state for Add/Edit modal
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
 
@@ -46,9 +46,9 @@ const ExpenseCategory = () => {
         setCategories(response.data.categories || response.data || []);
       }
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error('Fetch income categories error:', err);
       if (showErrorToast && isMounted.current) {
-        toast.error(err.response?.data?.message || "Error fetching categories");
+        toast.error(err.response?.data?.message || "Error fetching income categories");
       }
     } finally {
       if (isMounted.current) {
@@ -92,21 +92,21 @@ const ExpenseCategory = () => {
         await axios.put(`${API_URL}/${selectedId}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("Category updated successfully");
+        toast.success("Income category updated successfully");
       } else {
         await axios.post(API_URL, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("Category created successfully");
+        toast.success("Income category created successfully");
       }
       if (isMounted.current) {
-        fetchCategories(false); // Refetch categories without showing error for this fetch
-        handleModalClose(); // Close modal and reset form
+        fetchCategories(false);
+        handleModalClose();
       }
     } catch (err) {
-      console.error('Submit error:', err);
+      console.error('Submit income category error:', err);
       if (isMounted.current) {
-        toast.error(err.response?.data?.message || "Error saving category");
+        toast.error(err.response?.data?.message || "Error saving income category");
       }
     } finally {
       if (isMounted.current) {
@@ -128,11 +128,15 @@ const ExpenseCategory = () => {
       await axios.delete(`${API_URL}/${categoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Category deleted successfully");
-      fetchCategories(false); // Refresh list
+      toast.success("Income category deleted successfully");
+      if (isMounted.current) {
+        fetchCategories(false);
+      }
     } catch (err) {
-      console.error('Delete error:', err);
-      toast.error(err.response?.data?.message || "Error deleting category");
+      console.error('Delete income category error:', err);
+      if (isMounted.current) {
+        toast.error(err.response?.data?.message || "Error deleting income category");
+      }
     } finally {
       setShowDeleteConfirmModal(false);
       setCategoryToDelete(null);
@@ -154,18 +158,17 @@ const ExpenseCategory = () => {
     <>
       <div className="page-wrapper">
         <div className="content">
-          <Breadcrumbs title="Expense Category" path={route.expensecategory} />
+          <Breadcrumbs title="Income Category" path={route.incomecategory} maintitle="Income Category" />
           <ToastContainer position="top-right" autoClose={3000} />
 
           <div className="page-header">
             <div className="add-item d-flex">
               <div className="page-title">
-                <h4>Expense Category</h4>
-                <h6>Manage your categories</h6>
+                <h4>Income Category</h4>
+                <h6>Manage your income categories</h6>
               </div>
             </div>
             <ul className="table-top-head">
-              {/* ... other list items ... */}
               <li>
                 <div className="page-btn">
                   <button
@@ -174,87 +177,99 @@ const ExpenseCategory = () => {
                     onClick={openAddModal}
                   >
                     <i className="fa fa-plus-circle me-2" />
-                    Add New Category
+                    Add New Income Category
                   </button>
                 </div>
               </li>
             </ul>
           </div>
 
-          {/* Search and Filter */}
-          <div className="search-filter-header">
-            {/* ... search and filter UI ... */}
-          </div>
+          <div className="card table-list-card">
+            <div className="card-body">
+              <div className="table-top">
+                <div className="search-set">
+                  <div className="search-input">
+                    <input
+                      type="text"
+                      placeholder="Search by category name..."
+                      className="form-control form-control-sm formsearch"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <Link to="#" className="btn btn-searchset">
+                      <i data-feather="search" className="feather-search" />
+                    </Link>
+                  </div>
+                </div>
+                {/* You can add a filter button similar to ExpenseCategory if needed */}
+              </div>
 
-          <div className="card" id="filter_inputs" style={{ display: isFilterVisible ? "block" : "none" }}>
-            {/* ... filter card content ... */}
-          </div>
-
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>
-                    <label className="checkboxs">
-                      <input type="checkbox" id="select-all" />
-                      <span className="checkmarks" />
-                    </label>
-                  </th>
-                  <th>Category Name</th>
-                  <th>Description</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && <tr><td colSpan="4" className="text-center">Loading...</td></tr>}
-                {!loading && filteredCategories.length === 0 && (
-                  <tr><td colSpan="4" className="text-center">No categories found.</td></tr>
-                )}
-                {!loading && filteredCategories.map((cat) => (
-                  <tr key={cat._id}>
-                    <td>
-                      <label className="checkboxs">
-                        <input type="checkbox" />
-                        <span className="checkmarks" />
-                      </label>
-                    </td>
-                    <td>{cat.name}</td>
-                    <td>{cat.description}</td>
-                    <td className="action-table-data">
-                      <div className="edit-delete-action">
-                        <Link
-                          className="me-2 p-2"
-                          to="#"
-                          onClick={() => openEditModal(cat)}
-                        >
-                          <i data-feather="edit" className="feather-edit" />
-                        </Link>
-                        <Link
-                          className="confirm-text p-2"
-                          to="#"
-                          onClick={() => handleDelete(cat)}
-                        >
-                           <i data-feather="trash-2" className="feather-trash-2" />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <label className="checkboxs">
+                          <input type="checkbox" id="select-all" />
+                          <span className="checkmarks" />
+                        </label>
+                      </th>
+                      <th>Category Name</th>
+                      <th>Description</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading && <tr><td colSpan="4" className="text-center">Loading...</td></tr>}
+                    {!loading && filteredCategories.length === 0 && (
+                      <tr><td colSpan="4" className="text-center">No income categories found.</td></tr>
+                    )}
+                    {!loading && filteredCategories.map((cat) => (
+                      <tr key={cat._id}>
+                        <td>
+                          <label className="checkboxs">
+                            <input type="checkbox" />
+                            <span className="checkmarks" />
+                          </label>
+                        </td>
+                        <td>{cat.name}</td>
+                        <td>{cat.description}</td>
+                        <td className="action-table-data">
+                          <div className="edit-delete-action">
+                            <Link
+                              className="me-2 p-2"
+                              to="#"
+                              onClick={() => openEditModal(cat)}
+                            >
+                              <i data-feather="edit" className="feather-edit" />
+                            </Link>
+                            <Link
+                              className="confirm-text p-2"
+                              to="#"
+                              onClick={() => handleDelete(cat)}
+                            >
+                               <i data-feather="trash-2" className="feather-trash-2" />
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Add/Edit Category Modal (using react-bootstrap) */}
       <BootstrapModal show={showAddEditModal} onHide={handleModalClose} centered>
         <BootstrapModal.Header closeButton>
-          <BootstrapModal.Title>{editMode ? "Edit Expense Category" : "Add Expense Category"}</BootstrapModal.Title>
+          <BootstrapModal.Title>{editMode ? "Edit Income Category" : "Add Income Category"}</BootstrapModal.Title>
         </BootstrapModal.Header>
         <Form onSubmit={handleSubmit}>
           <BootstrapModal.Body>
             <Form.Group className="mb-3">
-              <Form.Label>Category Name</Form.Label>
+              <Form.Label>Category Name <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter category name"
@@ -277,7 +292,7 @@ const ExpenseCategory = () => {
             </Form.Group>
           </BootstrapModal.Body>
           <BootstrapModal.Footer>
-            <BootstrapButton variant="secondary" onClick={handleModalClose}>
+            <BootstrapButton variant="secondary" onClick={handleModalClose} disabled={loading}>
               Cancel
             </BootstrapButton>
             <BootstrapButton variant="primary" type="submit" disabled={loading}>
@@ -287,10 +302,9 @@ const ExpenseCategory = () => {
         </Form>
       </BootstrapModal>
 
-      {/* Delete Confirmation Modal (using react-bootstrap) */}
       <BootstrapModal show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)} centered>
         <BootstrapModal.Header closeButton>
-          <BootstrapModal.Title>Delete Expense Category</BootstrapModal.Title>
+          <BootstrapModal.Title>Delete Income Category</BootstrapModal.Title>
         </BootstrapModal.Header>
         <BootstrapModal.Body>
           <p>Are you sure you want to delete the category "<strong>{categoryToDelete?.name}</strong>"?</p>
@@ -309,4 +323,4 @@ const ExpenseCategory = () => {
   );
 };
 
-export default ExpenseCategory;
+export default IncomeCategory;

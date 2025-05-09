@@ -86,6 +86,8 @@ import Ribbon from "../feature-module/uiinterface/advancedui/ribbon";
 import Chats from "../feature-module/Application/chat";
 import ExpensesList from "../feature-module/FinanceAccounts/expenseslist";
 import ExpenseCategory from "../feature-module/FinanceAccounts/expensecategory";
+import IncomeList from "../feature-module/FinanceAccounts/incomelist";
+import IncomeCategory from "../feature-module/FinanceAccounts/incomecategory";
 import Calendar from "../feature-module/Application/calendar";
 import FormWizard from "../feature-module/uiinterface/forms/formelements/form-wizard";
 import ExpiredProduct from "../feature-module/inventory/expiredproduct";
@@ -816,6 +818,20 @@ export const publicRoutes = [
     path: routes.expensecategory,
     name: "expensecategory",
     element: <ExpenseCategory />,
+    route: Route,
+  },
+  {
+    id: 62.1,
+    path: routes.incomelist,
+    name: "incomelist",
+    element: <IncomeList />,
+    route: Route,
+  },
+  {
+    id: 62.2,
+    path: routes.incomecategory,
+    name: "incomecategory",
+    element: <IncomeCategory />,
     route: Route,
   },
   {
