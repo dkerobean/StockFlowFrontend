@@ -17,7 +17,9 @@ import {
   Edit, // Added Edit icon based on commented out code
   Pause, // Added Pause icon based on data-feather attribute
   CreditCard, // Added CreditCard icon based on data-feather attribute
-  Smartphone // Added Smartphone icon
+  Smartphone, // Added Smartphone icon
+  Grid, // Added Grid icon for All Categories
+  CheckSquare // Added CheckSquare for product selection
 } from 'feather-icons-react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -44,6 +46,7 @@ const Pos = () => {
   const [categories, setCategories] = useState([]); // RE-ADD categories state
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProductsForCart, setSelectedProductsForCart] = useState(new Set()); // New state for selected products
 
   const [cart, setCart] = useState([]);
   const [customer, setCustomer] = useState({ name: 'Walk-in Customer', contact: '', email: '' });
@@ -176,6 +179,33 @@ const Pos = () => {
     toast.info('Update item in cart - TBD');
     setShowEditProductModal(false);
     setProductToEditInCart(null);
+  };
+
+  const handleProductSelection = (product) => {
+    setSelectedProductsForCart((prevSelected) => {
+      const isSelected = prevSelected.has(product._id);
+      const updatedSelected = new Set(prevSelected);
+
+      if (isSelected) {
+        updatedSelected.delete(product._id);
+      } else {
+        updatedSelected.add(product._id);
+        setCart((prevCart) => {
+          const existingProduct = prevCart.find((item) => item.product._id === product._id);
+          if (existingProduct) {
+            return prevCart.map((item) =>
+              item.product._id === product._id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            );
+          } else {
+            return [...prevCart, { product, quantity: 1, price: product.price }];
+          }
+        });
+      }
+
+      return updatedSelected;
+    });
   };
 
   // ... (rest of the component will be built out in subsequent steps)
@@ -435,6 +465,25 @@ const Pos = () => {
   const subtotal = calculateSubtotal();
   const total = calculateTotal();
 
+  const handleAddSelectedToCart = () => {
+    if (selectedProductsForCart.size === 0) {
+      toast.info("Please select products to add to the cart.");
+      return;
+    }
+    let countAdded = 0;
+    selectedProductsForCart.forEach(productId => {
+      const productToAdd = products.find(p => p._id === productId);
+      if (productToAdd) {
+        addToCart(productToAdd); // Use existing addToCart logic
+        countAdded++;
+      }
+    });
+    setSelectedProductsForCart(new Set()); // Clear selection after adding
+    if (countAdded > 0) {
+      toast.success(`${countAdded} product(s) added to cart.`);
+    }
+  };
+
   // Render
   return (
     <div className="page-wrapper pos-pg-wrapper ms-0">
@@ -472,28 +521,32 @@ const Pos = () => {
             <div className="pos-categories tabs_wrapper">
               <h5>Categories</h5>
               <p>Select From Below Categories</p>
-              {/* Dynamic Categories Slider - Using your existing state */}
               {products.length > 0 && (
-                <div className="pos-categories d-flex align-items-center"> {/* Use flexbox for alignment */}
-                  <button
-                      className={`btn me-3 ${!selectedCategory || selectedCategory === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} // Added me-3 for spacing
+                <div className="d-flex align-items-stretch"> {/* Use flexbox for alignment and equal height if desired */}
+                  <div className="me-2" style={{ minWidth: '150px' }}>
+                    <button
+                      className={`btn btn-block h-100 d-flex flex-column justify-content-center align-items-center ${!selectedCategory || selectedCategory === 'all' ? 'btn-primary' : 'btn-light border'}`}
                       onClick={() => setSelectedCategory('all')}
-                      style={{whiteSpace: 'nowrap'}} // Prevent button text wrap
+                      style={{ padding: '0.75rem 0.5rem'}} // Adjusted padding
                     >
-                      All Categories
+                      <Grid size={24} className="mb-1"/>
+                      <span style={{whiteSpace: 'normal', lineHeight: '1.2'}}>All Categories</span>
+                      {/* You can add item count here if available, e.g., <small>X items</small> */}
                     </button>
-                  <div style={{ flex: 1, minWidth: 0 }}> {/* Wrapper for slider to take remaining space */}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <Slider ref={categorySliderRef} {...categoryCarouselSettings}>
-                      {/* Assuming 'categories' state holds { _id, name } objects */}
                       {(categories || []).map((category) => (
-                        <div key={category._id || category.name} style={{paddingRight: '10px'}}>
-                          <button
-                            className={`btn btn-sm ${selectedCategory === category.name ? 'btn-primary' : 'btn-outline-primary'}`}
+                        <div key={category._id || category.name} style={{ padding: '0 5px' }}> {/* Spacing for slides */}
+                          <div
+                            className={`card category-item-card p-2 text-center h-100 d-flex flex-column justify-content-center ${selectedCategory === category.name ? 'border-primary bg-primary-light' : 'border'}`}
                             onClick={() => setSelectedCategory(category.name)}
-                            style={{whiteSpace: 'nowrap'}}
+                            style={{ cursor: 'pointer', minWidth: '120px'}} // Removed whiteSpace: nowrap to allow wrapping if needed
                           >
-                            {category.name}
-                          </button>
+                            {/* Optional: Icon can go here */}
+                            <span style={{whiteSpace: 'normal', lineHeight: '1.2'}}>{category.name}</span>
+                            {/* Item count would go here if available */}
+                          </div>
                         </div>
                       ))}
                     </Slider>
@@ -502,13 +555,13 @@ const Pos = () => {
               )}
             </div>
 
-            <div className="pos-products mt-3"> {/* Added mt-3 for spacing from categories */}
-              <div className="d-flex align-items-center justify-content-between mb-3"> {/* Added mb-3 for spacing below header */}
-                <h5 className="mb-0">Products</h5> {/* Removed mb-3 from h5, parent has mb-3 now */}
-                <div className="d-flex align-items-center"> {/* Wrapper for search and location */}
+            <div className="pos-products mt-3">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <h5 className="mb-0">Products</h5>
+                <div className="d-flex align-items-center">
                   <div className="input-group me-2" style={{width: '250px'}}>
                       <input type="text" className="form-control" placeholder="Search Product..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                      <button type="button" className="btn btn-light border"><Search size={18}/></button> {/* Adjusted icon size and button style */}
+                      <button type="button" className="btn btn-light border"><Search size={18}/></button>
                   </div>
                   <div className="location-select-pos" style={{width: '200px'}}>
                     <Select
@@ -519,20 +572,30 @@ const Pos = () => {
                         placeholder="Select Location"
                         isDisabled={locations.length === 0}
                     />
-                </div>
+                  </div>
                 </div>
               </div>
+
+              {/* Add Selected to Cart Button - Placed below the product header */}
+              {selectedProductsForCart.size > 0 && (
+                <div className="d-grid mb-3">
+                  <Button variant="success" onClick={handleAddSelectedToCart}>
+                    Add {selectedProductsForCart.size} Selected Item(s) to Cart
+                  </Button>
+                </div>
+              )}
 
               <React.Fragment>
                 <div className="tabs_container">
                   <div className="tab_content active" data-tab="all">
-                    <div className="row ps-md-3"> {/* Added ps-md-3 for padding on medium screens and up */}
+                    <div className="row ps-md-3">
                       {loading && <div className="col-12 text-center p-5">Loading products...</div>}
                       {!loading && filteredProducts.length === 0 && <div className="col-12 text-center p-5">No products found.</div>}
                       {filteredProducts.map((product) => {
                         const imageBaseUrl = process.env.REACT_APP_FILE_BASE_URL;
                         const imageUrlFromProduct = product.imageUrl;
                         let finalSrc = 'assets/img/products/product-default.png'; // Default placeholder
+                        const isSelected = selectedProductsForCart.has(product._id); // Check if product is selected
 
                         if (imageUrlFromProduct) {
                           if (imageUrlFromProduct.startsWith('http://') || imageUrlFromProduct.startsWith('https://')) {
@@ -555,7 +618,21 @@ const Pos = () => {
 
                         return (
                           <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
-                            <div className="product-info default-cover card h-100" onClick={() => addToCart(product)} style={{cursor: 'pointer'}}>
+                            <div
+                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : ''}`} // Use a class for selection
+                              onClick={() => handleProductSelection(product)}
+                              style={{cursor: 'pointer', position: 'relative'}} // Add position:relative
+                            >
+                              {isSelected && (
+                                <div style={{
+                                  position: 'absolute',
+                                  top: '8px',
+                                  right: '8px',
+                                  zIndex: 1
+                                }}>
+                                  <CheckSquare size={24} className="text-success bg-white rounded-circle p-1" />
+                                </div>
+                              )}
                               <Link to="#" className="img-bg" style={{height: '120px', display:'flex', alignItems:'center', justifyContent:'center'}}>
                                 {/* Changed from ImageWithBasePath to standard img tag */}
                                 <img
