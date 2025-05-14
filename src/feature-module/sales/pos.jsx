@@ -517,7 +517,6 @@ const Pos = () => {
                     />
                 </div>
               </div>
-              // ... previous code ...
 
               <React.Fragment>
                 <div className="tabs_container">
@@ -525,38 +524,66 @@ const Pos = () => {
                     <div className="row">
                       {loading && <div className="col-12 text-center p-5">Loading products...</div>}
                       {!loading && filteredProducts.length === 0 && <div className="col-12 text-center p-5">No products found.</div>}
-                      {filteredProducts.map((product) => (
-                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
-                          <div className="product-info default-cover card h-100" onClick={() => addToCart(product)} style={{cursor: 'pointer'}}>
-                            <Link to="#" className="img-bg" style={{height: '120px', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                              <ImageWithBasePath
-                                src={product.imageUrl ? `${process.env.REACT_APP_FILE_BASE_URL}${product.imageUrl.startsWith('/') ? product.imageUrl : `/${product.imageUrl}`}` : 'assets/img/products/product-default.png'}
-                                alt={product.name}
-                                style={{maxHeight: '100%', maxWidth: '100%', objectFit: 'contain'}}
-                                onError={(e) => { e.target.onerror = null; e.target.src = 'assets/img/products/product-default.png'; }}
-                              />
-                            </Link>
-                            <div className="card-body p-2 text-center">
-                              <h6 className="cat-name">
-                                <Link to="#">{product.category?.name || product.category || 'Uncategorized'}</Link>
-                              </h6>
-                              <h6 className="product-name">
-                                <Link to="#">{product.name}</Link>
-                              </h6>
-                              <div className="d-flex align-items-center justify-content-between price">
-                                <span>{product.inventory?.find(inv => inv.location === selectedLocation?._id)?.quantity || product.totalStock || 0} Pcs</span>
-                                <p>${product.sellingPrice?.toFixed(2)}</p>
+                      {filteredProducts.map((product) => {
+                        const imageBaseUrl = process.env.REACT_APP_FILE_BASE_URL;
+                        const imageUrlFromProduct = product.imageUrl;
+                        let finalSrc = 'assets/img/products/product-default.png'; // Default placeholder
+
+                        if (imageUrlFromProduct) {
+                          if (imageUrlFromProduct.startsWith('http://') || imageUrlFromProduct.startsWith('https://')) {
+                            finalSrc = imageUrlFromProduct; // Absolute URL
+                          } else if (imageBaseUrl) {
+                            // Construct URL carefully, ensuring no double slashes
+                            if (imageUrlFromProduct.startsWith('/')) {
+                              finalSrc = `${imageBaseUrl}${imageUrlFromProduct}`;
+                            } else {
+                              finalSrc = `${imageBaseUrl}/${imageUrlFromProduct}`;
+                            }
+                          } else {
+                            console.warn(`REACT_APP_FILE_BASE_URL is not set. Cannot construct image URL for: ${imageUrlFromProduct}`);
+                          }
+                        }
+
+                        // console.log(
+                        //   `Product: "${product.name}", product.imageUrl: "${imageUrlFromProduct}", Constructed src: "${finalSrc}"`
+                        // );
+
+                        return (
+                          <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
+                            <div className="product-info default-cover card h-100" onClick={() => addToCart(product)} style={{cursor: 'pointer'}}>
+                              <Link to="#" className="img-bg" style={{height: '120px', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                                {/* Changed from ImageWithBasePath to standard img tag */}
+                                <img
+                                  src={finalSrc}
+                                  alt={product.name}
+                                  style={{maxHeight: '100%', maxWidth: '100%', objectFit: 'contain'}}
+                                  onError={(e) => {
+                                    console.error(`IMAGE LOAD ERROR for src: ${finalSrc} (Product: ${product.name})`);
+                                    e.target.onerror = null;
+                                    e.target.src = 'assets/img/products/product-default.png';
+                                  }}
+                                />
+                              </Link>
+                              <div className="card-body p-2 text-center">
+                                <h6 className="cat-name">
+                                  <Link to="#">{product.category?.name || product.category || 'Uncategorized'}</Link>
+                                </h6>
+                                <h6 className="product-name">
+                                </h6>
+                                <div className="d-flex align-items-center justify-content-between price">
+                                  <span>{product.inventory?.find(inv => inv.location === selectedLocation?._id)?.quantity || product.totalStock || 0} Pcs</span>
+                                  <p>${product.sellingPrice?.toFixed(2)}</p>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
               </React.Fragment>
 
-// ... rest of the code ...
             </div>
           </div>
 
