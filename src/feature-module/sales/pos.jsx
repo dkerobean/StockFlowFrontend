@@ -474,39 +474,43 @@ const Pos = () => {
               <p>Select From Below Categories</p>
               {/* Dynamic Categories Slider - Using your existing state */}
               {products.length > 0 && (
-                <div className="pos-categories">
+                <div className="pos-categories d-flex align-items-center"> {/* Use flexbox for alignment */}
                   <button
-                      className={`btn me-2 ${!selectedCategory || selectedCategory === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+                      className={`btn me-3 ${!selectedCategory || selectedCategory === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} // Added me-3 for spacing
                       onClick={() => setSelectedCategory('all')}
+                      style={{whiteSpace: 'nowrap'}} // Prevent button text wrap
                     >
                       All Categories
                     </button>
-                  <Slider ref={categorySliderRef} {...categoryCarouselSettings}>
-                    {/* Assuming 'categories' state holds { _id, name } objects */}
-                    {(categories || []).map((category) => (
-                      <div key={category._id || category.name} style={{width: 'auto !important', paddingRight: '10px'}}>
-                        <button
-                          className={`btn btn-sm ${selectedCategory === category.name ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => setSelectedCategory(category.name)}
-                          style={{whiteSpace: 'nowrap'}}
-                        >
-                          {category.name}
-                        </button>
-                      </div>
-                    ))}
-                  </Slider>
+                  <div style={{ flex: 1, minWidth: 0 }}> {/* Wrapper for slider to take remaining space */}
+                    <Slider ref={categorySliderRef} {...categoryCarouselSettings}>
+                      {/* Assuming 'categories' state holds { _id, name } objects */}
+                      {(categories || []).map((category) => (
+                        <div key={category._id || category.name} style={{paddingRight: '10px'}}>
+                          <button
+                            className={`btn btn-sm ${selectedCategory === category.name ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => setSelectedCategory(category.name)}
+                            style={{whiteSpace: 'nowrap'}}
+                          >
+                            {category.name}
+                          </button>
+                        </div>
+                      ))}
+                    </Slider>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="pos-products">
-              <div className="d-flex align-items-center justify-content-between">
-                <h5 className="mb-3">Products</h5>
-                 <div className="search-form" style={{width: '250px'}}>
-                    <input type="text" className="form-control" placeholder="Search Product..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                    <button type="button" className="search-clear-btn icon-btn"><Search size={20}/></button>
-                 </div>
-                 <div className="location-select-pos ms-2" style={{width: '200px'}}>
+            <div className="pos-products mt-3"> {/* Added mt-3 for spacing from categories */}
+              <div className="d-flex align-items-center justify-content-between mb-3"> {/* Added mb-3 for spacing below header */}
+                <h5 className="mb-0">Products</h5> {/* Removed mb-3 from h5, parent has mb-3 now */}
+                <div className="d-flex align-items-center"> {/* Wrapper for search and location */}
+                  <div className="input-group me-2" style={{width: '250px'}}>
+                      <input type="text" className="form-control" placeholder="Search Product..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                      <button type="button" className="btn btn-light border"><Search size={18}/></button> {/* Adjusted icon size and button style */}
+                  </div>
+                  <div className="location-select-pos" style={{width: '200px'}}>
                     <Select
                         className="select"
                         options={locations.map(loc => ({ value: loc._id, label: loc.name }))}
@@ -516,12 +520,13 @@ const Pos = () => {
                         isDisabled={locations.length === 0}
                     />
                 </div>
+                </div>
               </div>
 
               <React.Fragment>
                 <div className="tabs_container">
                   <div className="tab_content active" data-tab="all">
-                    <div className="row">
+                    <div className="row ps-md-3"> {/* Added ps-md-3 for padding on medium screens and up */}
                       {loading && <div className="col-12 text-center p-5">Loading products...</div>}
                       {!loading && filteredProducts.length === 0 && <div className="col-12 text-center p-5">No products found.</div>}
                       {filteredProducts.map((product) => {
@@ -569,6 +574,7 @@ const Pos = () => {
                                   <Link to="#">{product.category?.name || product.category || 'Uncategorized'}</Link>
                                 </h6>
                                 <h6 className="product-name">
+                                  <Link to="#">{product.name}</Link> {/* Ensured product name is displayed */}
                                 </h6>
                                 <div className="d-flex align-items-center justify-content-between price">
                                   <span>{product.inventory?.find(inv => inv.location === selectedLocation?._id)?.quantity || product.totalStock || 0} Pcs</span>
