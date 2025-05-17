@@ -460,7 +460,28 @@ const Pos = () => {
   // ... (similar for quantity1, quantity2, quantity3)
 
   const MySwal = withReactContent(Swal);
-  const showConfirmationAlert = () => { /* ... */ };
+
+  const showCartItemDeleteConfirmation = (productId) => {
+    MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      customClass: {
+        confirmButton: 'btn btn-primary me-1',
+        cancelButton: 'btn btn-danger ms-1'
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeFromCart(productId);
+        toast.success('Item removed from cart.');
+      }
+    });
+  };
 
   const subtotal = calculateSubtotal();
   const total = calculateTotal();
@@ -616,6 +637,26 @@ const Pos = () => {
                         //   `Product: "${product.name}", product.imageUrl: "${imageUrlFromProduct}", Constructed src: "${finalSrc}"`
                         // );
 
+                        let quantityForDisplay = 0;
+                        if (product.inventory && Array.isArray(product.inventory) && selectedLocation?._id) {
+                          const inventoryRecord = product.inventory.find(inv => {
+                            if (!inv.location || !selectedLocation?._id) return false;
+                            // Robustly get location ID from inv.location (whether it's an object or a string ID)
+                            const invLocationId = (typeof inv.location === 'object' && inv.location._id) 
+                                                  ? inv.location._id.toString() 
+                                                  : inv.location.toString();
+                            return invLocationId === selectedLocation._id.toString();
+                          });
+
+                          if (inventoryRecord && typeof inventoryRecord.quantity === 'number') {
+                            quantityForDisplay = inventoryRecord.quantity;
+                          } else if (typeof product.totalStock === 'number') {
+                            quantityForDisplay = product.totalStock;
+                          }
+                        } else if (typeof product.totalStock === 'number') {
+                          quantityForDisplay = product.totalStock;
+                        }
+
                         return (
                           <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
                             <div
@@ -651,11 +692,17 @@ const Pos = () => {
                                   <Link to="#">{product.category?.name || product.category || 'Uncategorized'}</Link>
                                 </h6>
                                 <h6 className="product-name">
-                                  <Link to="#">{product.name}</Link> {/* Ensured product name is displayed */}
+                                  <Link to="#">{product.name}</Link>
                                 </h6>
                                 <div className="d-flex align-items-center justify-content-between price">
-                                  <span>{product.inventory?.find(inv => inv.location === selectedLocation?._id)?.quantity || product.totalStock || 0} Pcs</span>
-                                  <p>${product.sellingPrice?.toFixed(2)}</p>
+                                  <span>{quantityForDisplay} Pcs</span>
+                                  <p>
+                                    {typeof product.sellingPrice === 'number'
+                                      ? `$${product.sellingPrice.toFixed(2)}`
+                                      : typeof product.price === 'number' 
+                                        ? `$${product.price.toFixed(2)}`
+                                        : <span className="text-muted small">Price N/A</span>}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -713,11 +760,15 @@ const Pos = () => {
                     <div className="product-list d-flex align-items-center justify-content-between" key={item.product._id}>
                       <div
                         className="d-flex align-items-center product-info"
-                        // onClick={() => handleOpenEditProductModal(item)} // Open edit modal for cart item
                       >
                         <Link to="#" className="img-bg me-2" style={{width: '40px', height: '40px'}}>
-                          <ImageWithBasePath
-                            src={item.product.imageUrl ? `${process.env.REACT_APP_FILE_BASE_URL}${item.product.imageUrl.startsWith('/') ? item.product.imageUrl : `/${item.product.imageUrl}`}` : 'assets/img/products/product-default.png'}
+                          {/* Use standard img tag for backend-sourced images */}
+                          <img
+                            src={item.product.imageUrl 
+                                 ? (item.product.imageUrl.startsWith('http') 
+                                   ? item.product.imageUrl 
+                                   : `${process.env.REACT_APP_FILE_BASE_URL}${item.product.imageUrl.startsWith('/') ? item.product.imageUrl : `/${item.product.imageUrl}`}`)
+                                 : 'assets/img/products/product-default.png'}
                             alt={item.product.name}
                             style={{width: '100%', height: '100%', objectFit: 'cover'}}
                             onError={(e) => { e.target.onerror = null; e.target.src = 'assets/img/products/product-default.png'; }}
