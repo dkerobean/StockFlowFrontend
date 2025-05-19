@@ -265,6 +265,13 @@ const Pos = () => {
       if (!productInCatalog) return prevCart; // Should not happen
 
       const stockAvailable = getProductStockForLocation(productInCatalog);
+      // --- DEBUG LOGS ---
+      console.log('[updateCartQuantity] Product ID:', productId);
+      console.log('[updateCartQuantity] New Quantity:', newQuantity);
+      console.log('[updateCartQuantity] Product in Catalog:', productInCatalog);
+      console.log('[updateCartQuantity] Stock Available (from getProductStockForLocation):', stockAvailable);
+      // --- END DEBUG LOGS ---
+
       if (newQuantity <= 0) {
         // Remove from cart if quantity is zero or less
         return prevCart.filter(item => item.product._id !== productId);
@@ -496,13 +503,26 @@ const Pos = () => {
 
   // Helper to get available stock for a product at the selected location
   const getProductStockForLocation = (product) => {
+    // --- DEBUG LOGS for getProductStockForLocation ---
+    console.log('[getProductStockForLocation] Product:', product);
+    console.log('[getProductStockForLocation] Selected Location:', selectedLocation);
+    // --- END DEBUG LOGS ---
+
     if (!product) return 0;
     if (product.inventory && Array.isArray(product.inventory) && selectedLocation?._id) {
-      const inv = product.inventory.find(inv => inv.location === selectedLocation._id || inv.location?._id === selectedLocation._id);
-      if (inv) return inv.quantity;
+      const inv = product.inventory.find(inv => {
+        const invLocationId = (typeof inv.location === 'object' && inv.location?._id)
+                                ? inv.location._id.toString()
+                                : inv.location?.toString(); // Added nullish coalescing for inv.location
+        const selectedLocId = selectedLocation._id.toString();
+        return invLocationId === selectedLocId;
+      });
+      if (inv) return inv.quantity ?? 0; // Default to 0 if quantity is null/undefined
     }
-    // fallback to totalStock if inventory array is missing
-    return product.totalStock || 0;
+    // Fallback to totalStock if inventory array is missing or no match is found
+    const fallbackStock = product.totalStock ?? 0; // Default to 0 if totalStock is null/undefined
+    console.log('[getProductStockForLocation] Falling back to totalStock. Product totalStock:', fallbackStock);
+    return fallbackStock;
   };
 
   // Render
