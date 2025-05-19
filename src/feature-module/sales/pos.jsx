@@ -25,7 +25,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -236,11 +236,8 @@ const Pos = () => {
   const addToCart = (product) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.product._id === product._id);
+      const stockAvailable = getProductStockForLocation(product);
       if (existingItem) {
-        // Check stock before increasing quantity
-        const inventoryItem = product.inventory?.find(inv => inv.location === selectedLocation?._id);
-        const stockAvailable = inventoryItem ? inventoryItem.quantity : (product.totalStock || 0); // Fallback if detailed inventory not present on product card
-
         if (existingItem.quantity < stockAvailable) {
           return prevCart.map(item =>
             item.product._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
@@ -250,12 +247,8 @@ const Pos = () => {
           return prevCart;
         }
       } else {
-        // Check stock before adding new item
-         const inventoryItem = product.inventory?.find(inv => inv.location === selectedLocation?._id);
-         const stockAvailable = inventoryItem ? inventoryItem.quantity : (product.totalStock || 0);
-
-        if (1 <= stockAvailable) {
-          return [...prevCart, { product, quantity: 1, price: product.sellingPrice, discount: 0 }]; // Assuming sellingPrice from product
+        if (stockAvailable > 0) {
+          return [...prevCart, { product, quantity: 1, price: product.sellingPrice, discount: 0 }];
         } else {
           toast.warn(`Cannot add ${product.name}. Out of stock at this location.`);
           return prevCart;
@@ -268,25 +261,21 @@ const Pos = () => {
     setCart(prevCart => {
       const itemToUpdate = prevCart.find(item => item.product._id === productId);
       if (!itemToUpdate) return prevCart;
-
       const productInCatalog = products.find(p => p._id === productId);
       if (!productInCatalog) return prevCart; // Should not happen
 
-      const inventoryItem = productInCatalog.inventory?.find(inv => inv.location === selectedLocation?._id);
-      const stockAvailable = inventoryItem ? inventoryItem.quantity : (productInCatalog.totalStock || 0);
-
+      const stockAvailable = getProductStockForLocation(productInCatalog);
       if (newQuantity <= 0) {
-        return prevCart.filter(item => item.product._id !== productId); // Remove if quantity is 0 or less
-      }
-      if (newQuantity > stockAvailable) {
-        toast.warn(`Cannot set quantity to ${newQuantity} for ${itemToUpdate.product.name}. Stock limit (${stockAvailable}) reached.`);
+        // Remove from cart if quantity is zero or less
+        return prevCart.filter(item => item.product._id !== productId);
+      } else if (newQuantity > stockAvailable) {
+        toast.warn(`Cannot exceed available stock (${stockAvailable}) for this product.`);
+        return prevCart;
+      } else {
         return prevCart.map(item =>
-          item.product._id === productId ? { ...item, quantity: stockAvailable } : item
+          item.product._id === productId ? { ...item, quantity: newQuantity } : item
         );
       }
-      return prevCart.map(item =>
-        item.product._id === productId ? { ...item, quantity: newQuantity } : item
-      );
     });
   };
 
@@ -360,7 +349,7 @@ const Pos = () => {
       const response = await axios.post(`${API_BASE_URL}/sales`, saleData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Sale created successfully!");
+      toast.success("Sale completed successfully!", { position: "top-right" });
       setCart([]); // Clear cart
       setCustomer({ name: 'Walk-in Customer', contact: '', email: '' }); // Reset customer
       setOverallDiscount(0);
@@ -505,11 +494,21 @@ const Pos = () => {
     }
   };
 
+  // Helper to get available stock for a product at the selected location
+  const getProductStockForLocation = (product) => {
+    if (!product) return 0;
+    if (product.inventory && Array.isArray(product.inventory) && selectedLocation?._id) {
+      const inv = product.inventory.find(inv => inv.location === selectedLocation._id || inv.location?._id === selectedLocation._id);
+      if (inv) return inv.quantity;
+    }
+    // fallback to totalStock if inventory array is missing
+    return product.totalStock || 0;
+  };
+
   // Render
   return (
     <div className="page-wrapper pos-pg-wrapper ms-0">
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
-      {/* ToastContainer should be in App.js or a single top-level layout */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="content pos-design p-0">
         <div className="btn-row d-sm-flex align-items-center">
           <button // Changed to button, will control modal with state
@@ -642,8 +641,8 @@ const Pos = () => {
                           const inventoryRecord = product.inventory.find(inv => {
                             if (!inv.location || !selectedLocation?._id) return false;
                             // Robustly get location ID from inv.location (whether it's an object or a string ID)
-                            const invLocationId = (typeof inv.location === 'object' && inv.location._id) 
-                                                  ? inv.location._id.toString() 
+                            const invLocationId = (typeof inv.location === 'object' && inv.location._id)
+                                                  ? inv.location._id.toString()
                                                   : inv.location.toString();
                             return invLocationId === selectedLocation._id.toString();
                           });
@@ -657,12 +656,15 @@ const Pos = () => {
                           quantityForDisplay = product.totalStock;
                         }
 
+                        // Use the helper to get correct stock for this product at the selected location
+                        const stock = getProductStockForLocation(product);
+
                         return (
                           <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
                             <div
-                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : ''}`} // Use a class for selection
+                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : ''}`}
                               onClick={() => handleProductSelection(product)}
-                              style={{cursor: 'pointer', position: 'relative'}} // Add position:relative
+                              style={{cursor: 'pointer', position: 'relative'}}
                             >
                               {isSelected && (
                                 <div style={{
@@ -699,7 +701,7 @@ const Pos = () => {
                                   <p>
                                     {typeof product.sellingPrice === 'number'
                                       ? `$${product.sellingPrice.toFixed(2)}`
-                                      : typeof product.price === 'number' 
+                                      : typeof product.price === 'number'
                                         ? `$${product.price.toFixed(2)}`
                                         : <span className="text-muted small">Price N/A</span>}
                                   </p>
@@ -758,15 +760,12 @@ const Pos = () => {
                   {cart.length === 0 && <p className="text-center p-3">Cart is empty.</p>}
                   {cart.map(item => (
                     <div className="product-list d-flex align-items-center justify-content-between" key={item.product._id}>
-                      <div
-                        className="d-flex align-items-center product-info"
-                      >
+                      <div className="d-flex align-items-center product-info-flex">
                         <Link to="#" className="img-bg me-2" style={{width: '40px', height: '40px'}}>
-                          {/* Use standard img tag for backend-sourced images */}
                           <img
-                            src={item.product.imageUrl 
-                                 ? (item.product.imageUrl.startsWith('http') 
-                                   ? item.product.imageUrl 
+                            src={item.product.imageUrl
+                                 ? (item.product.imageUrl.startsWith('http')
+                                   ? item.product.imageUrl
                                    : `${process.env.REACT_APP_FILE_BASE_URL}${item.product.imageUrl.startsWith('/') ? item.product.imageUrl : `/${item.product.imageUrl}`}`)
                                  : 'assets/img/products/product-default.png'}
                             alt={item.product.name}
@@ -775,39 +774,41 @@ const Pos = () => {
                           />
                         </Link>
                         <div className="info">
-                          <span>{item.product.sku || 'N/A'}</span>
+                          <span className="text-muted small d-block">{item.product.sku || 'N/A'}</span>
                           <h6>
                             <Link to="#">{item.product.name}</Link>
                           </h6>
-                          <p>${item.price?.toFixed(2)}</p>
+                          <p className="mb-0 fw-bold">${item.price?.toFixed(2)}</p>
                         </div>
                       </div>
-                      <div className="qty-item text-center">
-                        <button className="btn btn-sm p-0 dec" onClick={() => updateCartQuantity(item.product._id, item.quantity - 1)}>
-                            <MinusCircle className="feather-14" />
-                        </button>
-                        <input
-                          type="number"
-                          className="form-control text-center mx-1 d-inline-block" // Adjusted style
-                          style={{width: '50px', height: '28px'}}
-                          value={item.quantity}
-                          onChange={(e) => updateCartQuantity(item.product._id, parseInt(e.target.value) || 0)}
-                        />
-                        <button className="btn btn-sm p-0 inc" onClick={() => updateCartQuantity(item.product._id, item.quantity + 1)}>
-                            <PlusCircle className="feather-14" />
-                        </button>
-                      </div>
-                      <div className="d-flex align-items-center action">
-                        {/* <button
-                          className="btn-icon edit-icon me-2"
-                           onClick={() => handleOpenEditProductModal(item)}
+
+                      <div className="cart-item-actions d-flex align-items-center">
+                        <div className="qty-item text-center d-flex align-items-center me-2">
+                          <button className="btn btn-outline-secondary btn-sm p-1 lh-1" onClick={() => updateCartQuantity(item.product._id, item.quantity - 1)}>
+                              <MinusCircle style={{ width: '14px', height: '14px' }} />
+                          </button>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm text-center mx-1"
+                            style={{width: '45px', height: '28px'}}
+                            value={item.quantity}
+                            min={0}
+                            max={getProductStockForLocation(item.product)}
+                            onChange={e => {
+                              const val = parseInt(e.target.value, 10);
+                              if (!isNaN(val)) updateCartQuantity(item.product._id, val);
+                            }}
+                          />
+                          <button className="btn btn-outline-secondary btn-sm p-1 lh-1" onClick={() => updateCartQuantity(item.product._id, item.quantity + 1)}>
+                              <PlusCircle style={{ width: '14px', height: '14px' }} />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => showCartItemDeleteConfirmation(item.product._id)}
+                          className="btn btn-outline-danger btn-sm p-1 lh-1"
+                          title="Remove item"
                         >
-                          <Edit className="feather-14" />
-                        </button> */}
-                        <button onClick={() => showCartItemDeleteConfirmation(item.product._id)}
-                          className="btn-icon delete-icon confirm-text"
-                        >
-                          <Trash2 className="feather-14" />
+                          <Trash2 style={{ width: '14px', height: '14px' }} />
                         </button>
                       </div>
                     </div>

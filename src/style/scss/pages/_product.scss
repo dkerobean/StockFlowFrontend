@@ -146,14 +146,14 @@
             h6 {
                 width: 50%;
             }
-           
+
         }
     }
     &.productdetailnew{
         margin-bottom: 25px;
         ul{
             li{
-               
+
                 h4{
                     width: 50%;
                }
@@ -365,7 +365,7 @@
     @include rounded(8px);
     border: 1px solid $success;
     font-size: $font-size-base;
-   
+
 }
 .badge-linedanger,.badge-linedangered {
     color: $danger;
@@ -373,8 +373,8 @@
     @include rounded(8px);
     border: 1px solid $danger;
     font-size: $font-size-base;
-   
-       
+
+
 }
 span {
     &.badge {
@@ -631,17 +631,17 @@ span {
 
     .info {
       padding-left: 10px;
-      
+
       h6 {
         margin: 0;
         line-height: 1.2;
-        
+
         a {
           color: #333;
           font-size: 14px;
           font-weight: 500;
           text-decoration: none;
-          
+
           &:hover {
             color: var(--bs-primary);
           }
@@ -653,5 +653,58 @@ span {
         font-size: 11px;
       }
     }
+
+    // Ensure product-info-flex takes up available space pushing actions to the right
+    .product-info-flex {
+      flex-grow: 1; // Allows this div to take up space
+      // any other specific styles for the info part
+      .info {
+        p {
+          font-size: 13px; // Slightly smaller price text if needed
+        }
+      }
+    }
+
+    .cart-item-actions {
+      // Styles for the container of qty and delete button
+      .qty-item {
+        // Styles for the quantity input and buttons
+        .form-control {
+          // Specific styles for the number input if needed
+          padding: 0.25rem; // Adjust padding for sm input
+        }
+        .btn {
+          // Styles for + and - buttons
+          border-color: #ced4da; // Match default bootstrap input border
+          &:hover {
+            background-color: #e9ecef;
+          }
+        }
+      }
+      .btn-outline-danger {
+        // Styles for the delete button to match design
+        &:hover {
+          color: #fff; // Ensure icon color changes on hover if needed
+        }
+      }
+    }
+  }
+}
+
+// SweetAlert2 Customizations (if not already globally styled)
+// You might want to put this in a more global SCSS file if used elsewhere
+.swal2-popup {
+  .swal2-title {
+    font-size: 1.25rem; // Adjust as needed
+  }
+  .swal2-html-container {
+    font-size: 0.9rem; // Adjust as needed
+  }
+  // Ensure our custom button classes take precedence if needed
+  .swal2-confirm.btn.btn-primary,
+  .swal2-cancel.btn.btn-danger {
+    font-size: 0.875rem; // Example: Match other small buttons
+    padding: 0.375rem 0.75rem;
+    margin: 0 0.25rem; // Add some spacing between buttons
   }
 }
