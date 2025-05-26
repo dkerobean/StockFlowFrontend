@@ -91,54 +91,57 @@ const Pos = () => {
     fetchLocations();
   }, []);
 
-  // Fetch products and categories when selectedLocation changes
-  useEffect(() => {
-    if (selectedLocation && selectedLocation._id) {
-      const fetchProductsAndCategories = async () => {
-        setLoading(true);
-        try {
-          const token = localStorage.getItem('token');
-          const productsResponse = await axios.get(`${API_BASE_URL}/products?locationId=${selectedLocation._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const activeProducts = (productsResponse.data || []).filter(p => p.isActive);
-          setProducts(activeProducts);
-          setFilteredProducts(activeProducts);
-
-          // Fetch product categories again for the slider
-          const categoriesResponse = await axios.get(`${API_BASE_URL}/categories`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const uniqueCategories = [];
-          const categoryNames = new Set();
-          activeProducts.forEach(p => {
-            if (p.category && p.category.name && !categoryNames.has(p.category.name)) {
-              categoryNames.add(p.category.name);
-              uniqueCategories.push({ _id: p.category._id || p.category.name, name: p.category.name });
-            } else if (typeof p.category === 'string' && !categoryNames.has(p.category)) {
-               categoryNames.add(p.category);
-               uniqueCategories.push({ _id: p.category, name: p.category });
-            }
-          });
-          // Use unique categories from products first, then fallback to general categories API if needed and available
-          setCategories(uniqueCategories.length > 0 ? uniqueCategories : (categoriesResponse.data.categories || categoriesResponse.data || []));
-
-        } catch (error) {
-          console.error("Error fetching products/categories:", error);
-          toast.error("Failed to load products or categories for the selected location.");
-          setProducts([]);
-          setFilteredProducts([]);
-          setCategories([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProductsAndCategories();
-    } else {
+  // Function to fetch products and categories - extracted for reuse
+  const fetchProductsAndCategories = async () => {
+    if (!selectedLocation || !selectedLocation._id) {
       setProducts([]);
       setFilteredProducts([]);
       setCategories([]);
+      return;
     }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const productsResponse = await axios.get(`${API_BASE_URL}/products?locationId=${selectedLocation._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const activeProducts = (productsResponse.data || []).filter(p => p.isActive);
+      setProducts(activeProducts);
+      setFilteredProducts(activeProducts);
+
+      // Fetch product categories again for the slider
+      const categoriesResponse = await axios.get(`${API_BASE_URL}/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const uniqueCategories = [];
+      const categoryNames = new Set();
+      activeProducts.forEach(p => {
+        if (p.category && p.category.name && !categoryNames.has(p.category.name)) {
+          categoryNames.add(p.category.name);
+          uniqueCategories.push({ _id: p.category._id || p.category.name, name: p.category.name });
+        } else if (typeof p.category === 'string' && !categoryNames.has(p.category)) {
+           categoryNames.add(p.category);
+           uniqueCategories.push({ _id: p.category, name: p.category });
+        }
+      });
+      // Use unique categories from products first, then fallback to general categories API if needed and available
+      setCategories(uniqueCategories.length > 0 ? uniqueCategories : (categoriesResponse.data.categories || categoriesResponse.data || []));
+
+    } catch (error) {
+      console.error("Error fetching products/categories:", error);
+      toast.error("Failed to load products or categories for the selected location.");
+      setProducts([]);
+      setFilteredProducts([]);
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch products and categories when selectedLocation changes
+  useEffect(() => {
+    fetchProductsAndCategories();
   }, [selectedLocation]);
 
   // Filter products based on searchTerm and selectedCategory
