@@ -91,57 +91,54 @@ const Pos = () => {
     fetchLocations();
   }, []);
 
-  // Function to fetch products and categories - extracted for reuse
-  const fetchProductsAndCategories = async () => {
-    if (!selectedLocation || !selectedLocation._id) {
-      setProducts([]);
-      setFilteredProducts([]);
-      setCategories([]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const productsResponse = await axios.get(`${API_BASE_URL}/products?locationId=${selectedLocation._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const activeProducts = (productsResponse.data || []).filter(p => p.isActive);
-      setProducts(activeProducts);
-      setFilteredProducts(activeProducts);
-
-      // Fetch product categories again for the slider
-      const categoriesResponse = await axios.get(`${API_BASE_URL}/categories`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const uniqueCategories = [];
-      const categoryNames = new Set();
-      activeProducts.forEach(p => {
-        if (p.category && p.category.name && !categoryNames.has(p.category.name)) {
-          categoryNames.add(p.category.name);
-          uniqueCategories.push({ _id: p.category._id || p.category.name, name: p.category.name });
-        } else if (typeof p.category === 'string' && !categoryNames.has(p.category)) {
-           categoryNames.add(p.category);
-           uniqueCategories.push({ _id: p.category, name: p.category });
-        }
-      });
-      // Use unique categories from products first, then fallback to general categories API if needed and available
-      setCategories(uniqueCategories.length > 0 ? uniqueCategories : (categoriesResponse.data.categories || categoriesResponse.data || []));
-
-    } catch (error) {
-      console.error("Error fetching products/categories:", error);
-      toast.error("Failed to load products or categories for the selected location.");
-      setProducts([]);
-      setFilteredProducts([]);
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Fetch products and categories when selectedLocation changes
   useEffect(() => {
-    fetchProductsAndCategories();
+    if (selectedLocation && selectedLocation._id) {
+      const fetchProductsAndCategories = async () => {
+        setLoading(true);
+        try {
+          const token = localStorage.getItem('token');
+          const productsResponse = await axios.get(`${API_BASE_URL}/products?locationId=${selectedLocation._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const activeProducts = (productsResponse.data || []).filter(p => p.isActive);
+          setProducts(activeProducts);
+          setFilteredProducts(activeProducts);
+
+          // Fetch product categories again for the slider
+          const categoriesResponse = await axios.get(`${API_BASE_URL}/categories`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const uniqueCategories = [];
+          const categoryNames = new Set();
+          activeProducts.forEach(p => {
+            if (p.category && p.category.name && !categoryNames.has(p.category.name)) {
+              categoryNames.add(p.category.name);
+              uniqueCategories.push({ _id: p.category._id || p.category.name, name: p.category.name });
+            } else if (typeof p.category === 'string' && !categoryNames.has(p.category)) {
+               categoryNames.add(p.category);
+               uniqueCategories.push({ _id: p.category, name: p.category });
+            }
+          });
+          // Use unique categories from products first, then fallback to general categories API if needed and available
+          setCategories(uniqueCategories.length > 0 ? uniqueCategories : (categoriesResponse.data.categories || categoriesResponse.data || []));
+
+        } catch (error) {
+          console.error("Error fetching products/categories:", error);
+          toast.error("Failed to load products or categories for the selected location.");
+          setProducts([]);
+          setFilteredProducts([]);
+          setCategories([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProductsAndCategories();
+    } else {
+      setProducts([]);
+      setFilteredProducts([]);
+      setCategories([]);
+    }
   }, [selectedLocation]);
 
   // Filter products based on searchTerm and selectedCategory
@@ -191,22 +188,35 @@ const Pos = () => {
 
       if (isSelected) {
         updatedSelected.delete(product._id);
+        // When deselecting from the multi-select list, we don't alter the cart here.
+        // The item remains in the cart if it was there.
       } else {
         updatedSelected.add(product._id);
+        // Product is being added to the multi-selection list.
+        // Now, let's interact with the cart.
         setCart((prevCart) => {
-          const existingProduct = prevCart.find((item) => item.product._id === product._id);
-          if (existingProduct) {
-            return prevCart.map((item) =>
-              item.product._id === product._id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            );
+          const existingProductInCart = prevCart.find((item) => item.product._id === product._id);
+          if (existingProductInCart) {
+            // Product is already in the cart.
+            // We don't increment its quantity here to prevent the jump from 1 to 2
+            // if it was added via another method (like 'Add Selected to Cart')
+            // and is now being re-selected into the multi-select list.
+            return prevCart; // Cart quantity remains unchanged by this selection action.
           } else {
-            return [...prevCart, { product, quantity: 1, price: product.price }];
+            // Product is not in the cart, so add it with quantity 1.
+            // Use sellingPrice for consistency with addToCart function.
+            const stockAvailable = getProductStockForLocation(product);
+            if (stockAvailable > 0) {
+              return [...prevCart, { product, quantity: 1, price: product.sellingPrice, discount: 0 }];
+            } else {
+              toast.warn(`Cannot add ${product.name}. Out of stock at this location.`);
+              // Also, remove it from selection if it can't be added to cart due to no stock
+              updatedSelected.delete(product._id);
+              return prevCart;
+            }
           }
         });
       }
-
       return updatedSelected;
     });
   };
@@ -699,8 +709,8 @@ const Pos = () => {
                                   <CheckSquare size={24} className="text-success bg-white rounded-circle p-1" />
                                 </div>
                               )}
-                              <Link to="#" className="img-bg" style={{height: '120px', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                                {/* Changed from ImageWithBasePath to standard img tag */}
+                              {/* Image container with fixed height */}
+                              <div style={{ height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', backgroundColor: '#f8f9fa' }}>
                                 <img
                                   src={finalSrc}
                                   alt={product.name}
@@ -711,23 +721,24 @@ const Pos = () => {
                                     e.target.src = 'assets/img/products/product-default.png';
                                   }}
                                 />
-                              </Link>
-                              <div className="card-body p-2 text-center">
-                                <h6 className="cat-name">
-                                  <Link to="#">{product.category?.name || product.category || 'Uncategorized'}</Link>
+                              </div>
+                              <div className="card-body p-3"> {/* Increased padding */}
+                                <h6 className="text-muted mb-1" style={{ fontSize: '0.8rem' }}> {/* Category name - smaller and muted */}
+                                  {product.category?.name || product.category || 'Uncategorized'}
                                 </h6>
-                                <h6 className="product-name">
-                                  <Link to="#">{product.name}</Link>
-                                </h6>
-                                <div className="d-flex align-items-center justify-content-between price">
-                                  <span>{quantityForDisplay} Pcs</span>
-                                  <p>
+                                <h5 className="product-name mb-2" style={{ fontSize: '1rem', fontWeight: 'bold', minHeight: '40px' }}> {/* Product name - bold and slightly larger */}
+                                  {product.name}
+                                </h5>
+                                <hr className="my-2" /> {/* Separator line */}
+                                <div className="d-flex align-items-center justify-content-between">
+                                  <span style={{ fontSize: '0.9rem', color: '#e83e8c', fontWeight: '500' }}>{stock} Pcs</span> {/* Stock quantity - pinkish color */}
+                                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#007bff' }}> {/* Price - blue and bold */}
                                     {typeof product.sellingPrice === 'number'
-                                      ? `$${product.sellingPrice.toFixed(2)}`
+                                      ? `$${product.sellingPrice.toFixed(0)}` // No decimals for price as per image
                                       : typeof product.price === 'number'
-                                        ? `$${product.price.toFixed(2)}`
+                                        ? `$${product.price.toFixed(0)}` // No decimals for price
                                         : <span className="text-muted small">Price N/A</span>}
-                                  </p>
+                                  </span>
                                 </div>
                               </div>
                             </div>

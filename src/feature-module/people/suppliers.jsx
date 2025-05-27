@@ -1,52 +1,104 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, User, Globe, Edit, Eye, Trash2 } from "react-feather";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
 import Select from "react-select";
-import { useSelector } from "react-redux";
 import { Table } from "antd";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import SupplierModal from "../../core/modals/peoples/supplierModal";
+import api from '../../core/api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Suppliers = () => {
-  const data = useSelector((state) => state.supplierdata);
-
+  const [suppliers, setSuppliers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentSupplier, setCurrentSupplier] = useState(null);
+
   const toggleFilterVisibility = () => {
     setIsFilterVisible((prevVisibility) => !prevVisibility);
   };
 
-  const options = [
-    { value: "sortByDate", label: "Sort by Date" },
-    { value: "140923", label: "14 09 23" },
-    { value: "110923", label: "11 09 23" },
-  ];
-  const optionsTwo = [
-    { label: "Choose Customer Name", value: "" },
-    { label: "Benjamin", value: "Benjamin" },
-    { label: "Ellen", value: "Ellen" },
-    { label: "Freda", value: "Freda" },
-    { label: "Kaitlin", value: "Kaitlin" },
-  ];
+  const fetchSuppliers = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/suppliers');
+      setSuppliers(res.data);
+    } catch (err) {
+      toast.error('Failed to fetch suppliers');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const countries = [
-    { label: "Choose Country", value: "" },
-    { label: "India", value: "India" },
-    { label: "USA", value: "USA" },
-  ];
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  const handleAdd = () => {
+    setCurrentSupplier(null);
+    setIsEditMode(false);
+    setShowModal(true);
+  };
+
+  const handleEdit = (supplier) => {
+    setCurrentSupplier(supplier);
+    setIsEditMode(true);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (supplier) => {
+    const MySwal = withReactContent(Swal);
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      showCancelButton: true,
+      confirmButtonColor: "#00ff00",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonColor: "#ff0000",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/suppliers/${supplier._id}`);
+          toast.success('Supplier has been deleted.');
+          fetchSuppliers();
+        } catch (err) {
+          toast.error('Failed to delete supplier');
+        }
+      }
+    });
+  };
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    try {
+      if (isEditMode && currentSupplier) {
+        await api.put(`/suppliers/${currentSupplier._id}`, data);
+        toast.success('Supplier updated successfully');
+      } else {
+        // Auto-generate code if not provided
+        if (!data.code || data.code.trim() === "") {
+          data.code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+        await api.post('/suppliers', data);
+        toast.success('Supplier created successfully');
+      }
+      setShowModal(false);
+      fetchSuppliers();
+    } catch (err) {
+      toast.error('Failed to save supplier');
+    }
+  };
 
   const columns = [
-    {
-      render: () => (
-        <label className="checkboxs">
-          <input type="checkbox" />
-          <span className="checkmarks" />
-        </label>
-      ),
-    },
-
     {
       title: "Supplier Name",
       dataIndex: "supplierName",
@@ -65,96 +117,48 @@ const Suppliers = () => {
       dataIndex: "code",
       sorter: (a, b) => a.code.length - b.code.length,
     },
-
     {
       title: "Email",
       dataIndex: "email",
       sorter: (a, b) => a.email.length - b.email.length,
     },
-
     {
       title: "Phone",
       dataIndex: "phone",
       sorter: (a, b) => a.phone.length - b.phone.length,
     },
-
     {
       title: "Country",
       dataIndex: "country",
       sorter: (a, b) => a.country.length - b.country.length,
     },
-
     {
       title: "Action",
       dataIndex: "action",
-      render: () => (
+      render: (_, record) => (
         <td className="action-table-data">
           <div className="edit-delete-action">
-            <div className="input-block add-lists"></div>
-
-            <Link className="me-2 p-2" to="#">
-              <Eye className="feather-view" />
-            </Link>
-
-            <Link
-              className="me-2 p-2"
-              to="#"
-              data-bs-toggle="modal"
-              data-bs-target="#edit-units"
-            >
+            <Link className="me-2 p-2" to="#" onClick={() => handleEdit(record)}>
               <Edit className="feather-edit" />
             </Link>
-
-            <Link
-              className="confirm-text p-2"
-              to="#"
-              onClick={showConfirmationAlert}
-            >
+            <Link className="confirm-text p-2" to="#" onClick={() => handleDelete(record)}>
               <Trash2 className="feather-trash-2" />
             </Link>
           </div>
         </td>
       ),
-      sorter: (a, b) => a.createdby.length - b.createdby.length,
     },
   ];
 
-  const MySwal = withReactContent(Swal);
-
-  const showConfirmationAlert = () => {
-    MySwal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      showCancelButton: true,
-      confirmButtonColor: "#00ff00",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonColor: "#ff0000",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        MySwal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          className: "btn btn-success",
-          confirmButtonText: "OK",
-          customClass: {
-            confirmButton: "btn btn-success",
-          },
-        });
-      } else {
-        MySwal.close();
-      }
-    });
-  };
   return (
     <div className="page-wrapper">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="content">
         <Breadcrumbs
           maintitle="Supplier List "
           subtitle="Manage Your Supplier"
           addButton="Add New Supplier"
         />
-        {/* /product list */}
         <div className="card table-list-card">
           <div className="card-body">
             <div className="table-top">
@@ -172,9 +176,7 @@ const Suppliers = () => {
               </div>
               <div className="search-path">
                 <Link
-                  className={`btn btn-filter ${
-                    isFilterVisible ? "setclose" : ""
-                  }`}
+                  className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
                   id="filter_search"
                 >
                   <Filter
@@ -191,71 +193,78 @@ const Suppliers = () => {
               </div>
               <div className="form-sort stylewidth">
                 <Sliders className="info-img" />
-
                 <Select
                   className="select "
-                  options={options}
+                  options={[]}
                   placeholder="Sort by Date"
                 />
               </div>
+              <button className="btn btn-primary ms-3" onClick={handleAdd}>
+                Add New Supplier
+              </button>
             </div>
-            {/* /Filter */}
-            <div
-              className={`card${isFilterVisible ? " visible" : ""}`}
-              id="filter_inputs"
-              style={{ display: isFilterVisible ? "block" : "none" }}
-            >
-              <div className="card-body pb-0">
-                <div className="row">
-                  <div className="col-lg-3 col-sm-6 col-12">
-                    <div className="input-blocks">
-                      <User className="info-img" />
-                      <Select
-                        options={optionsTwo}
-                        placeholder="Choose Customer Name"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-lg-3 col-sm-6 col-12">
-                    <div className="input-blocks">
-                      <Globe className="info-img" />
-                      <Select
-                        options={countries}
-                        placeholder="Choose Country"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-lg-3 col-sm-6 col-12 ms-auto">
-                    <div className="input-blocks">
-                      <a className="btn btn-filters ms-auto">
-                        {" "}
-                        <i
-                          data-feather="search"
-                          className="feather-search"
-                        />{" "}
-                        Search{" "}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* /Filter */}
             <div className="table-responsive">
               <Table
                 className="table datanew"
                 columns={columns}
-                dataSource={data}
-                rowKey={(record) => record.id}
-                // pagination={true}
+                dataSource={suppliers}
+                rowKey={(record) => record._id}
+                loading={loading}
               />
             </div>
           </div>
         </div>
-        {/* /product list */}
+        {/* Modal for Add/Edit Supplier */}
+        {showModal && (
+          <div className="modal show d-block" tabIndex="-1" role="dialog">
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <div className="modal-content">
+                <form onSubmit={handleModalSubmit}>
+                  <div className="modal-header">
+                    <h5 className="modal-title">{isEditMode ? 'Edit Supplier' : 'Add Supplier'}</h5>
+                    <button type="button" className="close" onClick={() => setShowModal(false)}>
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="form-group mb-2">
+                      <label>Supplier Name</label>
+                      <input name="supplierName" className="form-control" defaultValue={currentSupplier?.supplierName || ''} required />
+                    </div>
+                    {/* Only show code field in edit mode */}
+                    {isEditMode && (
+                      <div className="form-group mb-2">
+                        <label>Code</label>
+                        <input name="code" className="form-control" defaultValue={currentSupplier?.code || ''} required readOnly />
+                      </div>
+                    )}
+                    <div className="form-group mb-2">
+                      <label>Email</label>
+                      <input name="email" type="email" className="form-control" defaultValue={currentSupplier?.email || ''} required />
+                    </div>
+                    <div className="form-group mb-2">
+                      <label>Phone</label>
+                      <input name="phone" className="form-control" defaultValue={currentSupplier?.phone || ''} required />
+                    </div>
+                    <div className="form-group mb-2">
+                      <label>Country</label>
+                      <input name="country" className="form-control" defaultValue={currentSupplier?.country || ''} />
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {isEditMode ? 'Update' : 'Add'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      <SupplierModal />
     </div>
   );
 };
