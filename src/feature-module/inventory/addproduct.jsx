@@ -84,25 +84,24 @@ const AddProduct = () => {
         try {
             // Use Promise.all for concurrent fetching
             const [categoryRes, brandRes, locationRes] = await Promise.all([
-                axios.get(`${API_URL}/categories`, { headers: authHeader }),
+                axios.get(`${API_URL}/product-categories`, { headers: authHeader }),
                 axios.get(`${API_URL}/brands`, { headers: authHeader }),
-                axios.get(`${API_URL}/locations`, { headers: authHeader }) // Assuming /api/locations endpoint exists
+                axios.get(`${API_URL}/locations`, { headers: authHeader })
             ]);
 
             // Format data for react-select: { value: _id, label: name }
             setCategories(categoryRes.data.map(cat => ({ value: cat._id, label: cat.name })));
             setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
-            setLocations(locationRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` }))); // Include type in label for clarity
+            setLocations(locationRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
 
         } catch (error) {
             console.error("Error fetching initial data:", error);
             toast.error("Failed to load necessary data. Please refresh the page or try again.");
-            // Handle specific errors (e.g., 401 Unauthorized) if needed
-             if (error.response && error.response.status === 401) {
-                 toast.error("Session expired. Please log in again.");
-                 localStorage.removeItem('token'); // Clear invalid token
-                 navigate(route.login);
-             }
+            if (error.response && error.response.status === 401) {
+                toast.error("Session expired. Please log in again.");
+                localStorage.removeItem('token');
+                navigate(route.login);
+            }
         } finally {
             setIsLoading(false);
         }

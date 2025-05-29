@@ -13,7 +13,7 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import Table from '../../core/pagination/datatable'
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify'; // Add ToastContainer back
 import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList = () => {
@@ -21,6 +21,7 @@ const CategoryList = () => {
     const data = useSelector((state) => state.toggle_header);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const toggleFilterVisibility = () => {
@@ -31,10 +32,11 @@ const CategoryList = () => {
         setSelectedDate(date);
     };
 
-    // Fetch categories
+    // Fetch product categories
     const fetchCategories = async () => {
+        console.log('fetchCategories called'); // Debug log
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/categories`, {
+            const response = await axios.get(`${API_URL}/product-categories`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -42,9 +44,13 @@ const CategoryList = () => {
             setCategories(response.data);
             setLoading(false);
         } catch (error) {
-            console.error("Error fetching categories:", error);
-            toast.error("Failed to load categories");
+            console.error("Error fetching product categories:", error);
+            toast.error("Failed to load product categories");
             setLoading(false);
+            if (error.response?.status === 401) {
+                localStorage.removeItem('token');
+                // Redirect to login if needed
+            }
         }
     };
 
@@ -68,16 +74,16 @@ const CategoryList = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${process.env.REACT_APP_API_URL}/categories/${id}`, {
+                await axios.delete(`${API_URL}/product-categories/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                 toast.success('Category deleted successfully');
+                toast.success('Product category deleted successfully');
                 setCategories(categories.filter(category => category._id !== id));
             } catch (error) {
-                console.error("Error deleting category:", error);
-                toast.error("Failed to delete category");
+                console.error("Error deleting product category:", error);
+                toast.error(error.response?.data?.message || "Failed to delete product category");
             }
         }
     };
@@ -87,14 +93,8 @@ const CategoryList = () => {
         { value: 'newest', label: 'Newest' },
         { value: 'oldest', label: 'Oldest' },
     ];
-    const category = [
-        { value: 'chooseCategory', label: 'Choose Category' },
-        { value: 'laptop', label: 'Laptop' },
-        { value: 'electronics', label: 'Electronics' },
-        { value: 'shoe', label: 'Shoe' },
-    ];
+
     const status = [
-        { value: 'chooseStatus', label: 'Choose Status' },
         { value: 'active', label: 'Active' },
         { value: 'inactive', label: 'Inactive' },
     ];
@@ -127,14 +127,14 @@ const CategoryList = () => {
 
     const columns = [
         {
-            title: "Category",
+            title: "Category Name",
             dataIndex: "name",
             sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
-            title: "Category Slug",
-            dataIndex: "slug",
-            sorter: (a, b) => a.slug.localeCompare(b.slug),
+            title: "Description",
+            dataIndex: "description",
+            render: (description) => description || <span className="text-muted">No description</span>,
         },
         {
             title: "Created On",
@@ -188,14 +188,14 @@ const CategoryList = () => {
 
     return (
         <div>
+            <ToastContainer />
             <div className="page-wrapper">
                 <div className="content">
                     <div className="page-header">
-                    <ToastContainer />
                         <div className="add-item d-flex">
                             <div className="page-title">
-                                <h4>Category</h4>
-                                <h6>Manage your categories</h6>
+                                <h4>Product Categories</h4>
+                                <h6>Manage your product categories</h6>
                             </div>
                         </div>
                         <ul className="table-top-head">
@@ -249,7 +249,7 @@ const CategoryList = () => {
                                 data-bs-target="#add-category"
                             >
                                 <PlusCircle className="me-2" />
-                                Add New Category
+                                Add New Product Category
                             </Link>
                         </div>
                     </div>
@@ -261,7 +261,7 @@ const CategoryList = () => {
                                     <div className="search-input">
                                         <input
                                             type="text"
-                                            placeholder="Search"
+                                            placeholder="Search categories..."
                                             className="form-control form-control-sm formsearch"
                                         />
                                         <Link to className="btn btn-searchset">
@@ -297,16 +297,6 @@ const CategoryList = () => {
                             >
                                 <div className="card-body pb-0">
                                     <div className="row">
-                                        <div className="col-lg-3 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <Zap className="info-img" />
-                                                <Select
-                                                    options={category}
-                                                    className="select"
-                                                    placeholder="Choose Category"
-                                                />
-                                            </div>
-                                        </div>
                                         <div className="col-lg-3 col-sm-6 col-12">
                                             <div className="input-blocks">
                                                 <i data-feather="calendar" className="info-img" />

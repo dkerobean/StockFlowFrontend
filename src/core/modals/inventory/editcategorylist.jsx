@@ -51,7 +51,7 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
 
         try {
             const slug = generateSlug(name);
-            await axios.put(`${API_URL}/categories/${categoryId}`,
+            await axios.put(`${API_URL}/product-categories/${categoryId}`,
                 {
                     name: name.trim(), // Trim name
                     slug,
@@ -65,7 +65,7 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
             );
 
             // --- Success Sequence ---
-            // 1. Show success toast
+            // Show success toast notification
             toast.success('Category updated successfully!');
 
             // 2. Call the onUpdate callback (to refresh list)
@@ -73,16 +73,32 @@ const EditCategoryList = ({ categoryId, currentName, currentStatus, onUpdate }) 
                 onUpdate();
             }
 
-            // 3. Close the modal
+            // Close the modal safely
             const modalElement = document.getElementById(modalId);
-             if (modalElement) {
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalElement && window.bootstrap) {
+                const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
                 if (modalInstance) {
                     modalInstance.hide();
                 } else {
-                    const bsModal = new bootstrap.Modal(modalElement);
-                    bsModal.hide();
+                    try {
+                        const bsModal = new window.bootstrap.Modal(modalElement);
+                        bsModal.hide();
+                    } catch (modalError) {
+                        console.error("Could not initialize Bootstrap modal:", modalError);
+                        // Fallback: use jQuery if available
+                        if (window.jQuery) {
+                            window.jQuery(modalElement).modal('hide');
+                        } else {
+                            // Last resort: use data-bs-dismiss programmatically
+                            const closeButton = modalElement.querySelector('[data-bs-dismiss="modal"]');
+                            if (closeButton) closeButton.click();
+                        }
+                    }
                 }
+            } else {
+                // Fallback if bootstrap is not available
+                const closeButton = modalElement?.querySelector('[data-bs-dismiss="modal"]');
+                if (closeButton) closeButton.click();
             }
 
             // 4. Reset form state (handled by 'hidden.bs.modal' event)

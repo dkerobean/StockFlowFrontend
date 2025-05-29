@@ -5,24 +5,26 @@ import 'react-toastify/dist/ReactToastify.css';
 // Make sure Bootstrap's JS is loaded, e.g., in your index.js or App.js
 // import 'bootstrap/dist/js/bootstrap.bundle.min';
 
-const AddCategoryList = ({ onSuccess }) => {
+const AddCategory = ({ onSuccess }) => {
     const API_URL = process.env.REACT_APP_API_URL;
     const [categoryName, setCategoryName] = useState('');
-    const [status, setStatus] = useState('active'); // Default status
+    const [description, setDescription] = useState('');
+    const [status, setStatus] = useState('active');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const modalId = "add-category"; // Ensure this matches the id in CategoryList modal trigger
+    const modalId = "add-category";
 
     const generateSlug = (name) => {
-        if (!name) return ''; // Handle empty name case
+        if (!name) return '';
         return name.toLowerCase()
-            .replace(/[^\w\s-]/g, '') // remove non-word characters except space and hyphen
-            .replace(/\s+/g, '-')     // replace spaces with hyphens
-            .replace(/--+/g, '-')     // replace multiple hyphens with single
-            .trim();                  // trim leading/trailing hyphens (though regex should handle most)
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-')
+            .trim();
     };
 
     const resetForm = () => {
         setCategoryName('');
+        setDescription('');
         setStatus('active');
         setIsSubmitting(false);
     }
@@ -30,23 +32,24 @@ const AddCategoryList = ({ onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!categoryName.trim()) {
-            toast.error("Category name cannot be empty.");
+            toast.error("Category name is required");
             return;
         }
 
         setIsSubmitting(true);
         const token = localStorage.getItem('token');
         if (!token) {
-            toast.error("Authentication required.");
+            toast.error("Authentication required");
             setIsSubmitting(false);
             return;
         }
 
         try {
             const slug = generateSlug(categoryName);
-            await axios.post(`${API_URL}/categories`,
+            await axios.post(`${API_URL}/product-categories`,
                 {
-                    name: categoryName.trim(), // Trim name before sending
+                    name: categoryName.trim(),
+                    description: description.trim(),
                     slug: slug,
                     status: status
                 },
@@ -56,41 +59,52 @@ const AddCategoryList = ({ onSuccess }) => {
                     }
                 }
             );
-
-            // --- Success Sequence ---
-            // 1. Show success toast
-            toast.success(`Category "${categoryName.trim()}" added successfully!`);
-
-            // 2. Call the onSuccess callback (to refresh the list in parent)
+            
+            // Show success toast notification
+            toast.success('Category created successfully!');
+            
+            // Clear the form immediately after successful submission
+            resetForm();
+            
+            // Call the onSuccess callback to refresh the list
             if (onSuccess) {
                 onSuccess();
             }
 
-            // 3. Close the modal
+            // Close modal using window.bootstrap if available
             const modalElement = document.getElementById(modalId);
-            if (modalElement) {
-                // Use Bootstrap's static method to get the instance
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalElement && window.bootstrap) {
+                const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
                 if (modalInstance) {
                     modalInstance.hide();
                 } else {
-                    // Fallback if instance not found (less ideal)
-                    const bsModal = new bootstrap.Modal(modalElement);
-                    bsModal.hide();
+                    try {
+                        const bsModal = new window.bootstrap.Modal(modalElement);
+                        bsModal.hide();
+                    } catch (modalError) {
+                        console.error("Could not initialize Bootstrap modal:", modalError);
+                        // Fallback: use jQuery if available
+                        if (window.jQuery) {
+                            window.jQuery(modalElement).modal('hide');
+                        } else {
+                            // Last resort: use data-bs-dismiss programmatically
+                            const closeButton = modalElement.querySelector('[data-bs-dismiss="modal"]');
+                            if (closeButton) closeButton.click();
+                        }
+                    }
                 }
+            } else {
+                // Fallback if bootstrap is not available
+                const closeButton = modalElement?.querySelector('[data-bs-dismiss="modal"]');
+                if (closeButton) closeButton.click();
             }
 
-            // 4. Reset form state (handled by modal 'hidden.bs.modal' event now)
-            // resetForm(); // Removed - let the useEffect handle reset on hide
-
         } catch (error) {
-            console.error("Error adding category:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to add category";
+            console.error("Error adding product category:", error);
+            const errorMessage = error.response?.data?.message || error.message || "Failed to add product category";
             toast.error(errorMessage);
         } finally {
-            // Only set isSubmitting to false here if it wasn't reset by modal close/hide
-            // It's generally safer to let the hide event listener handle the final state reset.
-             setIsSubmitting(false); // Keep this for error cases where modal doesn't hide
+            setIsSubmitting(false);
         }
     };
 
@@ -98,7 +112,6 @@ const AddCategoryList = ({ onSuccess }) => {
         setStatus(prev => prev === 'active' ? 'inactive' : 'active');
     };
 
-    // Effect to reset form when modal is hidden
     useEffect(() => {
         const modalElement = document.getElementById(modalId);
         if (modalElement) {
@@ -108,74 +121,74 @@ const AddCategoryList = ({ onSuccess }) => {
             };
             modalElement.addEventListener('hidden.bs.modal', handleHide);
 
-            // Cleanup listener when component unmounts or modalId changes
             return () => {
                 modalElement.removeEventListener('hidden.bs.modal', handleHide);
             };
         }
-    }, [modalId]); // Dependency array ensures effect runs if modalId changes
+    }, [modalId]);
 
     return (
-        <div className="modal fade" id={modalId} tabIndex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true"> {/* Added tabIndex, labels */}
-        <ToastContainer />
+        <div className="modal fade" id={modalId} tabIndex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
+            <ToastContainer />
             <div className="modal-dialog modal-dialog-centered custom-modal-two">
                 <div className="modal-content">
                     <div className="page-wrapper-new p-0">
                         <div className="content">
                             <div className="modal-header border-0 custom-modal-header">
                                 <div className="page-title">
-                                    <h4 id="addCategoryLabel">Create Category</h4> {/* Added id */}
+                                    <h4 id="addCategoryLabel">Add New Product Category</h4>
                                 </div>
                                 <button
                                     type="button"
-                                    className="btn-close" // Use Bootstrap's standard close button class
+                                    className="btn-close"
                                     data-bs-dismiss="modal"
                                     aria-label="Close"
-                                    disabled={isSubmitting} // Disable close button while submitting
+                                    disabled={isSubmitting}
                                 />
                             </div>
                             <div className="modal-body custom-modal-body">
                                 <form onSubmit={handleSubmit}>
-                                    {/* ... (input fields for name, slug) ... */}
-                                     <div className="mb-3">
-                                        <label htmlFor="add-category-name" className="form-label">Category Name</label> {/* Added htmlFor */}
+                                    <div className="mb-3">
+                                        <label htmlFor="add-category-name" className="form-label">Category Name</label>
                                         <input
                                             type="text"
-                                            id="add-category-name" // Added id
+                                            id="add-category-name"
                                             className="form-control"
                                             value={categoryName}
                                             onChange={(e) => setCategoryName(e.target.value)}
                                             required
                                             disabled={isSubmitting}
-                                            aria-describedby="categoryNameHelp" // Accessibility
+                                            aria-describedby="categoryNameHelp"
                                         />
-                                         <div id="categoryNameHelp" className="form-text">Enter the name for the new category.</div>
+                                        <div id="categoryNameHelp" className="form-text">Enter the name for the new product category.</div>
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="add-category-slug" className="form-label">Category Slug (auto-generated)</label> {/* Added htmlFor */}
-                                        <input
-                                            type="text"
-                                            id="add-category-slug" // Added id
+                                        <label htmlFor="add-category-description" className="form-label">Description</label>
+                                        <textarea
+                                            id="add-category-description"
                                             className="form-control"
-                                            value={generateSlug(categoryName)}
-                                            readOnly
-                                            tabIndex="-1" // Make readOnly not focusable
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            rows="3"
+                                            disabled={isSubmitting}
                                         />
                                     </div>
-                                    <div className="mb-3"> {/* Wrapped status toggle for better spacing */}
+                                    <div className="mb-3">
                                         <div className="status-toggle modal-status d-flex justify-content-between align-items-center">
                                             <span className="status-label">Status</span>
-                                            <div className="form-check form-switch"> {/* Use Bootstrap form-switch */}
+                                            <div className="form-check form-switch">
                                                 <input
                                                     type="checkbox"
                                                     id="add-category-status"
-                                                    className="form-check-input" // Use BS class
-                                                    role="switch" // Accessibility
+                                                    className="form-check-input"
+                                                    role="switch"
                                                     checked={status === 'active'}
                                                     onChange={toggleStatus}
                                                     disabled={isSubmitting}
                                                 />
-                                                <label htmlFor="add-category-status" className="form-check-label">{status === 'active' ? 'Active' : 'Inactive'}</label> {/* Dynamic label */}
+                                                <label htmlFor="add-category-status" className="form-check-label">
+                                                    {status === 'active' ? 'Active' : 'Inactive'}
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
@@ -184,14 +197,14 @@ const AddCategoryList = ({ onSuccess }) => {
                                             type="button"
                                             className="btn btn-cancel me-2"
                                             data-bs-dismiss="modal"
-                                            disabled={isSubmitting} // Also disable cancel during submit
+                                            disabled={isSubmitting}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
                                             className="btn btn-submit"
-                                            disabled={isSubmitting || !categoryName.trim()} // Disable if submitting or name is empty
+                                            disabled={isSubmitting || !categoryName.trim()}
                                         >
                                             {isSubmitting ? (
                                                 <>
@@ -211,4 +224,4 @@ const AddCategoryList = ({ onSuccess }) => {
     );
 };
 
-export default AddCategoryList;
+export default AddCategory;

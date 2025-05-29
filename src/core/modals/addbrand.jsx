@@ -32,23 +32,59 @@ const AddBrand = ({ onSuccess }) => {
 
         try {
             await axios.post(`${API_URL}/brands`, { name: brandName }, { headers: authHeader });
-            toast.success(`Brand "${brandName}" added successfully!`);
+            // Store success state but don't show toast yet
+            let success = true;
             setBrandName(''); // Clear input
-            if (onSuccess) {
-                onSuccess(); // Call the callback to refresh the list in parent
-            }
-            // Close the modal manually using Bootstrap's JS API
+
+            // Close the modal first before any toast or callback
             const modalElement = document.getElementById('add-units-brand');
             if (modalElement) {
-                // eslint-disable-next-line no-undef // Inform ESLint about Bootstrap global
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                } else {
-                    // Fallback if instance not found (might happen on fast navigations)
-                     const fallbackModal = new bootstrap.Modal(modalElement);
-                     fallbackModal.hide();
+                // Silent error handling to avoid any error toast
+                try {
+                    // Check if bootstrap is defined
+                    if (typeof bootstrap !== 'undefined') {
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        } else {
+                            // Fallback if instance not found
+                            const fallbackModal = new bootstrap.Modal(modalElement);
+                            fallbackModal.hide();
+                        }
+                    } else {
+                        // Alternative method if bootstrap is not available
+                        modalElement.classList.remove('show');
+                        modalElement.setAttribute('aria-hidden', 'true');
+                        modalElement.style.display = 'none';
+
+                        // Remove modal backdrop if any
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.remove();
+                        }
+
+                        // Remove modal-open class from body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                } catch (err) {
+                    // Silent fail - just log to console and don't toast the error
+                    console.error('Error closing modal:', err);
+                    modalElement.style.display = 'none';
                 }
+            }
+
+            // Only show success toast and call callback after modal is closed
+            // This prevents visual glitches with multiple toasts
+            if (success) {
+                toast.success(`Brand "${brandName}" added successfully!`);
+                // Call the callback after a slight delay to avoid toast conflicts
+                setTimeout(() => {
+                    if (onSuccess) {
+                        onSuccess(); // Call the callback to refresh the list in parent
+                    }
+                }, 100);
             }
         } catch (error) {
             console.error("Error adding brand:", error.response ? error.response.data : error);

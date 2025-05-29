@@ -18,39 +18,40 @@ const AddCategory = ({ onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!categoryName.trim()) {
-            toast.error("Category name cannot be empty.");
+            toast.error("Category name is required");
             return;
         }
         setIsSubmitting(true);
         const authHeader = getAuthHeader();
         if (!authHeader) {
-            toast.error("Authentication required.");
+            toast.error("Authentication required");
             setIsSubmitting(false);
             return;
         }
 
         try {
-            await axios.post(`${API_URL}/categories`, { name: categoryName }, { headers: authHeader });
-            toast.success(`Category "${categoryName}" added successfully!`);
-            setCategoryName(''); // Clear input
-            if (onSuccess) {
-                onSuccess(); // Call the callback
-            }
-            // Close the modal manually
+            await axios.post(`${API_URL}/product-categories`, { name: categoryName }, { headers: authHeader });
+
+            // Close the modal first
             const modalElement = document.getElementById('add-units-category');
-            if (modalElement) {
-                 // eslint-disable-next-line no-undef
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                 if (modalInstance) {
+            if (modalElement && window.bootstrap) { // Check for window.bootstrap
+                const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
                     modalInstance.hide();
                 } else {
-                     const fallbackModal = new bootstrap.Modal(modalElement);
-                     fallbackModal.hide();
+                    // Fallback if getInstance returns null
+                    const fallbackModal = new window.bootstrap.Modal(modalElement);
+                    fallbackModal.hide();
                 }
             }
+
+            if (onSuccess) {
+                onSuccess(); // Call the callback AFTER modal hide is initiated
+            }
+
         } catch (error) {
-            console.error("Error adding category:", error.response ? error.response.data : error);
-            toast.error(`Failed to add category: ${error.response?.data?.message || error.message}`);
+            console.error("Error adding product category:", error.response ? error.response.data : error); // Updated log
+            toast.error(`Failed to add product category: ${error.response?.data?.message || error.message}`); // Updated toast
         } finally {
             setIsSubmitting(false);
         }
@@ -62,7 +63,7 @@ const AddCategory = ({ onSuccess }) => {
         if (modalElement) {
             const handleHide = () => {
                 setCategoryName(''); // Clear input when modal hides
-                setIsSubmitting(false);
+                setIsSubmitting(false); // Also reset submitting state
             };
             modalElement.addEventListener('hidden.bs.modal', handleHide);
             // Cleanup listener
@@ -75,6 +76,7 @@ const AddCategory = ({ onSuccess }) => {
 
     return (
         <>
+            {/* <ToastContainer /> REMOVE THIS IF IT EXISTS */}\
             {/* Add Category Modal Structure (Keep original ID and classes) */}
             <div className="modal fade" id="add-units-category" tabIndex={-1} aria-labelledby="addCategoryModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered custom-modal-two">

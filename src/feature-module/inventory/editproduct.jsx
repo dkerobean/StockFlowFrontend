@@ -75,17 +75,17 @@ const EditProduct = () => {
 
         try {
             const [categoryRes, brandRes] = await Promise.all([
-                axios.get(`${API_URL}/categories`, { headers: authHeader }),
+                axios.get(`${API_URL}/product-categories`, { headers: authHeader }),
                 axios.get(`${API_URL}/brands`, { headers: authHeader })
             ]);
 
-            console.log("[EditProduct] fetchDropdownData: Raw Categories:", categoryRes?.data);
+            console.log("[EditProduct] fetchDropdownData: Raw Product Categories:", categoryRes?.data);
             console.log("[EditProduct] fetchDropdownData: Raw Brands:", brandRes?.data);
 
             if (categoryRes?.data && Array.isArray(categoryRes.data)) {
                  categoryOptions = categoryRes.data.map(cat => ({ value: cat._id, label: cat.name }));
-                 console.log("[EditProduct] fetchDropdownData: Mapped Category Options:", categoryOptions);
-            } else { console.warn("[EditProduct] fetchDropdownData: Category data invalid."); }
+                 console.log("[EditProduct] fetchDropdownData: Mapped Product Category Options:", categoryOptions);
+            } else { console.warn("[EditProduct] fetchDropdownData: Product category data invalid."); }
 
             if (brandRes?.data && Array.isArray(brandRes.data)) {
                 brandOptions = brandRes.data.map(br => ({ value: br._id, label: br.name }));

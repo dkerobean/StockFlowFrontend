@@ -86,7 +86,7 @@ const ProductList = () => {
         if (!authHeader) {
              toast.error("Authentication required for fetching filters.");
              setIsFetchingFilters(false);
-             return; // Stop if not authenticated
+             return;
         }
         if (!API_URL) {
             console.error("API_URL is not configured.");
@@ -97,28 +97,26 @@ const ProductList = () => {
         try {
             // Fetch all filter data concurrently
             const [catRes, brandRes, locRes] = await Promise.all([
-                axios.get(`${API_URL}/categories`, { headers: authHeader }),
+                axios.get(`${API_URL}/product-categories`, { headers: authHeader }), // Updated endpoint
                 axios.get(`${API_URL}/brands`, { headers: authHeader }),
-                axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader }) // Fetch locations with specific fields
+                axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader })
             ]);
 
-            // Format data for react-select: { value: _id, label: name }
+            // Format data for react-select
             setCategories(catRes.data.map(cat => ({ value: cat._id, label: cat.name })));
             setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
             setLocations(locRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
         } catch (err) {
             console.error("Error fetching filter data:", err.response ? err.response.data : err);
             toast.error("Could not load filter options. Please try refreshing.");
-            // Handle specific errors like 401 Unauthorized if needed
             if (err.response && err.response.status === 401) {
                 localStorage.removeItem('token');
-                navigate(route.login); // Redirect on auth error
+                navigate(route.login);
             }
         } finally {
             setIsFetchingFilters(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [API_URL, navigate, route.login]); // Dependencies
+    }, [API_URL, navigate, route.login]);
 
     // --- Fetch Products (Handles Search and Filtering) ---
     const fetchProducts = useCallback(async () => {
@@ -131,7 +129,7 @@ const ProductList = () => {
             navigate(route.login);
             return;
         }
-         if (!API_URL || !BACKEND_BASE_URL) { // Check config again before fetch
+         if (!API_URL || !BACKEND_BASE_URL) {
               console.error("API_URL or BACKEND_BASE_URL is not configured.");
               toast.error("Application configuration error.");
               setIsLoading(false);
@@ -142,34 +140,31 @@ const ProductList = () => {
         // Prepare query parameters for the API request
         const params = {
             populate: 'category,brand,createdBy', // Fields to populate on the backend
-            search: searchQuery || undefined, // Include search term if present
-            includeInactive: 'false', // Default to active products (can be changed)
-            // Add filter parameters only if a selection has been made
+            search: searchQuery || undefined,
+            includeInactive: 'false',
             category: selectedCategoryFilter?.value || undefined,
             brand: selectedBrandFilter?.value || undefined,
-            locationId: selectedLocationFilter?.value || undefined, // Pass selected location ID
+            locationId: selectedLocationFilter?.value || undefined,
         };
 
-        // Optional: Remove keys with undefined values to keep the URL cleaner
+        // Remove undefined parameters
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         try {
-            // Make the API call to fetch products
             const response = await axios.get(`${API_URL}/products`, { headers: authHeader, params });
-            setProducts(response.data || []); // Update state with fetched products
+            setProducts(response.data || []);
         } catch (err) {
             console.error("Error fetching products:", err.response ? err.response.data : err);
             const errorMessage = err.response?.data?.message || err.message || "Failed to fetch products.";
-            setError(errorMessage); // Set error state to display message
-             if (err.response && err.response.status === 401) {
+            setError(errorMessage);
+            if (err.response && err.response.status === 401) {
                 toast.error("Session expired. Please log in again.");
                 localStorage.removeItem('token');
                 navigate(route.login);
             }
         } finally {
-            setIsLoading(false); // End loading state
+            setIsLoading(false);
         }
-    // Dependencies: Fetch again if any filter, search query, or API URL changes
     }, [
         navigate, route.login, searchQuery, API_URL, BACKEND_BASE_URL,
         selectedCategoryFilter, selectedBrandFilter, selectedLocationFilter
@@ -298,7 +293,7 @@ const ProductList = () => {
                              <img
                                 alt={text}
                                 src={imageSrc}
-                                style={{ objectFit: 'contain', width: '60px', height: '60px', border: '0px solid #eee' }}
+                                style={{ objectFit: 'contain', width: '40px', height: '40px', border: '0px solid #eee' }}
                                 onError={(e) => {
                                     // If image fails to load, log error and set src to placeholder
                                     console.error(`IMAGE LOAD ERROR for src: ${imageSrc} (Product: ${record.name})`);

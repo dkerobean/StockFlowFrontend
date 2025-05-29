@@ -53,27 +53,48 @@ const AddBrand = ({ onSuccess }) => {
             // Send the generated slug
             await axios.post(`${API_URL}/brands`, {
                 name: trimmedName,
-                slug: slugPreview, // Send the generated slug
+                slug: slugPreview,
                 status: status
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            toast.success(`Brand "${trimmedName}" added successfully!`); // Use trimmed name in message
-
-            if (onSuccess) onSuccess(); // Refresh parent list
-
+            // Show success toast notification
+            toast.success('Brand created successfully!');
+            
+            // Reset form
+            resetForm();
+            
             // Close modal using Bootstrap API
             const modalElement = document.getElementById(modalId);
-            if (modalElement) {
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) modalInstance.hide();
+            if (modalElement && window.bootstrap) { // Check for window.bootstrap
+                const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    // Fallback if getInstance returns null (e.g., modal not initialized via JS)
+                    const fallbackModal = new window.bootstrap.Modal(modalElement);
+                    fallbackModal.hide();
+                }
             }
+
+            if (onSuccess) onSuccess(); // Refresh parent list AFTER modal hide is initiated
             // Don't reset form here, let the 'hidden' event handle it
 
         } catch (error) {
             console.error("Error adding brand:", error);
-            toast.error(`Failed to add brand: ${error.response?.data?.message || error.message}`);
+            const errorMessage = error.response?.data?.message || error.message || "Failed to add brand";
+            if (errorMessage.toLowerCase().includes("already exist")) {
+                toast.error(`Brand "${trimmedName}" already exists.`, {
+                    autoClose: 5000,
+                    position: "top-right"
+                });
+            } else {
+                toast.error(errorMessage, {
+                    autoClose: 5000,
+                    position: "top-right"
+                });
+            }
         } finally {
             setIsSubmitting(false); // Ensure this runs even on error
         }
@@ -98,8 +119,7 @@ const AddBrand = ({ onSuccess }) => {
 
     return (
         <div className="modal fade" id={modalId} tabIndex="-1" aria-labelledby="addBrandLabel" aria-hidden="true">
-        <ToastContainer />
-            {/* REMOVE ToastContainer from here */}
+            <ToastContainer />
             <div className="modal-dialog modal-dialog-centered custom-modal-two">
                 <div className="modal-content">
                     <div className="page-wrapper-new p-0">
