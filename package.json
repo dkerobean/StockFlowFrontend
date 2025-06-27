@@ -19,6 +19,7 @@
     "@mui/material": "^7.1.0",
     "@react-latest-ui/react-sticky-notes": "^0.2.6",
     "@reduxjs/toolkit": "^2.2.1",
+    "@supabase/supabase-js": "^2.50.0",
     "@types/react-slick": "^0.23.13",
     "antd": "^5.15.2",
     "apexcharts": "^4.0.0",
