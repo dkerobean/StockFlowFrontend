@@ -55,6 +55,9 @@ const Pos = () => {
   const [taxRate, setTaxRate] = useState(0); // Assuming tax is a percentage
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Recent Sales State
+  const [recentSales, setRecentSales] = useState([]);
 
   // Modal States
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -375,7 +378,8 @@ const Pos = () => {
       setOverallDiscount(0);
       setTaxRate(0);
       setNotes('');
-      // Optionally, trigger a fetch of recent sales or update other UI elements
+      // Refresh recent sales after successful sale
+      fetchRecentSales();
       // The post-save hook on the backend should handle inventory and income.
     } catch (error) {
       console.error("Error creating sale:", error.response?.data || error.message);
@@ -386,6 +390,23 @@ const Pos = () => {
     }
   };
 
+  // Fetch recent sales from the backend
+  const fetchRecentSales = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/sales?limit=5&sort=-createdAt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRecentSales(response.data.slice(0, 5)); // Get only last 5 sales
+    } catch (error) {
+      console.error("Error fetching recent sales:", error);
+    }
+  };
+
+  // Fetch recent sales on component mount
+  useEffect(() => {
+    fetchRecentSales();
+  }, []);
 
   // Slider settings (can be adjusted)
   const productSliderSettings = {
@@ -553,6 +574,12 @@ const Pos = () => {
             </span>
             View Orders
           </button>
+          <Link to="/sales-list" className="btn btn-success mb-xs-3">
+            <span className="me-1 d-flex align-items-center">
+              <CheckCircle className="feather-16" />
+            </span>
+            Sales List
+          </Link>
           <button onClick={() => setCart([])} className="btn btn-info">
             <span className="me-1 d-flex align-items-center">
               <RefreshIcon className="feather-16" /> {/* Changed RotateCw to RefreshIcon */}
@@ -954,6 +981,30 @@ const Pos = () => {
                   </span>
                   {loading ? 'Processing...' : 'Payment'}
                 </button>
+              </div>
+
+              {/* Recent Sales Section */}
+              <div className="block-section mt-3">
+                <h6 className="mb-2">Recent Sales</h6>
+                <div className="recent-sales-list">
+                  {recentSales.length === 0 ? (
+                    <p className="text-muted text-center py-2">No recent sales</p>
+                  ) : (
+                    recentSales.map((sale) => (
+                      <div key={sale._id} className="recent-sale-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div className="sale-info">
+                          <div className="customer-name fw-bold">{sale.customer?.name || 'Walk-in'}</div>
+                          <div className="sale-time text-muted small">
+                            {new Date(sale.createdAt).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="sale-amount">
+                          <span className="fw-bold text-success">${sale.total?.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </aside>
           </div>

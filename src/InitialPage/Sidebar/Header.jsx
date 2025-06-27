@@ -1,15 +1,19 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FeatherIcon from "feather-icons-react";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
 import { Search, XCircle } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const route = all_routes;
+  const navigate = useNavigate();
   const [toggle, SetToggle] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isElementVisible = (element) => {
     return element.offsetWidth > 0 || element.offsetHeight > 0;
@@ -97,6 +101,51 @@ const Header = () => {
       );
     };
   }, []);
+
+  // Load user data from localStorage
+  useEffect(() => {
+    const loadUserData = () => {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+    loadUserData();
+  }, []);
+
+  // Logout handler with proper cleanup
+  const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+
+    const confirmLogout = window.confirm('Are you sure you want to logout?');
+    if (!confirmLogout) return;
+
+    setIsLoggingOut(true);
+    
+    try {
+      // Clear authentication data
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Clear user state
+      setUser(null);
+      
+      toast.success('Logged out successfully');
+      
+      // Navigate to signin page
+      navigate('/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Error during logout');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   const handlesidebar = () => {
     document.body.classList.toggle("mini-sidebar");
     SetToggle((current) => !current);
@@ -616,8 +665,8 @@ const Header = () => {
                   />
                 </span>
                 <span className="user-detail">
-                  <span className="user-name">John Smilga</span>
-                  <span className="user-role">Super Admin</span>
+                  <span className="user-name">{user?.name || 'User'}</span>
+                  <span className="user-role">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
                 </span>
               </span>
             </Link>
@@ -632,8 +681,8 @@ const Header = () => {
                     <span className="status online" />
                   </span>
                   <div className="profilesets">
-                    <h6>John Smilga</h6>
-                    <h5>Super Admin</h5>
+                    <h6>{user?.name || 'User'}</h6>
+                    <h5>{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</h5>
                   </div>
                 </div>
                 <hr className="m-0" />
@@ -645,14 +694,19 @@ const Header = () => {
                   Settings
                 </Link>
                 <hr className="m-0" />
-                <Link className="dropdown-item logout pb-0" to="/signin">
+                <button 
+                  className="dropdown-item logout pb-0 border-0 bg-transparent w-100 text-start" 
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  style={{ cursor: isLoggingOut ? 'not-allowed' : 'pointer' }}
+                >
                   <ImageWithBasePath
                     src="assets/img/icons/log-out.svg"
                     alt="img"
                     className="me-2"
                   />
-                  Logout
-                </Link>
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                </button>
               </div>
             </div>
           </li>
@@ -675,9 +729,14 @@ const Header = () => {
             <Link className="dropdown-item" to="generalsettings">
               Settings
             </Link>
-            <Link className="dropdown-item" to="signin">
-              Logout
-            </Link>
+            <button 
+              className="dropdown-item border-0 bg-transparent w-100 text-start" 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              style={{ cursor: isLoggingOut ? 'not-allowed' : 'pointer' }}
+            >
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </button>
           </div>
         </div>
         {/* /Mobile Menu */}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip, Modal, Button, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ImageWithBasePath from '../../core/img/imagewithbasebath';
-import { ChevronUp, FileText, PlusCircle, RotateCcw, Sliders, StopCircle, User } from 'feather-icons-react/build/IconComponents';
+import { ChevronUp, FileText, PlusCircle, RotateCcw, Search, Sliders, StopCircle, User } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
 import { Filter } from 'react-feather';
@@ -14,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Create axios instance with base configuration
 const api = axios.create({
-    baseURL: 'http://localhost:3001',
+    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -67,6 +67,7 @@ const SalesList = () => {
     const [selectedSaleForInvoice, setSelectedSaleForInvoice] = useState(null);
     const [showSaleDetailModal, setShowSaleDetailModal] = useState(false);
     const [selectedSaleForDetail, setSelectedSaleForDetail] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     // Define the toggleFilterVisibility function
     const toggleFilterVisibility = () => {
@@ -75,11 +76,51 @@ const SalesList = () => {
 
     // Fetch sales from the backend
     const fetchSales = async () => {
+        setLoading(true);
         try {
+            console.log('Fetching sales data...');
+            const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
+            
             const response = await api.get('/api/sales');
-            setSales(response.data);
+            console.log('Sales API response status:', response.status);
+            console.log('Sales response data:', response.data);
+            console.log('Sales response headers:', response.headers);
+            
+            if (response.data && Array.isArray(response.data)) {
+                setSales(response.data);
+                console.log(`✅ Successfully loaded ${response.data.length} sales`);
+                if (response.data.length === 0) {
+                    console.log('ℹ️ No sales found - this could be due to:');
+                    console.log('  - User role (need Manager+ access)');
+                    console.log('  - Location access (user may not have access to any locations)');
+                    console.log('  - No sales data in the database');
+                }
+            } else {
+                console.warn('⚠️ Unexpected sales data format:', response.data);
+                setSales([]);
+            }
         } catch (error) {
-            console.error('Error fetching sales:', error);
+            console.error('❌ Error fetching sales:', error);
+            if (error.response) {
+                console.error('Status:', error.response.status);
+                console.error('Status Text:', error.response.statusText);
+                console.error('Response Data:', error.response.data);
+                
+                if (error.response.status === 403) {
+                    toast.error('Access denied. You need Manager or Admin role to view sales.');
+                } else if (error.response.status === 401) {
+                    toast.error('Authentication failed. Please log in again.');
+                } else {
+                    toast.error(`Failed to load sales: ${error.response.data?.message || error.message}`);
+                }
+            } else {
+                console.error('Network or other error:', error.message);
+                toast.error('Network error. Please check your connection.');
+            }
+            setSales([]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -617,7 +658,11 @@ const SalesList = () => {
                             </li>
                         </ul>
                         <div className="page-btn">
-                            <Button onClick={() => setShowAddModal(true)} className="btn btn-added">
+                            <Link to="/pos" className="btn btn-success me-2">
+                                <StopCircle className="me-2" />
+                                POS Terminal
+                            </Link>
+                            <Button onClick={() => setShowAddModal(true)} className="btn btn-primary">
                                 <PlusCircle className="me-2" />
                                 Add New Sales
                             </Button>
@@ -632,25 +677,22 @@ const SalesList = () => {
                                         <input
                                             type="text"
                                             placeholder="Search"
-                                            className="form-control form-control-sm formsearch"
+                                            className="form-control form-control-sm"
                                         />
-                                        <Link to className="btn btn-searchset">
-                                            <i data-feather="search" className="feather-search" />
-                                        </Link>
+                                        <button type="button" className="btn btn-light border">
+                                            <Search size={18} />
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="search-path">
                                     <div className="d-flex align-items-center">
                                         <div className="search-path">
-                                            <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                                <Filter
-                                                    className="filter-icon"
-                                                    onClick={toggleFilterVisibility}
-                                                />
-                                                <span onClick={toggleFilterVisibility}>
+                                            <button type="button" className={`btn btn-info ${isFilterVisible ? "setclose" : ""}`} id="filter_search" onClick={toggleFilterVisibility}>
+                                                <Filter className="feather-16" />
+                                                <span>
                                                     <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
                                                 </span>
-                                            </Link>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -673,9 +715,7 @@ const SalesList = () => {
                                     <div className="row">
                                         <div className="col-lg-3 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <i data-feather="user" className="info-img" />
                                                 <User className="info-img" />
-
                                                 <Select
                                                     className="select"
                                                     options={customername}
@@ -719,11 +759,10 @@ const SalesList = () => {
                                         </div>
                                         <div className="col-lg-2 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <Link className="btn btn-filters ms-auto">
-                                                    {" "}
-                                                    <i data-feather="search" className="feather-search" />{" "}
-                                                    Search{" "}
-                                                </Link>
+                                                <button type="button" className="btn btn-primary ms-auto">
+                                                    <Search size={18} className="me-1" />
+                                                    Search
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -754,7 +793,29 @@ const SalesList = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="sales-list">
-                                        {sales.map((sale) => (
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="10" className="text-center py-4">
+                                                    <div className="d-flex justify-content-center align-items-center">
+                                                        <div className="spinner-border text-primary me-2" role="status">
+                                                            <span className="visually-hidden">Loading...</span>
+                                                        </div>
+                                                        Loading sales data...
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : sales.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="10" className="text-center py-4">
+                                                    <div className="empty-state">
+                                                        <FileText size={48} className="text-muted mb-3" />
+                                                        <h5 className="text-muted">No Sales Found</h5>
+                                                        <p className="text-muted">There are no sales records to display. Start by creating a new sale or check your filter settings.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            sales.map((sale) => (
                                             <tr key={sale._id}>
                                                 <td>
                                                     <label className="checkboxs">
@@ -863,7 +924,8 @@ const SalesList = () => {
                                                     </ul>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
