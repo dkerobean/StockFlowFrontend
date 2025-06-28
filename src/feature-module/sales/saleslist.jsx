@@ -8,31 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Filter } from 'react-feather';
 import Select from 'react-select';
 import { DatePicker } from 'antd';
-import axios from 'axios';
+import api from '../../core/api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Create axios instance with base configuration
-const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
-
-// Add request interceptor to add token to all requests
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
 
 const SalesList = () => {
     const dispatch = useDispatch();
@@ -82,7 +60,7 @@ const SalesList = () => {
             const token = localStorage.getItem('token');
             console.log('Token exists:', !!token);
             
-            const response = await api.get('/api/sales');
+            const response = await api.get('/sales');
             console.log('Sales API response status:', response.status);
             console.log('Sales response data:', response.data);
             console.log('Sales response headers:', response.headers);
@@ -162,7 +140,7 @@ const SalesList = () => {
     // Fetch products based on location
     const fetchProducts = async (locationId) => {
         try {
-            const response = await api.get('/api/products', {
+            const response = await api.get('/products', {
                 params: {
                     includeInactive: false,
                     populate: 'category,brand',
@@ -186,7 +164,7 @@ const SalesList = () => {
     // Fetch locations
     const fetchLocations = async () => {
         try {
-            const response = await api.get('/api/locations');
+            const response = await api.get('/locations');
             const locationData = Array.isArray(response.data) ? response.data : [];
             const mappedLocations = locationData
                 .filter(loc => loc.isActive)
@@ -204,7 +182,7 @@ const SalesList = () => {
     // Create a new sale
     const createSale = async () => {
         try {
-            const response = await api.post('/api/sales', newSale);
+            const response = await api.post('/sales', newSale);
             await fetchSales(); // Refresh the sales list
             setShowAddModal(false);
             toast.success('Sale created successfully!', {
@@ -244,7 +222,7 @@ const SalesList = () => {
     // Edit an existing sale
     const editSale = async (saleId, updatedSale) => {
         try {
-            const response = await api.put(`/api/sales/${saleId}`, updatedSale);
+            const response = await api.put(`/sales/${saleId}`, updatedSale);
             setSales(sales.map((sale) => (sale._id === saleId ? response.data : sale)));
             setEditingSale(null);
         } catch (error) {
@@ -372,7 +350,7 @@ const SalesList = () => {
         if (!saleToDelete) return;
 
         try {
-            await api.delete(`/api/sales/${saleToDelete._id}`);
+            await api.delete(`/sales/${saleToDelete._id}`);
             setSales(sales.filter(sale => sale._id !== saleToDelete._id));
             toast.success('Sale deleted successfully');
             setShowDeleteModal(false);
@@ -455,7 +433,7 @@ const SalesList = () => {
 
     const updateSale = async () => {
         try {
-            await api.put(`/api/sales/${editingSale._id}`, editingSale);
+            await api.put(`/sales/${editingSale._id}`, editingSale);
             await fetchSales(); // Refresh the sales list
             setShowEditModal(false);
             setEditingSale(null);

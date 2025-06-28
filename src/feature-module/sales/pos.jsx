@@ -561,8 +561,113 @@ const Pos = () => {
 
   // Render
   return (
-    <div className="page-wrapper pos-pg-wrapper ms-0">
-      <ToastContainer position="top-right" autoClose={3000} />
+    <>
+      <style>{`
+        @keyframes selectionPulse {
+          0% {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes selectionGlow {
+          0%, 100% {
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15), 0 0 0 1px rgba(0, 123, 255, 0.1);
+          }
+          50% {
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25), 0 0 0 1px rgba(0, 123, 255, 0.2);
+          }
+        }
+        
+        .product-selected {
+          animation: selectionGlow 2s ease-in-out infinite;
+        }
+        
+        .product-info:active {
+          transform: scale(0.98) !important;
+          transition: transform 0.1s ease-out;
+        }
+        
+        .selection-badge {
+          animation: slideInLeft 0.3s ease-out;
+        }
+        
+        @keyframes slideInLeft {
+          0% {
+            transform: translateX(-20px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        .product-card-ripple {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .product-card-ripple::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          background: rgba(0, 123, 255, 0.3);
+          transform: translate(-50%, -50%);
+          transition: width 0.6s, height 0.6s;
+        }
+        
+        .product-card-ripple.ripple-active::after {
+          width: 300px;
+          height: 300px;
+        }
+        
+        @keyframes slideInDown {
+          0% {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        .selection-counter-badge {
+          animation: bounceIn 0.4s ease-out;
+        }
+        
+        @keyframes bounceIn {
+          0% {
+            transform: scale(0.3);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          70% {
+            transform: scale(0.9);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
+      <div className="page-wrapper pos-pg-wrapper ms-0">
+        <ToastContainer position="top-right" autoClose={3000} />
       <div className="content pos-design p-0">
         <div className="btn-row d-sm-flex align-items-center">
           <button // Changed to button, will control modal with state
@@ -598,52 +703,98 @@ const Pos = () => {
         </div>
         <div className="row align-items-start pos-wrapper">
           <div className="col-md-12 col-lg-8">
-            <div className="pos-categories tabs_wrapper">
-              <h5>Categories</h5>
-              <p>Select From Below Categories</p>
+            <div className="pos-categories tabs_wrapper mb-4">
+              <h5 className="mb-2">Categories</h5>
+              <p className="text-muted mb-3">Select from Below Categories</p>
               {products.length > 0 && (
-                <div className="d-flex align-items-stretch"> {/* Use flexbox for alignment and equal height if desired */}
-                  <div className="me-2" style={{ minWidth: '150px' }}>
-                    <button
-                      className={`btn btn-block h-100 d-flex flex-column justify-content-center align-items-center ${!selectedCategory || selectedCategory === 'all' ? 'btn-primary' : 'btn-light border'}`}
-                      onClick={() => setSelectedCategory('all')}
-                      style={{ padding: '0.75rem 0.5rem'}} // Adjusted padding
-                    >
-                      <Grid size={24} className="mb-1"/>
-                      <span style={{whiteSpace: 'normal', lineHeight: '1.2'}}>All Categories</span>
-                      {/* You can add item count here if available, e.g., <small>X items</small> */}
-                    </button>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Slider ref={categorySliderRef} {...categoryCarouselSettings}>
-                      {(categories || []).map((category) => (
-                        <div key={category._id || category.name} style={{ padding: '0 5px' }}> {/* Spacing for slides */}
-                          <div
-                            className={`card category-item-card p-2 text-center h-100 d-flex flex-column justify-content-center ${selectedCategory === category.name ? 'border-primary bg-primary-light' : 'border'}`}
+                <div className="category-scroll-container">
+                  <div className="d-flex align-items-center" style={{ overflowX: 'auto', paddingBottom: '10px', gap: '12px' }}>
+                    <div className="category-item" style={{ minWidth: 'auto', flexShrink: 0 }}>
+                      <button
+                        className={`btn category-btn d-flex flex-column align-items-center justify-content-center ${
+                          !selectedCategory || selectedCategory === 'all' 
+                            ? 'btn-primary text-white' 
+                            : 'btn-light border text-dark'
+                        }`}
+                        onClick={() => setSelectedCategory('all')}
+                        style={{ 
+                          width: '100px', 
+                          height: '80px', 
+                          borderRadius: '12px',
+                          fontSize: '0.8rem',
+                          fontWeight: '500'
+                        }}
+                      >
+                        <Grid size={20} className="mb-1"/>
+                        <span>All Categories</span>
+                        <small className="text-muted" style={{ fontSize: '0.7rem' }}>80 Items</small>
+                      </button>
+                    </div>
+                    {(categories || []).map((category) => {
+                      const categoryItemCount = filteredProducts.filter(p => 
+                        (p.category?.name || p.category) === category.name
+                      ).length;
+                      
+                      return (
+                        <div key={category._id || category.name} className="category-item" style={{ minWidth: 'auto', flexShrink: 0 }}>
+                          <button
+                            className={`btn category-btn d-flex flex-column align-items-center justify-content-center ${
+                              selectedCategory === category.name 
+                                ? 'btn-primary text-white' 
+                                : 'btn-light border text-dark'
+                            }`}
                             onClick={() => setSelectedCategory(category.name)}
-                            style={{ cursor: 'pointer', minWidth: '120px'}} // Removed whiteSpace: nowrap to allow wrapping if needed
+                            style={{ 
+                              width: '100px', 
+                              height: '80px', 
+                              borderRadius: '12px',
+                              fontSize: '0.8rem',
+                              fontWeight: '500'
+                            }}
                           >
-                            {/* Optional: Icon can go here */}
-                            <span style={{whiteSpace: 'normal', lineHeight: '1.2'}}>{category.name}</span>
-                            {/* Item count would go here if available */}
-                          </div>
+                            {/* Category icon based on name */}
+                            {category.name.toLowerCase().includes('phone') || category.name.toLowerCase().includes('mobile') ? (
+                              <Smartphone size={20} className="mb-1"/>
+                            ) : category.name.toLowerCase().includes('shoe') ? (
+                              <Grid size={20} className="mb-1"/>
+                            ) : category.name.toLowerCase().includes('watch') ? (
+                              <Grid size={20} className="mb-1"/>
+                            ) : category.name.toLowerCase().includes('laptop') || category.name.toLowerCase().includes('computer') ? (
+                              <Grid size={20} className="mb-1"/>
+                            ) : (
+                              <Grid size={20} className="mb-1"/>
+                            )}
+                            <span style={{ lineHeight: '1.1', textAlign: 'center' }}>{category.name}</span>
+                            <small className="text-muted" style={{ fontSize: '0.7rem' }}>{categoryItemCount} Items</small>
+                          </button>
                         </div>
-                      ))}
-                    </Slider>
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="pos-products mt-3">
+            <div className="pos-products">
               <div className="d-flex align-items-center justify-content-between mb-3">
-                <h5 className="mb-0">Products</h5>
-                <div className="d-flex align-items-center">
-                  <div className="input-group me-2" style={{width: '250px'}}>
-                      <input type="text" className="form-control" placeholder="Search Product..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                      <button type="button" className="btn btn-light border"><Search size={18}/></button>
+                <h5 className="mb-0 fw-bold">Products</h5>
+                <div className="d-flex align-items-center gap-2">
+                  <div className="search-container position-relative">
+                    <input 
+                      type="text" 
+                      className="form-control ps-5" 
+                      placeholder="Search Product..." 
+                      value={searchTerm} 
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{ width: '280px', borderRadius: '25px', backgroundColor: '#f8f9fa', border: '1px solid #e0e0e0' }}
+                    />
+                    <Search 
+                      size={18} 
+                      className="position-absolute" 
+                      style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d' }}
+                    />
                   </div>
-                  <div className="location-select-pos" style={{width: '200px'}}>
+                  <div className="location-select-pos">
                     <Select
                         className="select"
                         options={locations.map(loc => ({ value: loc._id, label: loc.name }))}
@@ -651,17 +802,51 @@ const Pos = () => {
                         onChange={handleLocationChange}
                         placeholder="Select Location"
                         isDisabled={locations.length === 0}
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            minWidth: '200px',
+                            borderRadius: '8px',
+                            border: '1px solid #e0e0e0'
+                          })
+                        }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Add Selected to Cart Button - Placed below the product header */}
+              {/* Enhanced Add Selected to Cart Button */}
               {selectedProductsForCart.size > 0 && (
-                <div className="d-grid mb-3">
-                  <Button variant="success" onClick={handleAddSelectedToCart}>
-                    Add {selectedProductsForCart.size} Selected Item(s) to Cart
-                  </Button>
+                <div className="mb-3">
+                  <div 
+                    className="alert alert-primary d-flex align-items-center justify-content-between p-3 border-0 shadow-sm"
+                    style={{ 
+                      backgroundColor: '#e3f2fd',
+                      borderRadius: '12px',
+                      animation: 'slideInDown 0.3s ease-out'
+                    }}
+                  >
+                    <div className="d-flex align-items-center">
+                      <div 
+                        className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                        style={{ width: '40px', height: '40px', fontSize: '0.9rem', fontWeight: 'bold' }}
+                      >
+                        {selectedProductsForCart.size}
+                      </div>
+                      <div>
+                        <strong>Products Selected</strong>
+                        <div className="text-muted small">Ready to add to cart</div>
+                      </div>
+                    </div>
+                    <button 
+                      className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
+                      onClick={handleAddSelectedToCart}
+                      style={{ fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                    >
+                      <ShoppingCart size={16} className="me-2" />
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -720,28 +905,100 @@ const Pos = () => {
                         const stock = getProductStockForLocation(product);
 
                         return (
-                          <div className="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3" key={product._id}>
+                          <div className="col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-3" key={product._id}>
                             <div
-                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : ''}`}
+                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : 'product-unselected'}`}
                               onClick={() => handleProductSelection(product)}
-                              style={{cursor: 'pointer', position: 'relative'}}
+                              style={{
+                                cursor: 'pointer', 
+                                position: 'relative', 
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'translateY(0px) scale(1)',
+                                border: isSelected ? '3px solid #007bff' : '2px solid transparent',
+                                backgroundColor: isSelected ? '#f8f9ff' : '#ffffff',
+                                boxShadow: isSelected 
+                                  ? '0 8px 25px rgba(0, 123, 255, 0.15), 0 0 0 1px rgba(0, 123, 255, 0.1)' 
+                                  : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                borderRadius: '12px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)';
+                                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.15)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.transform = 'translateY(0px) scale(1)';
+                                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                                }
+                              }}
                             >
                               {isSelected && (
                                 <div style={{
                                   position: 'absolute',
-                                  top: '8px',
-                                  right: '8px',
-                                  zIndex: 1
+                                  top: '6px',
+                                  right: '6px',
+                                  zIndex: 10,
+                                  animation: 'selectionPulse 0.6s ease-out'
                                 }}>
-                                  <CheckSquare size={24} className="text-success bg-white rounded-circle p-1" />
+                                  <div style={{
+                                    backgroundColor: '#007bff',
+                                    borderRadius: '50%',
+                                    width: '32px',
+                                    height: '32px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 2px 8px rgba(0, 123, 255, 0.4)',
+                                    border: '2px solid white'
+                                  }}>
+                                    <CheckCircle size={18} color="white" />
+                                  </div>
+                                </div>
+                              )}
+                              {isSelected && (
+                                <div style={{
+                                  position: 'absolute',
+                                  top: '6px',
+                                  left: '6px',
+                                  zIndex: 5
+                                }}>
+                                  <span 
+                                    className="selection-badge"
+                                    style={{
+                                      backgroundColor: '#28a745',
+                                      color: 'white',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 'bold',
+                                      padding: '2px 8px',
+                                      borderRadius: '12px',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.5px',
+                                      boxShadow: '0 2px 4px rgba(40, 167, 69, 0.3)'
+                                    }}
+                                  >
+                                    Selected
+                                  </span>
                                 </div>
                               )}
                               {/* Image container with fixed height */}
-                              <div style={{ height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', backgroundColor: '#f8f9fa' }}>
+                              <div style={{ 
+                                height: '120px', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                padding: '8px', 
+                                backgroundColor: isSelected ? '#f0f4ff' : '#f8f9fa', 
+                                borderTopLeftRadius: '10px', 
+                                borderTopRightRadius: '10px',
+                                position: 'relative',
+                                overflow: 'hidden'
+                              }}>
                                 <img
                                   src={finalSrc}
                                   alt={product.name}
-                                  style={{maxHeight: '100%', maxWidth: '100%', objectFit: 'contain'}}
+                                  style={{maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px'}}
                                   onError={(e) => {
                                     console.error(`IMAGE LOAD ERROR for src: ${finalSrc} (Product: ${product.name})`);
                                     e.target.onerror = null;
@@ -749,23 +1006,24 @@ const Pos = () => {
                                   }}
                                 />
                               </div>
-                              <div className="card-body p-3"> {/* Increased padding */}
-                                <h6 className="text-muted mb-1" style={{ fontSize: '0.8rem' }}> {/* Category name - smaller and muted */}
-                                  {product.category?.name || product.category || 'Uncategorized'}
-                                </h6>
-                                <h5 className="product-name mb-2" style={{ fontSize: '1rem', fontWeight: 'bold', minHeight: '40px' }}> {/* Product name - bold and slightly larger */}
-                                  {product.name}
-                                </h5>
-                                <hr className="my-2" /> {/* Separator line */}
-                                <div className="d-flex align-items-center justify-content-between">
-                                  <span style={{ fontSize: '0.9rem', color: '#e83e8c', fontWeight: '500' }}>{stock} Pcs</span> {/* Stock quantity - pinkish color */}
-                                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#007bff' }}> {/* Price - blue and bold */}
-                                    {typeof product.sellingPrice === 'number'
-                                      ? `$${product.sellingPrice.toFixed(0)}` // No decimals for price as per image
-                                      : typeof product.price === 'number'
-                                        ? `$${product.price.toFixed(0)}` // No decimals for price
-                                        : <span className="text-muted small">Price N/A</span>}
-                                  </span>
+                              <div className="card-body p-2"> {/* Reduced padding for more compact look */}
+                                <div className="text-center">
+                                  <div className="text-muted small mb-1" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    {product.category?.name || product.category || 'Uncategorized'}
+                                  </div>
+                                  <h6 className="product-name mb-2 fw-bold" style={{ fontSize: '0.85rem', lineHeight: '1.2', minHeight: '32px', color: '#333' }}>
+                                    {product.name}
+                                  </h6>
+                                  <div className="d-flex align-items-center justify-content-between px-1">
+                                    <span className="badge bg-light text-dark" style={{ fontSize: '0.7rem' }}>{stock} Pcs</span>
+                                    <span className="fw-bold" style={{ fontSize: '1rem', color: '#007bff' }}>
+                                      {typeof product.sellingPrice === 'number'
+                                        ? `$${product.sellingPrice.toFixed(0)}`
+                                        : typeof product.price === 'number'
+                                          ? `$${product.price.toFixed(0)}`
+                                          : <span className="text-muted small">N/A</span>}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -781,44 +1039,54 @@ const Pos = () => {
           </div>
 
           <div className="col-md-12 col-lg-4 ps-0">
-            <aside className="product-order-list">
-              <div className="head d-flex align-items-center justify-content-between w-100">
-                <div className="">
-                  <h5>Order List</h5>
-                  {/* <span>Transaction ID : #65565</span> */}
+            <aside className="product-order-list bg-white rounded-3 shadow-sm border">
+              <div className="head d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                <div>
+                  <h5 className="mb-1 fw-bold">Order List</h5>
+                  <span className="text-muted small">Transaction ID : #{Math.random().toString(36).substr(2, 8).toUpperCase()}</span>
                 </div>
-                <div className="">
-                  <button className="btn btn-sm btn-danger" onClick={() => setCart([])} disabled={cart.length === 0}>
-                    <Trash2 className="feather-16 text-white me-1" /> Clear All
+                <div>
+                  <button className="btn btn-sm btn-outline-danger rounded-pill" onClick={() => setCart([])} disabled={cart.length === 0}>
+                    Clear All
                   </button>
-                  {/* <Link to="#" className="text-default">
-                    <MoreVertical className="feather-16" />
-                  </Link> */}
                 </div>
               </div>
-              <div className="customer-info block-section">
-                <h6>Customer Information</h6>
-                <div className="input-block d-flex align-items-center">
+              <div className="customer-info block-section p-3">
+                <h6 className="mb-2 fw-semibold">Customer Information</h6>
+                <div className="input-block d-flex align-items-center gap-2">
                   <div className="flex-grow-1">
-                     <input type="text" className="form-control mb-1" placeholder="Customer Name" value={customer.name} onChange={(e) => setCustomer(prev => ({...prev, name: e.target.value}))} />
+                     <input 
+                       type="text" 
+                       className="form-control" 
+                       placeholder="Choose a Name" 
+                       value={customer.name} 
+                       onChange={(e) => setCustomer(prev => ({...prev, name: e.target.value}))}
+                       style={{ borderRadius: '8px' }}
+                     />
                   </div>
                   <button
-                    className="btn btn-primary btn-icon ms-2"
-                    onClick={() => setShowCreateCustomerModal(true)} // Control with state
+                    className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center"
+                    onClick={() => setShowCreateCustomerModal(true)}
+                    style={{ width: '40px', height: '40px' }}
                   >
-                    <UserPlus className="feather-16" />
+                    <UserPlus size={16} />
                   </button>
                 </div>
-                {/* Removed static product select from customer info */}
               </div>
-              <div className="product-added block-section">
-                <div className="head-text d-flex align-items-center justify-content-between">
-                  <h6 className="d-flex align-items-center mb-0">
-                    Product Added<span className="count ms-1 badge bg-primary">{cart.length}</span>
+              <div className="product-added block-section px-3 pb-3">
+                <div className="head-text d-flex align-items-center justify-content-between mb-3">
+                  <h6 className="d-flex align-items-center mb-0 fw-semibold">
+                    Product Added
+                    <span className="count ms-2 badge bg-warning text-dark rounded-pill">{cart.length}</span>
                   </h6>
                 </div>
-                <div className="product-wrap cart-items-pos" style={{maxHeight: '300px', overflowY: 'auto'}}>
-                  {cart.length === 0 && <p className="text-center p-3">Cart is empty.</p>}
+                <div className="product-wrap cart-items-pos" style={{maxHeight: '280px', overflowY: 'auto'}}>
+                  {cart.length === 0 && (
+                    <div className="text-center py-5 text-muted">
+                      <ShoppingCart size={48} className="mb-3 opacity-50" />
+                      <p className="mb-0">Cart is empty.</p>
+                    </div>
+                  )}
                   {cart.map(item => (
                     <div className="product-list d-flex align-items-center justify-content-between" key={item.product._id}>
                       <div className="d-flex align-items-center product-info-flex">
@@ -1204,6 +1472,7 @@ const Pos = () => {
       </Modal>
 
     </div>
+    </>
   );
 };
 
