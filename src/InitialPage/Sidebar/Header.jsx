@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FeatherIcon from "feather-icons-react";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
-import { Search, XCircle } from "react-feather";
+import { Search, XCircle, ChevronDown } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
 import { toast } from "react-toastify";
+import { Dropdown } from "react-bootstrap";
 
 const Header = () => {
   const route = all_routes;
@@ -357,113 +358,69 @@ const Header = () => {
 
           {/* Select Store */}
           <li className="nav-item dropdown has-arrow main-drop select-store-dropdown">
-            <Link
-              to="#"
-              className="dropdown-toggle nav-link select-store"
-              data-bs-toggle="dropdown"
-            >
-              <span className="user-info">
-                <span className="user-letter">
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="link"
+                className="nav-link select-store dropdown-toggle-no-arrow"
+                id="dropdown-store"
+              >
+                <span className="user-info">
+                  <span className="user-letter">
+                    <ImageWithBasePath
+                      src="assets/img/store/store-01.png"
+                      alt="Store Logo"
+                      className="img-fluid"
+                    />
+                  </span>
+                  <span className="user-detail">
+                    <span className="user-name">Select Store</span>
+                  </span>
+                  <ChevronDown size={16} className="ms-1" />
+                </span>
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu align="end">
+                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
                   <ImageWithBasePath
                     src="assets/img/store/store-01.png"
                     alt="Store Logo"
-                    className="img-fluid"
+                    className="img-fluid me-2"
+                    style={{ width: '20px', height: '20px' }}
                   />
-                </span>
-                <span className="user-detail">
-                  <span className="user-name">Select Store</span>
-                </span>
-              </span>
-            </Link>
-            <div className="dropdown-menu dropdown-menu-right">
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/store/store-01.png"
-                  alt="Store Logo"
-                  className="img-fluid"
-                />{" "}
-                Grocery Alpha
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/store/store-02.png"
-                  alt="Store Logo"
-                  className="img-fluid"
-                />{" "}
-                Grocery Apex
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/store/store-03.png"
-                  alt="Store Logo"
-                  className="img-fluid"
-                />{" "}
-                Grocery Bevy
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/store/store-04.png"
-                  alt="Store Logo"
-                  className="img-fluid"
-                />{" "}
-                Grocery Eden
-              </Link>
-            </div>
+                  Grocery Alpha
+                </Dropdown.Item>
+                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
+                  <ImageWithBasePath
+                    src="assets/img/store/store-02.png"
+                    alt="Store Logo"
+                    className="img-fluid me-2"
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  Grocery Apex
+                </Dropdown.Item>
+                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
+                  <ImageWithBasePath
+                    src="assets/img/store/store-03.png"
+                    alt="Store Logo"
+                    className="img-fluid me-2"
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  Grocery Bevy
+                </Dropdown.Item>
+                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
+                  <ImageWithBasePath
+                    src="assets/img/store/store-04.png"
+                    alt="Store Logo"
+                    className="img-fluid me-2"
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  Grocery Eden
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </li>
           {/* /Select Store */}
 
-          {/* Flag */}
-          <li className="nav-item dropdown has-arrow flag-nav nav-item-box">
-            <Link
-              className="nav-link dropdown-toggle"
-              data-bs-toggle="dropdown"
-              to="#"
-              role="button"
-            >
-              {/* <i data-feather="globe" /> */}
-              {/* <FeatherIcon icon="globe" /> */}
-              <ImageWithBasePath
-                src="assets/img/flags/us.png"
-                alt="img"
-                height={16}
-              />
-            </Link>
-            <div className="dropdown-menu dropdown-menu-right">
-              <Link to="#" className="dropdown-item active">
-                <ImageWithBasePath
-                  src="assets/img/flags/us.png"
-                  alt="img"
-                  height={16}
-                />
-                English
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/flags/fr.png"
-                  alt="img"
-                  height={16}
-                />{" "}
-                French
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/flags/es.png"
-                  alt="img"
-                  height={16}
-                />{" "}
-                Spanish
-              </Link>
-              <Link to="#" className="dropdown-item">
-                <ImageWithBasePath
-                  src="assets/img/flags/de.png"
-                  alt="img"
-                  height={16}
-                />{" "}
-                German
-              </Link>
-            </div>
-          </li>
-          {/* /Flag */}
           <li className="nav-item nav-item-box">
             <Link
               to="#"
@@ -484,16 +441,16 @@ const Header = () => {
           </li>
           {/* Notifications */}
           <li className="nav-item dropdown nav-item-box">
-            <Link
-              to="#"
-              className="dropdown-toggle nav-link"
-              data-bs-toggle="dropdown"
-            >
-              {/* <i data-feather="bell" /> */}
-              <FeatherIcon icon="bell" />
-              <span className="badge rounded-pill">2</span>
-            </Link>
-            <div className="dropdown-menu notifications">
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="link"
+                className="nav-link dropdown-toggle-no-arrow"
+                id="dropdown-notifications"
+              >
+                <FeatherIcon icon="bell" />
+                <span className="badge rounded-pill">2</span>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end" className="notifications">
               <div className="topnav-dropdown-header">
                 <span className="notification-title">Notifications</span>
                 <Link to="#" className="clear-noti">
@@ -641,7 +598,8 @@ const Header = () => {
               <div className="topnav-dropdown-footer">
                 <Link to="/activities">View all Notifications</Link>
               </div>
-            </div>
+              </Dropdown.Menu>
+            </Dropdown>
           </li>
           {/* /Notifications */}
           <li className="nav-item nav-item-box">
@@ -651,26 +609,28 @@ const Header = () => {
             </Link>
           </li>
           <li className="nav-item dropdown has-arrow main-drop">
-            <Link
-              to="#"
-              className="dropdown-toggle nav-link userset"
-              data-bs-toggle="dropdown"
-            >
-              <span className="user-info">
-                <span className="user-letter">
-                  <ImageWithBasePath
-                    src="assets/img/profiles/avator1.jpg"
-                    alt="img"
-                    className="img-fluid"
-                  />
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="link"
+                className="nav-link userset dropdown-toggle-no-arrow"
+                id="dropdown-user"
+              >
+                <span className="user-info">
+                  <span className="user-letter">
+                    <ImageWithBasePath
+                      src="assets/img/profiles/avator1.jpg"
+                      alt="img"
+                      className="img-fluid"
+                    />
+                  </span>
+                  <span className="user-detail">
+                    <span className="user-name">{user?.name || 'User'}</span>
+                    <span className="user-role">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
+                  </span>
+                  <ChevronDown size={16} className="ms-1" />
                 </span>
-                <span className="user-detail">
-                  <span className="user-name">{user?.name || 'User'}</span>
-                  <span className="user-role">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
-                </span>
-              </span>
-            </Link>
-            <div className="dropdown-menu menu-drop-user">
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end" className="menu-drop-user">
               <div className="profilename">
                 <div className="profileset">
                   <span className="user-img">
@@ -708,7 +668,8 @@ const Header = () => {
                   {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </button>
               </div>
-            </div>
+              </Dropdown.Menu>
+            </Dropdown>
           </li>
         </ul>
         {/* /Header Menu */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import ImageWithBasePath from "../../core/img/imagewithbasebath";
@@ -13,23 +13,26 @@ import { setToogleHeader } from "../../core/redux/action";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import { DatePicker } from "antd";
+import purchaseService from "../../services/purchaseService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import moment from "moment";
 
 const PurchaseOrderReport = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.toggle_header);
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [reportData, setReportData] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
   const toggleFilterVisibility = () => {
     setIsFilterVisible((prevVisibility) => !prevVisibility);
-  };
-
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
-  const [selectedDate1, setSelectedDate1] = useState(new Date());
-  const handleDateChange1 = (date) => {
-    setSelectedDate1(date);
   };
 
   const oldandlatestvalue = [
@@ -37,10 +40,79 @@ const PurchaseOrderReport = () => {
     { value: "newest", label: "Newest" },
     { value: "oldest", label: "Oldest" },
   ];
-  const suppliers = [
-    { value: "chooseSupplier", label: "Choose Supplier" },
-    { value: "suppliers", label: "Suppliers" },
+
+  const statusOptions = [
+    { value: "", label: "All Status" },
+    { value: "pending", label: "Pending" },
+    { value: "ordered", label: "Ordered" },
+    { value: "received", label: "Received" },
+    { value: "cancelled", label: "Cancelled" },
   ];
+
+  const supplierOptions = [
+    { value: "", label: "All Suppliers" },
+    ...suppliers.map(supplier => ({
+      value: supplier._id,
+      label: supplier.supplierName
+    }))
+  ];
+
+  useEffect(() => {
+    fetchReportData();
+    fetchSuppliers();
+  }, []);
+
+  const fetchSuppliers = async () => {
+    try {
+      const response = await purchaseService.getSuppliers();
+      setSuppliers(response || []);
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+    }
+  };
+
+  const fetchReportData = async () => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (selectedSupplier) params.supplier = selectedSupplier;
+      if (selectedStatus) params.status = selectedStatus;
+      if (startDate) params.startDate = startDate.format('YYYY-MM-DD');
+      if (endDate) params.endDate = endDate.format('YYYY-MM-DD');
+
+      const response = await purchaseService.getPurchaseReport(params);
+      setReportData(response || []);
+    } catch (error) {
+      console.error('Error fetching purchase report:', error);
+      toast.error('Failed to fetch purchase report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterSearch = () => {
+    fetchReportData();
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
+
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat('en-US').format(num || 0);
+  };
+
+  const getTotalAmount = () => {
+    return reportData.reduce((total, item) => total + (item.totalAmount || 0), 0);
+  };
+
+  const getTotalQuantity = () => {
+    return reportData.reduce((total, item) => total + (item.totalQuantity || 0), 0);
+  };
+
   const renderTooltip = (props) => (
     <Tooltip id="pdf-tooltip" {...props}>
       Pdf
@@ -66,15 +138,17 @@ const PurchaseOrderReport = () => {
       Collapse
     </Tooltip>
   );
+
   return (
     <div>
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
             <div className="add-item d-flex">
               <div className="page-title">
-                <h4>Purchase order report</h4>
-                <h6>Manage your Purchase order report</h6>
+                <h4>Purchase Order Report</h4>
+                <h6>Analyze your purchase order data</h6>
               </div>
             </div>
             <ul className="table-top-head">
@@ -107,7 +181,7 @@ const PurchaseOrderReport = () => {
               </li>
               <li>
                 <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
-                  <Link data-bs-toggle="tooltip" data-bs-placement="top">
+                  <Link data-bs-toggle="tooltip" data-bs-placement="top" onClick={fetchReportData}>
                     <RotateCcw />
                   </Link>
                 </OverlayTrigger>
@@ -129,6 +203,59 @@ const PurchaseOrderReport = () => {
               </li>
             </ul>
           </div>
+
+          {/* Summary Cards */}
+          <div className="row mb-4">
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="card">
+                <div className="card-body">
+                  <div className="dash-widget-header">
+                    <div className="dash-widget-info">
+                      <h6>Total Products</h6>
+                      <h3>{formatNumber(reportData.length)}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="card">
+                <div className="card-body">
+                  <div className="dash-widget-header">
+                    <div className="dash-widget-info">
+                      <h6>Total Quantity</h6>
+                      <h3>{formatNumber(getTotalQuantity())}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="card">
+                <div className="card-body">
+                  <div className="dash-widget-header">
+                    <div className="dash-widget-info">
+                      <h6>Total Amount</h6>
+                      <h3>{formatCurrency(getTotalAmount())}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="card">
+                <div className="card-body">
+                  <div className="dash-widget-header">
+                    <div className="dash-widget-info">
+                      <h6>Avg. Price</h6>
+                      <h3>{formatCurrency(reportData.length > 0 ? getTotalAmount() / getTotalQuantity() : 0)}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* /product list */}
           <div className="card">
             <div className="card-body">
@@ -137,7 +264,7 @@ const PurchaseOrderReport = () => {
                   <div className="search-input">
                     <input
                       type="text"
-                      placeholder="Search"
+                      placeholder="Search products..."
                       className="form-control form-control-sm formsearch"
                     />
                     <Link to className="btn btn-searchset">
@@ -183,52 +310,59 @@ const PurchaseOrderReport = () => {
                   <div className="row">
                     <div className="col-lg-3 col-sm-6 col-12">
                       <div className="input-blocks">
+                        <label>Start Date</label>
                         <div className="input-groupicon">
                           <DatePicker
-                            selected={selectedDate}
-                            onChange={handleDateChange}
-                            type="date"
+                            value={startDate}
+                            onChange={setStartDate}
                             className="filterdatepicker"
-                            dateFormat="dd-MM-yyyy"
-                            placeholder="Choose Date"
+                            placeholder="Start Date"
+                            style={{ width: '100%' }}
                           />
                         </div>
                       </div>
                     </div>
                     <div className="col-lg-3 col-sm-6 col-12">
                       <div className="input-blocks">
+                        <label>End Date</label>
                         <div className="input-groupicon">
                           <DatePicker
-                            selected={selectedDate1}
-                            onChange={handleDateChange1}
-                            type="date"
+                            value={endDate}
+                            onChange={setEndDate}
                             className="filterdatepicker"
-                            dateFormat="dd-MM-yyyy"
-                            placeholder="Choose Date"
+                            placeholder="End Date"
+                            style={{ width: '100%' }}
                           />
                         </div>
                       </div>
                     </div>
                     <div className="col-lg-3 col-sm-6 col-12">
                       <div className="input-blocks">
+                        <label>Supplier</label>
                         <StopCircle className="info-img" />
                         <Select
-                          options={suppliers}
+                          options={supplierOptions}
                           className="select"
                           placeholder="Choose Supplier"
+                          value={supplierOptions.find(option => option.value === selectedSupplier) || null}
+                          onChange={(option) => setSelectedSupplier(option?.value || '')}
+                          isClearable
                         />
                       </div>
                     </div>
                     <div className="col-lg-3 col-sm-6 col-12 ms-auto">
-                      <div className="input-blocks">
-                        <Link className="btn btn-filters ms-auto">
-                          {" "}
+                      <div className="input-blocks" style={{ marginTop: '24px' }}>
+                        <button 
+                          className="btn btn-filters ms-auto"
+                          onClick={handleFilterSearch}
+                          disabled={loading}
+                        >
                           <i
                             data-feather="search"
                             className="feather-search"
-                          />{" "}
-                          Search{" "}
-                        </Link>
+                          />
+                          Search
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -236,6 +370,20 @@ const PurchaseOrderReport = () => {
               </div>
               {/* /Filter */}
               <div className="table-responsive">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading report...</span>
+                    </div>
+                    <p className="mt-2 text-muted">Loading purchase report...</p>
+                  </div>
+                ) : reportData.length === 0 ? (
+                  <div className="text-center py-4">
+                    <i className="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 className="text-muted">No data found</h5>
+                    <p className="text-muted">No purchase data matches your criteria</p>
+                  </div>
+                ) : (
                 <table className="table datanew">
                   <thead>
                     <tr>
@@ -246,234 +394,53 @@ const PurchaseOrderReport = () => {
                         </label>
                       </th>
                       <th>Product Name</th>
-                      <th>Purchased amount</th>
+                      <th>SKU</th>
+                      <th>Total Purchased</th>
                       <th>Purchased QTY</th>
-                      <th>Instock QTY</th>
+                      <th>Avg. Price</th>
+                      <th>Current Stock</th>
+                      <th>Purchase Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product1.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Macbook pro</Link>
-                      </td>
-                      <td>38698.00</td>
-                      <td>1248</td>
-                      <td>1356</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product2.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Orange</Link>
-                      </td>
-                      <td>36080.00</td>
-                      <td>110</td>
-                      <td>131</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product3.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Pineapple</Link>
-                      </td>
-                      <td>21000.00</td>
-                      <td>106</td>
-                      <td>131</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product4.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Strawberry</Link>
-                      </td>
-                      <td>11000.00</td>
-                      <td>105</td>
-                      <td>100</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product5.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Sunglasses</Link>
-                      </td>
-                      <td>10600.00</td>
-                      <td>105</td>
-                      <td>100</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product6.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Unpaired gray</Link>
-                      </td>
-                      <td>9984.00</td>
-                      <td>50</td>
-                      <td>50</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product7.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Avocat</Link>
-                      </td>
-                      <td>4500.00 </td>
-                      <td>41</td>
-                      <td>29</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product8.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Banana</Link>
-                      </td>
-                      <td>900.00 </td>
-                      <td>28</td>
-                      <td>24</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product9.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Earphones</Link>
-                      </td>
-                      <td>500.00</td>
-                      <td>20</td>
-                      <td>11</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product8.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Banana</Link>
-                      </td>
-                      <td>900.00 </td>
-                      <td>28</td>
-                      <td>24</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label className="checkboxs">
-                          <input type="checkbox" />
-                          <span className="checkmarks" />
-                        </label>
-                      </td>
-                      <td className="productimgname">
-                        <Link className="product-img">
-                          <ImageWithBasePath
-                            src="assets/img/products/product9.jpg"
-                            alt="product"
-                          />
-                        </Link>
-                        <Link to="#">Earphones</Link>
-                      </td>
-                      <td>500.00</td>
-                      <td>20</td>
-                      <td>11</td>
-                    </tr>
+                    {reportData.map((item, index) => (
+                      <tr key={index}>
+                        <td>
+                          <label className="checkboxs">
+                            <input type="checkbox" />
+                            <span className="checkmarks" />
+                          </label>
+                        </td>
+                        <td className="productimgname">
+                          <Link className="product-img">
+                            {item.productImage ? (
+                              <ImageWithBasePath
+                                src={item.productImage}
+                                alt="product"
+                              />
+                            ) : (
+                              <div className="product-placeholder">
+                                <i className="fas fa-box"></i>
+                              </div>
+                            )}
+                          </Link>
+                          <Link to="#">{item.productName || 'Unknown Product'}</Link>
+                        </td>
+                        <td className="text-muted">{item.productSku || '-'}</td>
+                        <td className="fw-bold">{formatCurrency(item.totalAmount)}</td>
+                        <td>{formatNumber(item.totalQuantity)}</td>
+                        <td>{formatCurrency(item.averagePrice)}</td>
+                        <td>
+                          <span className={`badge ${item.currentStock > 0 ? 'badge-success' : 'badge-warning'}`}>
+                            {formatNumber(item.currentStock)}
+                          </span>
+                        </td>
+                        <td>{formatNumber(item.purchaseCount)}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
+                )}
               </div>
             </div>
           </div>

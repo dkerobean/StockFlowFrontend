@@ -30,6 +30,21 @@
             transition: none;
         }
     }
+    
+    // Custom dropdown styling for React Bootstrap dropdowns
+    .dropdown-toggle-no-arrow::after {
+        display: none !important;
+    }
+    
+    .dropdown-toggle-no-arrow {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        
+        &:focus {
+            box-shadow: none !important;
+        }
+    }
     .header-left {
         display: -webkit-box;
         display: -ms-flexbox;

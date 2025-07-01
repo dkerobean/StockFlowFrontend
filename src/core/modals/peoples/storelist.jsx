@@ -1,334 +1,772 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../breadcrumbs";
-import { Sliders, Filter } from "react-feather";
 import { Link } from "react-router-dom";
+import { Filter, Sliders, MapPin, User, Edit, Trash2, Search, RotateCcw, PlusCircle, Clock, Phone, Mail } from "react-feather";
+import ImageWithBasePath from "../../img/imagewithbasebath";
 import Select from "react-select";
-import { Modal, Button, Form, Table } from 'react-bootstrap';
-import axios from 'axios';
+import { Table, Modal, Button, Form, Input, Row, Col, Select as AntSelect, TimePicker, DatePicker, Tag, Badge } from "antd";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import api from '../../api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import moment from 'moment';
+
+// Custom styles for stores
+const customStyles = `
+  .store-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .stores-loading {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .status-operational {
+    background: #f6ffed;
+    color: #52c41a;
+    border: 1px solid #b7eb8f;
+  }
+  
+  .status-maintenance {
+    background: #fff7e6;
+    color: #fa8c16;
+    border: 1px solid #ffd591;
+  }
+  
+  .status-closed {
+    background: #fff2f0;
+    color: #ff4d4f;
+    border: 1px solid #ffb3b3;
+  }
+  
+  .status-setup {
+    background: #f0f0ff;
+    color: #722ed1;
+    border: 1px solid #d3adf7;
+  }
+  
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #666;
+  }
+`;
 
 const StoreList = () => {
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [showAddEditModal, setShowAddEditModal] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState({
-    name: '',
-    type: '',
-    address: ''
-  });
-  const [selectedLocationId, setSelectedLocationId] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [locationToDelete, setLocationToDelete] = useState(null);
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-    fetchLocations();
-    return () => { isMounted.current = false; };
+  // Inject custom styles
+  React.useEffect(() => {
+    const styleSheet = document.createElement('style');
+    styleSheet.innerText = customStyles;
+    document.head.appendChild(styleSheet);
+    return () => document.head.removeChild(styleSheet);
   }, []);
+
+  const [locations, setLocations] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [form] = Form.useForm();
+
+  const toggleFilterVisibility = () => {
+    setIsFilterVisible((prevVisibility) => !prevVisibility);
+  };
 
   const fetchLocations = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (isMounted.current) setLocations(response.data || []);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch locations');
+      const res = await api.get('/locations');
+      setLocations(res.data.locations || res.data);
+      setFilteredLocations(res.data.locations || res.data);
+      if ((res.data.locations || res.data).length > 0) {
+        toast.success(`Loaded ${(res.data.locations || res.data).length} locations successfully`);
+      }
+    } catch (err) {
+      console.error('Error fetching locations:', err);
+      toast.error(err.response?.data?.message || 'Failed to fetch locations');
     } finally {
-      if (isMounted.current) setLoading(false);
+      setLoading(false);
     }
   };
 
-  const resetFormData = () => {
-    setCurrentLocation({ name: '', type: '', address: '' });
-    setSelectedLocationId(null);
-  };
+  useEffect(() => {
+    fetchLocations();
+  }, []);
 
-  const openAddModal = () => {
-    setIsEditMode(false);
-    resetFormData();
-    setShowAddEditModal(true);
-  };
-
-  const openEditModal = (location) => {
-    setIsEditMode(true);
-    setSelectedLocationId(location._id);
-    setCurrentLocation({
-      name: location.name || '',
-      type: location.type || '',
-      address: location.address || ''
-    });
-    setShowAddEditModal(true);
-  };
-
-  const closeAddEditModal = () => {
-    setShowAddEditModal(false);
-    resetFormData();
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentLocation(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleTypeChange = (selectedOption) => {
-    setCurrentLocation(prev => ({ ...prev, type: selectedOption ? selectedOption.value : '' }));
-  };
-
-  const handleSubmitLocation = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const token = localStorage.getItem('token');
-    try {
-      if (isEditMode) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/locations/${selectedLocationId}`, currentLocation, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Store updated successfully');
+  // Search functionality with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!searchTerm.trim()) {
+        setFilteredLocations(locations);
       } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/locations`, currentLocation, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Store created successfully');
+        const filtered = locations.filter(location => 
+          location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.storeCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.storeManager?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.contactPerson?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.contactPerson?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.address?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.address?.region?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredLocations(filtered);
       }
-      if (isMounted.current) {
-        fetchLocations();
-        closeAddEditModal();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to save store');
-    } finally {
-      if (isMounted.current) setLoading(false);
-    }
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, locations]);
+
+  const handleAdd = () => {
+    setCurrentLocation(null);
+    setIsEditMode(false);
+    form.resetFields();
+    setShowModal(true);
   };
 
-  const handleDeleteClick = (location) => {
-    setLocationToDelete(location);
-    setShowDeleteModal(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!locationToDelete) return;
-    setLoading(true);
-    const token = localStorage.getItem('token');
-    try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/locations/${locationToDelete._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+  const handleEdit = (location) => {
+    setCurrentLocation(location);
+    setIsEditMode(true);
+    
+    // Prepare operating hours for form
+    const operatingHours = {};
+    if (location.operatingHours) {
+      Object.keys(location.operatingHours).forEach(day => {
+        if (location.operatingHours[day]?.open && location.operatingHours[day]?.close) {
+          operatingHours[`${day}_open`] = moment(location.operatingHours[day].open, 'HH:mm');
+          operatingHours[`${day}_close`] = moment(location.operatingHours[day].close, 'HH:mm');
+        }
       });
-      toast.success('Store deleted successfully');
-      if (isMounted.current) {
-        fetchLocations();
-        setShowDeleteModal(false);
-        setLocationToDelete(null);
+    }
+
+    form.setFieldsValue({
+      name: location.name,
+      storeCode: location.storeCode,
+      type: location.type,
+      status: location.status,
+      street: location.address?.street || '',
+      city: location.address?.city || '',
+      region: location.address?.region || '',
+      country: location.address?.country || '',
+      zipCode: location.address?.zipCode || '',
+      contactPersonName: location.contactPerson?.name || '',
+      contactPersonEmail: location.contactPerson?.email || '',
+      contactPersonPhone: location.contactPerson?.phone || '',
+      contactPersonPosition: location.contactPerson?.position || '',
+      storeManager: location.storeManager || '',
+      storeSize: location.storeSize,
+      setupDate: location.setupDate ? moment(location.setupDate) : null,
+      description: location.description || '',
+      ...operatingHours
+    });
+    setShowModal(true);
+  };
+
+  const handleModalSubmit = async (values) => {
+    setSubmitLoading(true);
+    try {
+      // Prepare data structure
+      const data = {
+        name: values.name,
+        type: values.type,
+        status: values.status,
+        address: {
+          street: values.street,
+          city: values.city,
+          region: values.region,
+          country: values.country,
+          zipCode: values.zipCode
+        },
+        contactPerson: {
+          name: values.contactPersonName,
+          email: values.contactPersonEmail,
+          phone: values.contactPersonPhone,
+          position: values.contactPersonPosition
+        },
+        storeManager: values.storeManager,
+        storeSize: values.storeSize,
+        setupDate: values.setupDate ? values.setupDate.format('YYYY-MM-DD') : null,
+        description: values.description,
+        operatingHours: {}
+      };
+
+      // Process operating hours
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      days.forEach(day => {
+        if (values[`${day}_open`] && values[`${day}_close`]) {
+          data.operatingHours[day] = {
+            open: values[`${day}_open`].format('HH:mm'),
+            close: values[`${day}_close`].format('HH:mm')
+          };
+        }
+      });
+
+      if (isEditMode && currentLocation) {
+        await api.put(`/locations/${currentLocation._id}`, data);
+        toast.success('Location updated successfully');
+      } else {
+        await api.post('/locations', data);
+        toast.success('Location created successfully');
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete store');
+      
+      setShowModal(false);
+      form.resetFields();
+      fetchLocations();
+    } catch (err) {
+      console.error('Error saving location:', err);
+      toast.error(err.response?.data?.message || 'Failed to save location');
     } finally {
-      if (isMounted.current) setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
-  const toggleFilterVisibility = () => setIsFilterVisible(prev => !prev);
+  const handleModalCancel = () => {
+    setShowModal(false);
+    form.resetFields();
+    setCurrentLocation(null);
+  };
+
+  const handleDelete = async (location) => {
+    const MySwal = withReactContent(Swal);
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "This will deactivate the location. You won't be able to revert this!",
+      showCancelButton: true,
+      confirmButtonColor: "#00ff00",
+      confirmButtonText: "Yes, deactivate it!",
+      cancelButtonColor: "#ff0000",
+      cancelButtonText: "Cancel",
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        try {
+          await api.delete(`/locations/${location._id}`);
+          return true;
+        } catch (err) {
+          MySwal.showValidationMessage(
+            `Delete failed: ${err.response?.data?.message || 'Unknown error'}`
+          );
+          return false;
+        }
+      },
+      allowOutsideClick: () => !MySwal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        toast.success('Location has been deactivated successfully');
+        fetchLocations();
+      }
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      operational: { class: 'status-operational', text: 'Operational' },
+      maintenance: { class: 'status-maintenance', text: 'Maintenance' },
+      closed: { class: 'status-closed', text: 'Closed' },
+      setup: { class: 'status-setup', text: 'Setup' }
+    };
+    
+    const statusInfo = statusMap[status] || { class: 'status-operational', text: status };
+    return <span className={`status-badge ${statusInfo.class}`}>{statusInfo.text}</span>;
+  };
 
   const storeTypeOptions = [
     { value: 'Store', label: 'Store' },
     { value: 'Warehouse', label: 'Warehouse' },
-    { value: 'Distribution', label: 'Distribution Center' }
+    { value: 'Distribution Center', label: 'Distribution Center' },
+    { value: 'Outlet', label: 'Outlet' }
+  ];
+
+  const statusOptions = [
+    { value: 'operational', label: 'Operational' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'setup', label: 'Setup' }
+  ];
+
+  const storeSizeOptions = [
+    { value: 'Small', label: 'Small' },
+    { value: 'Medium', label: 'Medium' },
+    { value: 'Large', label: 'Large' },
+    { value: 'Extra Large', label: 'Extra Large' }
+  ];
+
+  const sortOptions = [
+    { value: "sortByDate", label: "Sort by Date" },
+    { value: "sortByName", label: "Sort by Name" },
+    { value: "sortByType", label: "Sort by Type" },
+  ];
+
+  const columns = [
+    {
+      title: "Store Name",
+      dataIndex: "name",
+      render: (text, record) => (
+        <span className="productimgname">
+          <Link to="#" className="product-img stock-img">
+            {record.image ? (
+              <ImageWithBasePath alt={text} src={record.image} />
+            ) : (
+              <div className="store-avatar">
+                <MapPin size={20} />
+              </div>
+            )}
+          </Link>
+          <div>
+            <Link to="#" className="fw-bold">{text}</Link>
+            {record.storeCode && <div className="text-muted small">{record.storeCode}</div>}
+          </div>
+        </span>
+      ),
+      sorter: (a, b) => a.name.length - b.name.length,
+    },
+    {
+      title: "Type & Status",
+      dataIndex: "type",
+      render: (text, record) => (
+        <div>
+          <Tag color="blue">{text}</Tag>
+          <div className="mt-1">{getStatusBadge(record.status)}</div>
+        </div>
+      ),
+      sorter: (a, b) => a.type.localeCompare(b.type),
+    },
+    {
+      title: "Location",
+      dataIndex: "address",
+      render: (address) => (
+        <div className="text-sm">
+          {address?.city && <div>{address.city}</div>}
+          {address?.region && <div className="text-muted">{address.region}</div>}
+        </div>
+      ),
+    },
+    {
+      title: "Contact Person",
+      dataIndex: "contactPerson",
+      render: (contact) => (
+        <div className="contact-info">
+          {contact?.name ? (
+            <>
+              <div className="fw-bold">{contact.name}</div>
+              {contact.position && <div className="text-muted small">{contact.position}</div>}
+              {contact.phone && (
+                <div className="contact-item">
+                  <Phone size={12} />
+                  <span>{contact.phone}</span>
+                </div>
+              )}
+              {contact.email && (
+                <div className="contact-item">
+                  <Mail size={12} />
+                  <span>{contact.email}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <span className="text-muted">No contact person</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Store Size",
+      dataIndex: "storeSize",
+      render: (storeSize) => (
+        <div>
+          {storeSize && <div className="text-muted">{storeSize}</div>}
+        </div>
+      ),
+      sorter: (a, b) => (a.storeSize || '').localeCompare(b.storeSize || ''),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_, record) => (
+        <td className="action-table-data">
+          <div className="edit-delete-action">
+            <Link className="me-2 p-2" to="#" onClick={() => handleEdit(record)}>
+              <Edit className="feather-edit" />
+            </Link>
+            <Link className="confirm-text p-2" to="#" onClick={() => handleDelete(record)}>
+              <Trash2 className="feather-trash-2" />
+            </Link>
+          </div>
+        </td>
+      ),
+    },
   ];
 
   return (
-    <div>
+    <div className="page-wrapper">
       <ToastContainer position="top-right" autoClose={3000} />
-      <div className="page-wrapper">
-        <div className="content">
-          <Breadcrumbs
-            maintitle="Store List"
-            subtitle="Manage Your Stores"
-          />
-          <div className="page-header">
-            <div className="add-item d-flex"></div>
-            <ul className="table-top-head">
-              <li>
-                <div className="page-btn">
-                  <Button variant="primary" onClick={openAddModal}>
-                    <i className="fa fa-plus-circle me-2" /> Add Store
-                  </Button>
-                </div>
-              </li>
-            </ul>
-          </div>
+      <div className="content">
+        <Breadcrumbs
+          maintitle="Store List"
+          subtitle="Manage Your Store Locations"
+          addButton="Add New Store"
+        />
 
-          <div className="card table-list-card">
-            <div className="card-body">
-              <div className="table-top">
-                <div className="search-set">
-                  <div className="search-input">
-                    <input
-                      type="text"
-                      placeholder="Search by name..."
-                      className="form-control form-control-sm formsearch"
-                    />
-                    <Link to="#" className="btn btn-searchset">
-                      <i data-feather="search" className="feather-search" />
-                    </Link>
-                  </div>
-                </div>
-                <div className="search-path">
-                  <Button
-                    className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                    onClick={toggleFilterVisibility}
-                  >
-                    <Filter className="filter-icon" />
-                  </Button>
-                </div>
-                <div className="form-sort stylewidth">
-                  <Sliders className="info-img" />
-                  <Select
-                    className="select"
-                    options={[]}
-                    placeholder="Sort by Date"
+        <div className="card table-list-card">
+          <div className="card-body">
+            <div className="table-top">
+              <div className="search-set">
+                <div className="search-input">
+                  <input
+                    type="text"
+                    placeholder="Search stores..."
+                    className="form-control form-control-sm formsearch"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                  <Link to className="btn btn-searchset">
+                    <Search className="feather-search" size={16} />
+                  </Link>
                 </div>
               </div>
-              {/* Table */}
-              <div className="table-responsive">
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Address</th>
-                      <th>Created By</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading && <tr><td colSpan="5" className="text-center">Loading...</td></tr>}
-                    {!loading && locations.map((location) => (
-                      <tr key={location._id}>
-                        <td>{location.name}</td>
-                        <td>{location.type}</td>
-                        <td>{location.address
-                          ? [location.address.street, location.address.region, location.address.country]
-                              .filter(Boolean)
-                              .join(', ')
-                          : typeof location.address === 'string'
-                            ? location.address
-                            : ''
-                        }</td>
-                        <td>{location.createdBy?.name || 'N/A'}</td>
-                        <td className="action-table-data">
-                          <div className="edit-delete-action">
-                            <Button
-                              variant="link"
-                              className="me-2 p-2"
-                              onClick={() => openEditModal(location)}
-                              title="Edit"
-                            >
-                              <i data-feather="edit" className="feather-edit" />
-                            </Button>
-                            <Button
-                              variant="link"
-                              className="confirm-text p-2"
-                              onClick={() => handleDeleteClick(location)}
-                              title="Delete"
-                            >
-                              <i data-feather="trash-2" className="feather-trash-2" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {!loading && locations.length === 0 && (
-                      <tr><td colSpan="5" className="text-center">No stores found.</td></tr>
-                    )}
-                  </tbody>
-                </Table>
+              <div className="search-path">
+                <Link
+                  className={`btn btn-filter ${
+                    isFilterVisible ? "setclose" : ""
+                  }`}
+                  id="filter_search"
+                >
+                  <Filter
+                    className="filter-icon"
+                    onClick={toggleFilterVisibility}
+                  />
+                  <span onClick={toggleFilterVisibility}>
+                    <ImageWithBasePath
+                      src="assets/img/icons/closes.svg"
+                      alt="img"
+                    />
+                  </span>
+                </Link>
               </div>
+              <div className="form-sort stylewidth">
+                <Sliders className="info-img" />
+                <Select
+                  className="select "
+                  options={sortOptions}
+                  placeholder="Sort by Date"
+                />
+              </div>
+              <div className="d-flex gap-2">
+                <button 
+                  className="btn btn-outline-primary" 
+                  onClick={() => {
+                    setSearchTerm('');
+                    fetchLocations();
+                  }}
+                  disabled={loading}
+                  title="Refresh locations"
+                >
+                  <RotateCcw size={16} />
+                </button>
+                <button className="btn btn-primary" onClick={handleAdd} disabled={loading}>
+                  <PlusCircle size={16} className="me-1" />
+                  Add New Store
+                </button>
+              </div>
+            </div>
+
+            <div className="table-responsive">
+              {loading ? (
+                <div className="stores-loading">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading stores...</span>
+                  </div>
+                  <p className="mt-2 text-muted">Loading stores...</p>
+                </div>
+              ) : filteredLocations.length === 0 && searchTerm ? (
+                <div className="text-center py-4">
+                  <Search size={48} className="text-muted mb-3" />
+                  <h5 className="text-muted">No stores found</h5>
+                  <p className="text-muted">No stores match your search criteria "{searchTerm}"</p>
+                  <button className="btn btn-outline-primary" onClick={() => setSearchTerm('')}>
+                    Clear Search
+                  </button>
+                </div>
+              ) : filteredLocations.length === 0 ? (
+                <div className="text-center py-4">
+                  <MapPin size={48} className="text-muted mb-3" />
+                  <h5 className="text-muted">No stores yet</h5>
+                  <p className="text-muted">Get started by adding your first store location</p>
+                  <button className="btn btn-primary" onClick={handleAdd}>
+                    <PlusCircle size={16} className="me-1" />
+                    Add Your First Store
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Table
+                    className="table datanew"
+                    columns={columns}
+                    dataSource={filteredLocations}
+                    rowKey={(record) => record._id}
+                    pagination={{
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: true,
+                      showTotal: (total, range) => 
+                        `${range[0]}-${range[1]} of ${total} stores`,
+                    }}
+                  />
+                  {searchTerm && (
+                    <div className="mt-2 text-muted">
+                      Showing {filteredLocations.length} of {locations.length} stores
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Add/Edit Store Modal */}
-      <Modal show={showAddEditModal} onHide={closeAddEditModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{isEditMode ? "Edit Store" : "Add Store"}</Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleSubmitLocation}>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Store Name <span className="text-danger">*</span></Form.Label>
-              <Form.Control
-                type="text"
+      
+      {/* Modal for Add/Edit Store */}
+      <Modal
+        title={isEditMode ? 'Edit Store Location' : 'Add Store Location'}
+        open={showModal}
+        onCancel={handleModalCancel}
+        footer={null}
+        width={900}
+        destroyOnClose
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleModalSubmit}
+          size="large"
+        >
+          {/* Basic Information */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
                 name="name"
-                value={currentLocation.name}
-                onChange={handleInputChange}
-                placeholder="Enter store name"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Store Type <span className="text-danger">*</span></Form.Label>
-              <Select
-                options={storeTypeOptions}
-                value={storeTypeOptions.find(opt => opt.value === currentLocation.type)}
-                onChange={handleTypeChange}
-                placeholder="Choose Type"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Address</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                name="address"
-                value={currentLocation.address}
-                onChange={handleInputChange}
-                placeholder="Enter address"
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={closeAddEditModal} disabled={loading}>
+                label="Store Name"
+                rules={[
+                  { required: true, message: 'Please enter store name' },
+                  { min: 2, message: 'Store name must be at least 2 characters' }
+                ]}
+              >
+                <Input placeholder="Enter store name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              {isEditMode ? (
+                <Form.Item
+                  name="storeCode"
+                  label="Store Code"
+                >
+                  <Input placeholder="Auto-generated" disabled />
+                </Form.Item>
+              ) : null}
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="type"
+                label="Store Type"
+                rules={[{ required: true, message: 'Please select store type' }]}
+              >
+                <AntSelect placeholder="Select store type">
+                  {storeTypeOptions.map(option => (
+                    <AntSelect.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </AntSelect.Option>
+                  ))}
+                </AntSelect>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="status"
+                label="Status"
+                rules={[{ required: true, message: 'Please select status' }]}
+              >
+                <AntSelect placeholder="Select status">
+                  {statusOptions.map(option => (
+                    <AntSelect.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </AntSelect.Option>
+                  ))}
+                </AntSelect>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="storeSize"
+                label="Store Size"
+              >
+                <AntSelect placeholder="Select store size">
+                  {storeSizeOptions.map(option => (
+                    <AntSelect.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </AntSelect.Option>
+                  ))}
+                </AntSelect>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Address Information */}
+          <h6 className="mt-4 mb-3">📍 Address Information</h6>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="street"
+                label="Street Address"
+              >
+                <Input placeholder="Enter street address" />
+              </Form.Item>
+            </Col>
+          </Row>
+          
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="city"
+                label="City"
+              >
+                <Input placeholder="Enter city" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="region"
+                label="Region/State"
+              >
+                <Input placeholder="Enter region or state" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="country"
+                label="Country"
+              >
+                <Input placeholder="Enter country" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Contact Person Information */}
+          <h6 className="mt-4 mb-3">👤 Contact Person Information</h6>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="contactPersonName"
+                label="Contact Person Name"
+              >
+                <Input placeholder="Enter contact person name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="contactPersonPosition"
+                label="Position/Title"
+              >
+                <Input placeholder="Enter position or title" />
+              </Form.Item>
+            </Col>
+          </Row>
+          
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="contactPersonEmail"
+                label="Email Address"
+                rules={[
+                  { type: 'email', message: 'Please enter a valid email address' }
+                ]}
+              >
+                <Input placeholder="Enter email address" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="contactPersonPhone"
+                label="Phone Number"
+              >
+                <Input placeholder="Enter phone number" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Store Management */}
+          <h6 className="mt-4 mb-3">🏪 Store Management</h6>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="storeManager"
+                label="Store Manager"
+              >
+                <Input placeholder="Enter store manager name" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="setupDate"
+                label="Setup Date"
+              >
+                <DatePicker style={{ width: '100%' }} placeholder="Select setup date" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label="Description"
+              >
+                <Input.TextArea 
+                  placeholder="Enter store description (optional)" 
+                  maxLength={500}
+                  showCount
+                  rows={3}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          
+          <div className="text-end mt-3">
+            <Button onClick={handleModalCancel} className="me-2">
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (isEditMode ? "Save Changes" : "Add Store")}
+            <Button type="primary" htmlType="submit" loading={submitLoading}>
+              {isEditMode ? 'Update Store' : 'Add Store'}
             </Button>
-          </Modal.Footer>
+          </div>
         </Form>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Store</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Are you sure you want to delete this store?</p>
-          {locationToDelete && (
-            <div>
-              <p><strong>Name:</strong> {locationToDelete.name}</p>
-              <p><strong>Type:</strong> {locationToDelete.type}</p>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={loading}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDeleteConfirm} disabled={loading}>
-            {loading ? 'Deleting...' : 'Delete Store'}
-          </Button>
-        </Modal.Footer>
       </Modal>
     </div>
   );

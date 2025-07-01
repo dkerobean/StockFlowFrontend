@@ -7,7 +7,8 @@ import { setToogleHeader } from '../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
 import { Filter } from 'react-feather';
 import Select from 'react-select';
-import { DatePicker } from 'antd';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import api from '../../core/api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -46,37 +47,63 @@ const SalesList = () => {
     const [showSaleDetailModal, setShowSaleDetailModal] = useState(false);
     const [selectedSaleForDetail, setSelectedSaleForDetail] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    // Filter states
+    const [filters, setFilters] = useState({
+        customer: '',
+        status: '',
+        reference: '',
+        paymentMethod: '',
+        startDate: null,
+        endDate: null,
+        location: ''
+    });
+    const [filteredSales, setFilteredSales] = useState([]);
+    const [appliedFilters, setAppliedFilters] = useState({});
 
     // Define the toggleFilterVisibility function
     const toggleFilterVisibility = () => {
         setIsFilterVisible((prev) => !prev);
     };
 
-    // Fetch sales from the backend
-    const fetchSales = async () => {
+    // Fetch sales from the backend with optional filters
+    const fetchSales = async (filterParams = {}) => {
         setLoading(true);
         try {
             console.log('Fetching sales data...');
             const token = localStorage.getItem('token');
             console.log('Token exists:', !!token);
             
-            const response = await api.get('/sales');
+            // Build query parameters
+            const queryParams = {};
+            if (filterParams.customer) queryParams.customer = filterParams.customer;
+            if (filterParams.status) queryParams.status = filterParams.status;
+            if (filterParams.paymentMethod) queryParams.paymentMethod = filterParams.paymentMethod;
+            if (filterParams.reference) queryParams.reference = filterParams.reference;
+            if (filterParams.locationId) queryParams.locationId = filterParams.locationId;
+            if (filterParams.startDate) queryParams.startDate = filterParams.startDate;
+            if (filterParams.endDate) queryParams.endDate = filterParams.endDate;
+            
+            const response = await api.get('/sales', { params: queryParams });
             console.log('Sales API response status:', response.status);
             console.log('Sales response data:', response.data);
             console.log('Sales response headers:', response.headers);
             
             if (response.data && Array.isArray(response.data)) {
                 setSales(response.data);
+                setFilteredSales(response.data); // Set filtered sales to the same data
                 console.log(`✅ Successfully loaded ${response.data.length} sales`);
                 if (response.data.length === 0) {
                     console.log('ℹ️ No sales found - this could be due to:');
                     console.log('  - User role (need Manager+ access)');
                     console.log('  - Location access (user may not have access to any locations)');
                     console.log('  - No sales data in the database');
+                    console.log('  - Applied filters returned no results');
                 }
             } else {
                 console.warn('⚠️ Unexpected sales data format:', response.data);
                 setSales([]);
+                setFilteredSales([]);
             }
         } catch (error) {
             console.error('❌ Error fetching sales:', error);
@@ -136,6 +163,87 @@ const SalesList = () => {
         const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
         return `${base}${path}`;
     };
+    
+    // Filter handlers
+    const handleFilterChange = (field, value) => {
+        setFilters(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+    
+    const applyFilters = async () => {
+        try {
+            setAppliedFilters({...filters});
+            
+            // Build filter parameters for backend API
+            const filterParams = {};
+            
+            if (filters.customer && filters.customer.trim()) {
+                filterParams.customer = filters.customer.trim();
+            }
+            if (filters.status) {
+                filterParams.status = filters.status;
+            }
+            if (filters.paymentMethod) {
+                filterParams.paymentMethod = filters.paymentMethod;
+            }
+            if (filters.reference && filters.reference.trim()) {
+                filterParams.reference = filters.reference.trim();
+            }
+            if (filters.location) {
+                filterParams.locationId = filters.location;
+            }
+            if (filters.startDate) {
+                filterParams.startDate = filters.startDate instanceof Date 
+                    ? filters.startDate.toISOString().split('T')[0] 
+                    : filters.startDate;
+            }
+            if (filters.endDate) {
+                filterParams.endDate = filters.endDate instanceof Date 
+                    ? filters.endDate.toISOString().split('T')[0] 
+                    : filters.endDate;
+            }
+            
+            // Fetch sales with filters from backend
+            await fetchSales(filterParams);
+            
+            // Show success message
+            const resultsCount = sales.length;
+            if (Object.keys(filterParams).length > 0) {
+                toast.success(`Found ${resultsCount} sales matching your criteria`);
+            }
+        } catch (error) {
+            console.error('Error applying filters:', error);
+            toast.error('Failed to apply filters. Please try again.');
+        }
+    };
+    
+    const clearFilters = async () => {
+        try {
+            setFilters({
+                customer: '',
+                status: '',
+                reference: '',
+                paymentMethod: '',
+                startDate: null,
+                endDate: null,
+                location: ''
+            });
+            setAppliedFilters({});
+            
+            // Fetch all sales without filters
+            await fetchSales();
+            
+            toast.info('Filters cleared');
+        } catch (error) {
+            console.error('Error clearing filters:', error);
+            toast.error('Failed to clear filters. Please try again.');
+        }
+    };
+    
+    // Get display sales (always use sales since backend filtering is applied)
+    const displaySales = sales;
 
     // Fetch products based on location
     const fetchProducts = async (locationId) => {
@@ -470,25 +578,36 @@ const SalesList = () => {
         fetchLocations();
     }, []);
 
+    // Filter options
+    const statusOptions = [
+        { value: '', label: 'Choose Status' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'cancelled', label: 'Cancelled' },
+        { value: 'refunded', label: 'Refunded' },
+    ];
+    
+    const paymentStatusOptions = [
+        { value: '', label: 'Choose Payment Status' },
+        { value: 'cash', label: 'Cash' },
+        { value: 'credit_card', label: 'Credit Card' },
+        { value: 'debit_card', label: 'Debit Card' },
+        { value: 'mobile_payment', label: 'Mobile Payment' },
+        { value: 'other', label: 'Other' },
+    ];
+    
+    // Sorting options for the form-sort dropdown
     const oldandlatestvalue = [
-        { value: 'Sort by Date', label: 'Sort by Date' },
-        { value: '07 09 23', label: '07 09 23' },
-        { value: '21 09 23', label: '21 09 23' },
+        { value: 'date', label: 'Sort by Date' },
+        { value: 'newest', label: 'Newest' },
+        { value: 'oldest', label: 'Oldest' },
     ];
-    const customername = [
-        { value: 'Choose Customer Name', label: 'Choose Customer Name' },
-        { value: 'Macbook pro', label: 'Macbook pro' },
-        { value: 'Orange', label: 'Orange' },
-    ];
-    const status = [
-        { value: 'Choose Status', label: 'Choose Status' },
-        { value: 'Computers', label: 'Computers' },
-        { value: 'Fruits', label: 'Fruits' },
-    ];
-    const paymentstatus = [
-        { value: 'Choose Payment Status', label: 'Choose Payment Status' },
-        { value: 'Computers', label: 'Computers' },
-        { value: 'Fruits', label: 'Fruits' },
+    
+    // Generate customer options from sales data
+    const customerOptions = [
+        { value: '', label: 'Choose Customer Name' },
+        ...Array.from(new Set(sales.map(sale => sale.customer?.name).filter(Boolean)))
+            .map(name => ({ value: name, label: name }))
     ];
     const customer = [
         { value: 'Choose Customer', label: 'Choose Customer' },
@@ -691,56 +810,123 @@ const SalesList = () => {
                             >
                                 <div className="card-body pb-0">
                                     <div className="row">
-                                        <div className="col-lg-3 col-sm-6 col-12">
+                                        <div className="col-lg-2 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <User className="info-img" />
+                                                <label>Customer Name</label>
                                                 <Select
                                                     className="select"
-                                                    options={customername}
-                                                    placeholder="Newest"
+                                                    options={customerOptions}
+                                                    placeholder="Choose Customer Name"
+                                                    value={customerOptions.find(opt => opt.value === filters.customer) || null}
+                                                    onChange={(option) => handleFilterChange('customer', option?.value || '')}
+                                                    isClearable
                                                 />
                                             </div>
                                         </div>
                                         <div className="col-lg-2 col-sm-6 col-12">
                                             <div className="input-blocks">
-
-                                                <StopCircle className="info-img" />
-
+                                                <label>Status</label>
                                                 <Select
                                                     className="select"
-                                                    options={status}
-                                                    placeholder="Newest"
+                                                    options={statusOptions}
+                                                    placeholder="Choose Status"
+                                                    value={statusOptions.find(opt => opt.value === filters.status) || null}
+                                                    onChange={(option) => handleFilterChange('status', option?.value || '')}
+                                                    isClearable
                                                 />
                                             </div>
                                         </div>
                                         <div className="col-lg-2 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <FileText className="info-img" />
+                                                <label>Reference</label>
                                                 <input
                                                     type="text"
                                                     placeholder="Enter Reference"
                                                     className="form-control"
+                                                    value={filters.reference}
+                                                    onChange={(e) => handleFilterChange('reference', e.target.value)}
                                                 />
                                             </div>
                                         </div>
                                         <div className="col-lg-3 col-sm-6 col-12">
                                             <div className="input-blocks">
-
-                                                <StopCircle className="info-img" />
-
+                                                <label>Payment Method</label>
                                                 <Select
                                                     className="select"
-                                                    options={paymentstatus}
-                                                    placeholder="Choose Payment Status"
+                                                    options={paymentStatusOptions}
+                                                    placeholder="Choose Payment Method"
+                                                    value={paymentStatusOptions.find(opt => opt.value === filters.paymentMethod) || null}
+                                                    onChange={(option) => handleFilterChange('paymentMethod', option?.value || '')}
+                                                    isClearable
                                                 />
                                             </div>
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
+                                        <div className="col-lg-3 col-sm-6 col-12">
                                             <div className="input-blocks">
-                                                <button type="button" className="btn btn-primary ms-auto">
+                                                <label>Location</label>
+                                                <Select
+                                                    className="select"
+                                                    options={locations}
+                                                    placeholder="Choose Location"
+                                                    value={locations.find(opt => opt.value === filters.location) || null}
+                                                    onChange={(option) => handleFilterChange('location', option?.value || '')}
+                                                    isClearable
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="row">
+                                        <div className="col-lg-3 col-sm-6 col-12">
+                                            <div className="input-blocks">
+                                                <label>Start Date</label>
+                                                <DatePicker
+                                                    selected={filters.startDate}
+                                                    onChange={(date) => handleFilterChange('startDate', date)}
+                                                    placeholderText="Select start date"
+                                                    className="form-control"
+                                                    dateFormat="yyyy-MM-dd"
+                                                    isClearable
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-lg-3 col-sm-6 col-12">
+                                            <div className="input-blocks">
+                                                <label>End Date</label>
+                                                <DatePicker
+                                                    selected={filters.endDate}
+                                                    onChange={(date) => handleFilterChange('endDate', date)}
+                                                    placeholderText="Select end date"
+                                                    className="form-control"
+                                                    dateFormat="yyyy-MM-dd"
+                                                    isClearable
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-lg-6 col-sm-12 col-12">
+                                            <div className="input-blocks d-flex gap-2 align-items-end">
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-primary"
+                                                    onClick={applyFilters}
+                                                    disabled={loading}
+                                                >
                                                     <Search size={18} className="me-1" />
-                                                    Search
+                                                    {loading ? 'Searching...' : 'Search'}
                                                 </button>
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-outline-secondary"
+                                                    onClick={clearFilters}
+                                                    disabled={loading}
+                                                >
+                                                    <RotateCcw size={18} className="me-1" />
+                                                    Clear
+                                                </button>
+                                                {Object.keys(appliedFilters).length > 0 && (
+                                                    <div className="badge bg-info text-dark">
+                                                        {Object.keys(appliedFilters).length} filter(s) active
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -782,7 +968,7 @@ const SalesList = () => {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ) : sales.length === 0 ? (
+                                        ) : displaySales.length === 0 ? (
                                             <tr>
                                                 <td colSpan="10" className="text-center py-4">
                                                     <div className="empty-state">
@@ -793,7 +979,7 @@ const SalesList = () => {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            sales.map((sale) => (
+                                            displaySales.map((sale) => (
                                             <tr key={sale._id}>
                                                 <td>
                                                     <label className="checkboxs">
