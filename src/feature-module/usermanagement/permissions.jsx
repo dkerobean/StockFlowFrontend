@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { ChevronUp, Filter, Sliders, Zap } from 'react-feather';
@@ -74,14 +74,14 @@ const Permissions = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -139,7 +139,7 @@ const Permissions = () => {
                                             onClick={toggleFilterVisibility}
                                         />
                                         <span onClick={toggleFilterVisibility}>
-                                            <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                            <Image src="assets/img/icons/closes.svg" alt="img" />
                                         </span>
                                     </Link>
                                 </div>

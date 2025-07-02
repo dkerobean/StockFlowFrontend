@@ -3,7 +3,7 @@ import Scrollbars from "react-custom-scrollbars-2";
 import "boxicons/css/boxicons.css";
 import "boxicons/css/boxicons.min.css";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { all_routes } from "../../Router/all_routes";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
@@ -123,7 +123,7 @@ const chat = () => {
                         <div className="swiper-wrapper d-flex">
                           <div className="top-contacts-box me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-2.jpg"
                                 alt=""
                               />
@@ -131,7 +131,7 @@ const chat = () => {
                           </div>
                           <div className="top-contacts-box  me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-1.jpg"
                                 alt=""
                               />
@@ -139,7 +139,7 @@ const chat = () => {
                           </div>
                           <div className="top-contacts-box me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-7.jpg"
                                 alt=""
                               />
@@ -147,7 +147,7 @@ const chat = () => {
                           </div>
                           <div className="top-contacts-box me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-5.jpg"
                                 alt=""
                               />
@@ -155,7 +155,7 @@ const chat = () => {
                           </div>
                           <div className="top-contacts-box me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-3.jpg"
                                 alt=""
                               />
@@ -163,7 +163,7 @@ const chat = () => {
                           </div>
                           <div className="top-contacts-box me-1">
                             <div className="profile-img online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-2.jpg"
                                 alt=""
                               />
@@ -185,7 +185,7 @@ const chat = () => {
                         <li className="user-list-item">
                           <Link to="#">
                             <div className="avatar avatar-online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-2.jpg"
                                 className="rounded-circle"
                                 alt="image"
@@ -210,7 +210,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar ">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-1.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -241,7 +241,7 @@ const chat = () => {
                         <li className="user-list-item">
                           <Link to="#">
                             <div className="avatar avatar-online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-5.jpg"
                                 className="rounded-circle"
                                 alt="image"
@@ -274,7 +274,7 @@ const chat = () => {
                         <li className="user-list-item">
                           <Link to="#">
                             <div className="avatar avatar-online">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-3.jpg"
                                 className="rounded-circle"
                                 alt="image"
@@ -296,7 +296,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar avatar-online">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-3.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -323,7 +323,7 @@ const chat = () => {
                         <li className="user-list-item">
                           <Link to="#">
                             <div className="avatar">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/avatar/avatar-4.jpg"
                                 className="rounded-circle"
                                 alt="image"
@@ -347,7 +347,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar avatar-online">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-9.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -375,7 +375,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar ">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-7.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -400,7 +400,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar avatar-online">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-8.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -425,7 +425,7 @@ const chat = () => {
                           <Link to="#">
                             <div>
                               <div className="avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-6.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -478,7 +478,7 @@ const chat = () => {
                         </ul>
                       </div>
                       <figure className="avatar ms-1">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/avatar/avatar-2.jpg"
                           className="rounded-circle"
                           alt="image"
@@ -639,7 +639,7 @@ const chat = () => {
                     <div className="messages">
                       <div className="chats">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -737,7 +737,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -745,7 +745,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -753,7 +753,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -761,7 +761,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -769,7 +769,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -887,7 +887,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -895,7 +895,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -903,7 +903,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -911,7 +911,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -919,7 +919,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -945,7 +945,7 @@ const chat = () => {
                                 <li>
                                   <Link to="#">
                                     <span>
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/icons/play-01.svg"
                                         alt="image"
                                       />
@@ -953,7 +953,7 @@ const chat = () => {
                                   </Link>
                                 </li>
                                 <li>
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/icons/voice.svg"
                                     alt="image"
                                   />
@@ -964,7 +964,7 @@ const chat = () => {
                           </div>
                         </div>
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-10.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -973,7 +973,7 @@ const chat = () => {
                       </div>
                       <div className="chats">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1065,7 +1065,7 @@ const chat = () => {
                             <Link to="#" className="mb-1">
                               https://www.youtube.com/watch?v=GCmL3mS0Psk
                             </Link>
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/sending-img.png"
                               alt="img"
                             />
@@ -1079,7 +1079,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -1087,7 +1087,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -1095,7 +1095,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -1103,7 +1103,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -1111,7 +1111,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -1226,7 +1226,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -1234,7 +1234,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -1242,7 +1242,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -1250,7 +1250,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -1258,7 +1258,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -1288,7 +1288,7 @@ const chat = () => {
                                       data-fancybox="gallery"
                                       className="fancybox"
                                     >
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/media/media-02.jpg"
                                         alt
                                       />
@@ -1302,7 +1302,7 @@ const chat = () => {
                                       data-fancybox="gallery"
                                       className="fancybox"
                                     >
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/media/media-03.jpg"
                                         alt
                                       />
@@ -1316,7 +1316,7 @@ const chat = () => {
                                       data-fancybox="gallery"
                                       className="fancybox"
                                     >
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/media/media-01.jpg"
                                         alt
                                       />
@@ -1329,7 +1329,7 @@ const chat = () => {
                           </div>
                         </div>
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-10.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1338,7 +1338,7 @@ const chat = () => {
                       </div>
                       <div className="chats">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1427,7 +1427,7 @@ const chat = () => {
                             <p className="d-flex align-items-center">
                               Please check and review the files
                               <span className="ms-1 d-flex">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/icons/smile-chat.svg"
                                   alt="Icon"
                                 />
@@ -1459,7 +1459,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -1467,7 +1467,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -1475,7 +1475,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -1483,7 +1483,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -1491,7 +1491,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -1518,7 +1518,7 @@ const chat = () => {
                               <li className="like-chat">
                                 <Link to="#">
                                   2
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/icons/like.svg"
                                     alt="Icon"
                                   />
@@ -1527,7 +1527,7 @@ const chat = () => {
                               <li className="comment-chat">
                                 <Link to="#">
                                   2
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/icons/heart.svg"
                                     alt="Icon"
                                   />
@@ -1539,7 +1539,7 @@ const chat = () => {
                       </div>
                       <div className="chats">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1636,7 +1636,7 @@ const chat = () => {
                                     <ul>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-01.svg"
                                             alt="Icon"
                                           />
@@ -1644,7 +1644,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-02.svg"
                                             alt="Icon"
                                           />
@@ -1652,7 +1652,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-03.svg"
                                             alt="Icon"
                                           />
@@ -1660,7 +1660,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-04.svg"
                                             alt="Icon"
                                           />
@@ -1668,7 +1668,7 @@ const chat = () => {
                                       </li>
                                       <li>
                                         <Link to="#">
-                                          <ImageWithBasePath
+                                          <Image
                                             src="assets/img/icons/emoj-icon-05.svg"
                                             alt="Icon"
                                           />
@@ -1694,7 +1694,7 @@ const chat = () => {
                       </div>
                       <div className="chats">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1708,7 +1708,7 @@ const chat = () => {
                       </div>
                       <div className="chats forward-chat-msg">
                         <div className="chat-avatar">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             className="rounded-circle dreams_chat"
                             alt="image"
@@ -1863,7 +1863,7 @@ const chat = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/emoj-icon-01.svg"
                               alt="Icon"
                             />
@@ -1871,7 +1871,7 @@ const chat = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/emoj-icon-02.svg"
                               alt="Icon"
                             />
@@ -1879,7 +1879,7 @@ const chat = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/emoj-icon-03.svg"
                               alt="Icon"
                             />
@@ -1887,7 +1887,7 @@ const chat = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/emoj-icon-04.svg"
                               alt="Icon"
                             />
@@ -1895,7 +1895,7 @@ const chat = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/emoj-icon-05.svg"
                               alt="Icon"
                             />
@@ -1961,7 +1961,7 @@ const chat = () => {
                       <div className="mt-0 right_sidebar_logo">
                         <div className="text-center right-sidebar-profile">
                           <figure className="avatar avatar-xl mb-3">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/avatar/avatar-2.jpg"
                               className="rounded-circle"
                               alt="image"
@@ -2079,7 +2079,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-01.jpg"
                                     alt
                                   />
@@ -2091,7 +2091,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-02.jpg"
                                     alt
                                   />
@@ -2103,7 +2103,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-03.jpg"
                                     alt
                                   />
@@ -2115,7 +2115,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-04.jpg"
                                     alt
                                   />
@@ -2127,7 +2127,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-05.jpg"
                                     alt
                                   />
@@ -2139,7 +2139,7 @@ const chat = () => {
                                   data-fancybox="gallery"
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-02.jpg"
                                     alt
                                   />
@@ -2156,7 +2156,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-01.jpg"
                                     alt="img"
                                   />
@@ -2171,7 +2171,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-02.jpg"
                                     alt="img"
                                   />
@@ -2186,7 +2186,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-03.jpg"
                                     alt="img"
                                   />
@@ -2201,7 +2201,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-04.jpg"
                                     alt="img"
                                   />
@@ -2216,7 +2216,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-05.jpg"
                                     alt="img"
                                   />
@@ -2231,7 +2231,7 @@ const chat = () => {
                                   data-fancybox
                                   className="fancybox"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-03.jpg"
                                     alt="img"
                                   />
@@ -2303,7 +2303,7 @@ const chat = () => {
                             <div className="media-link-grp">
                               <div className="link-img">
                                 <Link to="#">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-link-01.jpg"
                                     alt="Img"
                                   />
@@ -2323,7 +2323,7 @@ const chat = () => {
                             <div className="media-link-grp mb-0">
                               <div className="link-img">
                                 <Link to="#">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/media/media-link-02.jpg"
                                     alt="Img"
                                   />
@@ -2662,7 +2662,7 @@ const chat = () => {
                                     placeholder="Scan/Search Product by code and select..."
                                   />
                                   <div className="addonset">
-                                    <ImageWithBasePath
+                                    <Image
                                       src="assets/img/icons/scanners.svg"
                                       alt="img"
                                     />
@@ -2701,7 +2701,7 @@ const chat = () => {
                                               to="#"
                                               className="product-img stock-img"
                                             >
-                                              <ImageWithBasePath
+                                              <Image
                                                 src="assets/img/products/stock-img-02.png"
                                                 alt="product"
                                               />
@@ -2739,7 +2739,7 @@ const chat = () => {
                                         <td className="text-end">1500</td>
                                         <td>
                                           <Link className="delete-set">
-                                            <ImageWithBasePath
+                                            <Image
                                               src="assets/img/icons/delete.svg"
                                               alt="svg"
                                             />
@@ -2908,7 +2908,7 @@ const chat = () => {
                             <div className="image-upload download">
                               <input type="file" />
                               <div className="image-uploads">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/download-img.png"
                                   alt="img"
                                 />

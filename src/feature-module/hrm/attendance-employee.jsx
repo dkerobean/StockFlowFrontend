@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { ChevronUp, Layout, RotateCcw, Sliders, StopCircle } from 'feather-icons-react/build/IconComponents';
@@ -152,7 +152,7 @@ const AttendanceEmployee = () => {
                 <div className="content">
                     <div className="attendance-header">
                         <div className="attendance-content">
-                            <ImageWithBasePath
+                            <Image
                                 src="./assets/img/icons/hand01.svg"
                                 className="hand-img"
                                 alt="img"
@@ -198,7 +198,7 @@ const AttendanceEmployee = () => {
                                         </h5>
                                         <div className="card attendance">
                                             <div>
-                                                <ImageWithBasePath src="./assets/img/icons/time-big.svg" alt="time-img" />
+                                                <Image src="./assets/img/icons/time-big.svg" alt="time-img" />
                                             </div>
                                             <div>
                                                 <h2>05:45:22</h2>
@@ -276,14 +276,14 @@ const AttendanceEmployee = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -321,7 +321,7 @@ const AttendanceEmployee = () => {
                                             <Filter className="filter-icon" onClick={toggleFilterVisibility}
                                             />
                                             <span>
-                                                <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                <Image src="assets/img/icons/closes.svg" alt="img" />
                                             </span>
                                         </Link>
                                         <div className={`layout-hide-box ${isLayoutVisible ? 'layout-show-box' : 'layout-hide-box'}`}>

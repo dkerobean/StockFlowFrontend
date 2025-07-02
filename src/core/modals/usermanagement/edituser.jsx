@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
-import ImageWithBasePath from '../../img/imagewithbasebath';
+import Image from '../../img/image';
 
 const EditUser = () => {
     const status = [
@@ -49,7 +49,7 @@ const EditUser = () => {
                                                     <div className="profile-pic-upload edit-pic">
                                                         <div className="profile-pic">
                                                             <span>
-                                                                <ImageWithBasePath
+                                                                <Image
                                                                     src="assets/img/users/edit-user.jpg"
                                                                     className="user-editer"
                                                                     alt="User"

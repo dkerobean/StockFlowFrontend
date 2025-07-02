@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 import { Link } from 'react-router-dom'
 
 const QRcodeModelPopup = () => {
@@ -44,7 +44,7 @@ const QRcodeModelPopup = () => {
                                             <div className="col-sm-4">
                                                 <div className="barcode-scanner-link text-center">
                                                     <div className="barscaner-img">
-                                                        <ImageWithBasePath
+                                                        <Image
                                                             src="./assets/img/barcode/qr-code.png"
                                                             alt="Barcode"
                                                             className="img-fluid"

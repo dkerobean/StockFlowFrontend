@@ -14,7 +14,7 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { setToogleHeader } from "../../../core/redux/action";
 import { useDispatch, useSelector } from "react-redux";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import Select from "react-select";
 import BankSettingList from "../../../core/modals/settings/banksettinglist";
 import EditBankSettingList from "../../../core/modals/settings/editbanksettinglist";
@@ -191,7 +191,7 @@ const BankSetting = () => {
                                     onClick={toggleFilterVisibility}
                                   />
                                   <span onClick={toggleFilterVisibility}>
-                                    <ImageWithBasePath
+                                    <Image
                                       src="assets/img/icons/closes.svg"
                                       alt="img"
                                     />

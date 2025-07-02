@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { ChevronUp, Filter, PlusCircle, RotateCcw, Sliders, StopCircle, Zap } from 'feather-icons-react/build/IconComponents';
 import Layout from 'feather-icons-react/build/IconComponents/Layout';
 import Select from 'react-select';
@@ -182,14 +182,14 @@ const Shift = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -259,7 +259,7 @@ const Shift = () => {
                                                 onClick={toggleFilterVisibility}
                                             />
                                             <span onClick={toggleFilterVisibility}>
-                                                <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                <Image src="assets/img/icons/closes.svg" alt="img" />
                                             </span>
                                         </Link>
                                         <div className={`layout-hide-box ${isLayoutVisible ? 'layout-show-box' : 'layout-hide-box'}`}>

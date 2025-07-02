@@ -2,7 +2,7 @@ import { Download, Printer } from 'feather-icons-react/build/IconComponents'
 import React from 'react'
 import { Mail } from 'react-feather'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 
 const Payslip = () => {
     return (
@@ -48,7 +48,7 @@ const Payslip = () => {
                                                 <div className="card-body border-0">
                                                     <div className="payslip-month d-flex">
                                                         <div className="slip-logo">
-                                                            <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                            <Image src="assets/img/logo-small.png" alt="Logo" />
                                                         </div>
                                                         <div className="month-of-slip">
                                                             <h4>Payslip for the Month of Sep 2023</h4>

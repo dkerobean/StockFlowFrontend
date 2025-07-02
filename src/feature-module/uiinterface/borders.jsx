@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 
 const Borders = () => {
     return (
@@ -145,37 +145,37 @@ const Borders = () => {
                                     <h5 className="card-title">Border Radius</h5>
                                 </div>
                                 <div className="card-body">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-1.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img rounded me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-2.jpg"
                                         className="avatar-xxl avatar  d-placeholder-img rounded-top me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-3.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img rounded-end me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-7.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img rounded-bottom me-2"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-4.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img rounded-start"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-5.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img rounded-circle"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-6.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img  rounded-pill"
                                         alt="img"
@@ -191,32 +191,32 @@ const Borders = () => {
                                     <h5 className="card-title">Sizes</h5>
                                 </div>
                                 <div className="card-body">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-1.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-0 me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-2.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-1 me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-3.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-2 me-1"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-4.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-3 me-2"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-5.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-4"
                                         alt="img"
                                     />
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/avatar/avatar-6.jpg"
                                         className="avatar-xxl avatar bd-placeholder-img bd-placeholder-img rounded-5"
                                         alt="img"

@@ -2,7 +2,7 @@ import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { ChevronUp, RotateCcw } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
 import { Sliders } from 'react-feather';
@@ -54,7 +54,7 @@ const DeleteAccount = () => {
             render: (text, record) => (
                 <span className="userimgname">
                     <Link to="/profile">
-                        <ImageWithBasePath alt="" src={record.img} className='product-img' />
+                        <Image alt="" src={record.img} className='product-img' />
                     </Link>
                     <Link to="/profile">{text}</Link>
                 </span>
@@ -133,14 +133,14 @@ const DeleteAccount = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>

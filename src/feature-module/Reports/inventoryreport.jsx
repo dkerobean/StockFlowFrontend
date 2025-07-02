@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, Box, Zap } from "react-feather";
 import Select from "react-select";
@@ -63,7 +63,7 @@ const InventoryReport = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />
@@ -145,7 +145,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-01.png"
                             alt="product"
                           />
@@ -169,7 +169,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-06.png"
                             alt="product"
                           />
@@ -193,7 +193,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-02.png"
                             alt="product"
                           />
@@ -217,7 +217,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-03.png"
                             alt="product"
                           />
@@ -241,7 +241,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-04.png"
                             alt="product"
                           />
@@ -265,7 +265,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/stock-img-05.png"
                             alt="product"
                           />
@@ -289,7 +289,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/expire-product-01.png"
                             alt="product"
                           />
@@ -313,7 +313,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/expire-product-02.png"
                             alt="product"
                           />
@@ -337,7 +337,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/expire-product-03.png"
                             alt="product"
                           />
@@ -361,7 +361,7 @@ const InventoryReport = () => {
                     <td className="productimgname">
                       <div className="view-product me-2">
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/products/expire-product-04.png"
                             alt="product"
                           />

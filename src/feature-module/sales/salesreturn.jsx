@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ChevronUp, PlusCircle, RotateCcw, Sliders, StopCircle, User } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
@@ -77,7 +77,7 @@ const SalesReturn = () => {
       render: (text, record) => (
         <div className="productimgname">
           <Link to="#" className="product-img" />
-          <ImageWithBasePath alt="img" src={record.img} />
+          <Image alt="img" src={record.img} />
           <Link to="#" className='ms-2'>{text}</Link>
 
         </div>
@@ -207,14 +207,14 @@ const SalesReturn = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                    <Image src="assets/img/icons/pdf.svg" alt="img" />
                   </Link>
                 </OverlayTrigger>
               </li>
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                    <Image src="assets/img/icons/excel.svg" alt="img" />
                   </Link>
                 </OverlayTrigger>
               </li>
@@ -284,7 +284,7 @@ const SalesReturn = () => {
                       onClick={toggleFilterVisibility}
                     />
                     <span onClick={toggleFilterVisibility}>
-                      <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                      <Image src="assets/img/icons/closes.svg" alt="img" />
                     </span>
                   </Link>
                 </div>

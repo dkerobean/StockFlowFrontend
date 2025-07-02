@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Sliders, Filter } from "react-feather";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Breadcrumbs from "../../core/breadcrumbs";
 import { all_routes } from "../../Router/all_routes";
 import axios from "axios";

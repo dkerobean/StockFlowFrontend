@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import { Link } from "react-router-dom";
 import axios from 'axios';
 import { toast } from 'react-toastify';

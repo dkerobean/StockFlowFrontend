@@ -8,7 +8,7 @@ import {
   RotateCcw,
 } from "feather-icons-react/build/IconComponents";
 import { useDispatch, useSelector } from "react-redux";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import Select from "react-select";
 import { Filter } from "react-feather";
 import withReactContent from "sweetalert2-react-content";
@@ -134,7 +134,7 @@ const LanguageSettings = () => {
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
                           >
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/pdf.svg"
                               alt="img"
                             />
@@ -150,7 +150,7 @@ const LanguageSettings = () => {
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
                           >
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/excel.svg"
                               alt="img"
                             />
@@ -241,7 +241,7 @@ const LanguageSettings = () => {
                                   </td>
                                   <td>
                                     <div className="language-name d-flex align-items-center">
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/icons/flag-01.svg"
                                         className="me-2"
                                         alt=""
@@ -340,7 +340,7 @@ const LanguageSettings = () => {
                                   </td>
                                   <td>
                                     <div className="language-name d-flex align-items-center">
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/icons/flag-02.svg"
                                         className="me-2"
                                         alt=""
@@ -436,7 +436,7 @@ const LanguageSettings = () => {
                                   </td>
                                   <td>
                                     <div className="language-name d-flex align-items-center">
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/icons/flag-03.svg"
                                         className="me-2"
                                         alt=""
@@ -535,7 +535,7 @@ const LanguageSettings = () => {
                                   </td>
                                   <td>
                                     <div className="language-name d-flex align-items-center">
-                                      <ImageWithBasePath
+                                      <Image
                                         src="assets/img/icons/flag-04.svg"
                                         className="me-2"
                                         alt=""

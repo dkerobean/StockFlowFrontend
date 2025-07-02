@@ -14,7 +14,7 @@ import {
   sun_icon,
 } from "../../EntryFile/imagePath";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 
 const RightSideBar = () => {
   const [active, setActive] = useState(false);
@@ -48,7 +48,7 @@ const RightSideBar = () => {
               data-bs-original-title="Tooltip on left"
               onClick={() => setPreview(true)}
             >
-              <ImageWithBasePath
+              <Image
                 src={sidebar_icon_01}
                 className="feather-five"
                 alt=""
@@ -65,7 +65,7 @@ const RightSideBar = () => {
               data-bs-original-title="Tooltip on left"
               onClick={() => setPreview1(true)}
             >
-              <ImageWithBasePath
+              <Image
                 src={sidebar_icon_02}
                 className="feather-five"
                 alt=""
@@ -81,7 +81,7 @@ const RightSideBar = () => {
               data-bs-placement="left"
               data-bs-original-title="Tooltip on left"
             >
-              <ImageWithBasePath
+              <Image
                 src={sidebar_icon_03}
                 className="feather-five"
                 alt=""
@@ -106,7 +106,7 @@ const RightSideBar = () => {
               to="#"
               onClick={() => setPreview(false)}
             >
-              <ImageWithBasePath src={close_icon} alt="" />
+              <Image src={close_icon} alt="" />
             </Link>
           </div>
 
@@ -119,7 +119,7 @@ const RightSideBar = () => {
                   onClick={Lights}
                 >
                   {" "}
-                  <ImageWithBasePath
+                  <Image
                     src={sun_icon}
                     className="me-2"
                     alt=""
@@ -156,7 +156,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_ltr}
                       alt="layout"
@@ -183,7 +183,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_rtl}
                       alt="layout"
@@ -216,7 +216,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_04}
                       alt="layout"
@@ -247,7 +247,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_01}
                       alt="layout"
@@ -275,7 +275,7 @@ const RightSideBar = () => {
               to="#"
               onClick={() => setPreview1(false)}
             >
-              <ImageWithBasePath src={close_icon} alt="" />
+              <Image src={close_icon} alt="" />
             </Link>
           </div>
 
@@ -301,7 +301,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_03}
                       alt="layout"
@@ -329,7 +329,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_01}
                       alt="layout"
@@ -360,7 +360,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_01}
                       alt="layout"
@@ -391,7 +391,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_04}
                       alt="layout"
@@ -419,7 +419,7 @@ const RightSideBar = () => {
                   </div>
 
                   <div className="layout-img">
-                    <ImageWithBasePath
+                    <Image
                       className="img-fliud"
                       src={layout_03}
                       alt="layout"

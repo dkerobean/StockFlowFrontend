@@ -3,7 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import SettingsSideBar from '../settingssidebar'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 
 const InvoiceSettings = () => {
 
@@ -88,7 +88,7 @@ const InvoiceSettings = () => {
                                                         <div className="col-md-2">
                                                             <div className="new-logo ms-auto">
                                                                 <a to="#">
-                                                                    <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                                    <Image src="assets/img/logo-small.png" alt="Logo" />
                                                                 </a>
                                                             </div>
                                                         </div>

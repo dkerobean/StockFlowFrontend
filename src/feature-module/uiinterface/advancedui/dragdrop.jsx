@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import dragula from "dragula";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 
 const DragDrop = () => {
   const leftContainerRef = useRef(null);
@@ -69,7 +69,7 @@ const DragDrop = () => {
               </div>
             </div>
             <div className="card custom-card overlay-card text-fixed-white">
-              <ImageWithBasePath
+              <Image
                 src="assets/img/media/media-35.jpg"
                 className="card-img"
                 alt="..."
@@ -95,7 +95,7 @@ const DragDrop = () => {
                 <div className="d-flex align-items-center">
                   <div className="me-3">
                     <span className="avatar avatar-md">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/avatar/avatar-1.jpg"
                         alt="img"
                       />
@@ -118,7 +118,7 @@ const DragDrop = () => {
                 <div className="d-flex align-items-center">
                   <div className="me-3">
                     <span className="avatar avatar-xl">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/avatar/avatar-10.jpg"
                         alt="img"
                       />
@@ -145,7 +145,7 @@ const DragDrop = () => {
             ref={rightContainerRef}
           >
             <div className="card custom-card overlay-card">
-              <ImageWithBasePath
+              <Image
                 src="assets/img/media/media-36.jpg"
                 className="card-img"
                 alt="..."
@@ -171,7 +171,7 @@ const DragDrop = () => {
                 <div className="d-flex align-items-center w-100">
                   <div className="me-2">
                     <span className="avatar avatar-rounded">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/avatar/avatar-11.jpg"
                         alt="img"
                       />

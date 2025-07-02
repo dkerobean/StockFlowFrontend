@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 
 const Images = () => {
   return (
@@ -26,7 +26,7 @@ const Images = () => {
                     </p>
                     <div className="row">
                       <div className="col-sm-3">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/img-4.jpg"
                           alt="image"
                           className="img-fluid rounded"
@@ -37,7 +37,7 @@ const Images = () => {
                         </p>
                       </div>
                       <div className="col-sm-3">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/profiles/avatar-03.jpg"
                           alt="image"
                           className="img-fluid rounded-circle"
@@ -48,7 +48,7 @@ const Images = () => {
                         </p>
                       </div>
                       <div className="col-sm-3">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/img-1.jpg"
                           alt="image"
                           className="img-fluid img-thumbnail"
@@ -59,7 +59,7 @@ const Images = () => {
                         </p>
                       </div>
                       <div className="col-sm-3">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/profiles/avatar-02.jpg"
                           alt="image"
                           className="img-thumbnail rounded-pill"
@@ -85,7 +85,7 @@ const Images = () => {
                 <div className="card-title">Image Left Align</div>
               </div>
               <div className="card-body">
-                <ImageWithBasePath
+                <Image
                   className="rounded float-start"
                   src="assets/img/img-1.jpg"
                   alt="..."
@@ -102,7 +102,7 @@ const Images = () => {
                 <div className="card-title">Image Center Align</div>
               </div>
               <div className="card-body">
-                <ImageWithBasePath
+                <Image
                   className="rounded mx-auto d-block"
                   src="assets/img/img-1.jpg"
                   alt="..."
@@ -119,7 +119,7 @@ const Images = () => {
                 <div className="card-title">Image Right Align</div>
               </div>
               <div className="card-body">
-                <ImageWithBasePath
+                <Image
                   className="rounded float-end"
                   src="assets/img/img-1.jpg"
                   alt="..."
@@ -137,7 +137,7 @@ const Images = () => {
               </div>
               <div className="card-body d-flex justify-content-between gap-2">
                 <figure className="figure">
-                  <ImageWithBasePath
+                  <Image
                     className="bd-placeholder-img figure-img img-fluid rounded card-img"
                     src="assets/img/img-1.jpg"
                     alt="..."
@@ -147,7 +147,7 @@ const Images = () => {
                   </figcaption>
                 </figure>
                 <figure className="figure float-end">
-                  <ImageWithBasePath
+                  <Image
                     className="bd-placeholder-img figure-img img-fluid rounded card-img"
                     src="assets/img/img-1.jpg"
                     alt="..."

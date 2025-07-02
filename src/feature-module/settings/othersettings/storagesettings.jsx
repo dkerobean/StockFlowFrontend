@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import { ChevronUp, RotateCcw, Settings } from 'feather-icons-react/build/IconComponents'
 import Mail from 'feather-icons-react/build/IconComponents/Mail'
 import AwsSettings from '../../../core/modals/settings/awssettings'
@@ -79,7 +79,7 @@ const StorageSettings = () => {
                                                 <ul className="w-100 d-flex justify-content-between align-items-center">
                                                     <li className="storage-icon mb-0">
                                                         <span className="system-app-icon">
-                                                            <ImageWithBasePath
+                                                            <Image
                                                                 src="assets/img/icons/storage-icon-01.svg"
                                                                 alt=""
                                                             />
@@ -110,7 +110,7 @@ const StorageSettings = () => {
                                                 <ul className="w-100 d-flex justify-content-between align-items-center">
                                                     <li className="storage-icon mb-0">
                                                         <span className="system-app-icon">
-                                                            <ImageWithBasePath
+                                                            <Image
                                                                 src="assets/img/icons/storage-icon-02.svg"
                                                                 alt=""
                                                             />

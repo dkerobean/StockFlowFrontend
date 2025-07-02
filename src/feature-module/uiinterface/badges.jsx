@@ -1,7 +1,7 @@
 import { AlertOctagon, Check, Info, X } from 'feather-icons-react/build/IconComponents'
 import React from 'react'
 import { Plus } from 'react-feather'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 
 const Badges = () => {
   return (
@@ -201,19 +201,19 @@ const Badges = () => {
                     </span>
                   </button>
                   <span className="avatar">
-                    <ImageWithBasePath src="assets/img/profiles/avator1.jpg" alt="img" />
+                    <Image src="assets/img/profiles/avator1.jpg" alt="img" />
                     <span className="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
                       <span className="visually-hidden">New alerts</span>
                     </span>
                   </span>
                   <span className="avatar avatar-rounded">
-                    <ImageWithBasePath src="assets/img/profiles/avator1.jpg" alt="img" />
+                    <Image src="assets/img/profiles/avator1.jpg" alt="img" />
                     <span className="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light              rounded-circle">
                       <span className="visually-hidden">New alerts</span>
                     </span>
                   </span>
                   <span className="avatar avatar-rounded">
-                    <ImageWithBasePath src="assets/img/profiles/avator1.jpg" alt="img" />
+                    <Image src="assets/img/profiles/avator1.jpg" alt="img" />
                     <span className="position-absolute top-0 start-100 translate-middle badge bg-secondary rounded-pill shadow-lg">
                       1000+
                       <span className="visually-hidden">New alerts</span>

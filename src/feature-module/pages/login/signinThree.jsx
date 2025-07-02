@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -12,9 +12,9 @@ const SigninThree = () => {
           <div className="container">
             <div className="login-content user-login">
               <div className="login-logo">
-                <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                <Image src="assets/img/logo.png" alt="img" />
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <ImageWithBasePath src="assets/img/logo-white.png" alt />
+                  <Image src="assets/img/logo-white.png" alt />
                 </Link>
               </div>
               <form>
@@ -29,7 +29,7 @@ const SigninThree = () => {
                     <label className="form-label">Email Address</label>
                     <div className="form-addons">
                       <input type="text" className="form-control" />
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/mail.svg"
                         alt="img"
                       />
@@ -84,7 +84,7 @@ const SigninThree = () => {
                     <ul className="d-flex">
                       <li>
                         <Link to="#" className="facebook-logo">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/facebook-logo.svg"
                             alt="Facebook"
                           />
@@ -92,7 +92,7 @@ const SigninThree = () => {
                       </li>
                       <li>
                         <Link to="#">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/google.png"
                             alt="Google"
                           />
@@ -100,7 +100,7 @@ const SigninThree = () => {
                       </li>
                       <li>
                         <Link to="#" className="apple-logo">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/apple-logo.svg"
                             alt="Apple"
                           />

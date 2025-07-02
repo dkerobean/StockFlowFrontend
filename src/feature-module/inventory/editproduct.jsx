@@ -19,7 +19,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setToogleHeader } from "../../core/redux/action";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { all_routes } from "../../Router/all_routes";
 
 // Helper function to get Authentication Token (Keep as is)
@@ -543,7 +543,7 @@ const EditProduct = () => {
                             className="d-none" // Hide the standard file input
                         />
                         {/* Upload Icon and Text */}
-                        <ImageWithBasePath src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                        <Image src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
                         <p className="mb-0 text-muted small">
                             Drag and drop a file to upload <br/> or click here to replace the current image
                         </p>

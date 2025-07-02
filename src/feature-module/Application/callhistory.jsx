@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Select from "react-select";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Filter, Sliders, User, Phone, Eye, Trash2 } from "react-feather";
 
 import { Link } from "react-router-dom";
@@ -51,7 +51,7 @@ const Callhistory = () => {
       render: (text, record) => (
         <span className="productimgname">
           <Link to="#" className="product-img stock-img">
-            <ImageWithBasePath alt="" src={record.image_url} />
+            <Image alt="" src={record.image_url} />
           </Link>
           <Link to="#">{text}</Link>
         </span>
@@ -173,7 +173,7 @@ const Callhistory = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

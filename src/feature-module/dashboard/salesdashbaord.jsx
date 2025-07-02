@@ -11,7 +11,7 @@ import Chart from "react-apexcharts";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import "bootstrap-daterangepicker/daterangepicker.css";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { setToogleHeader } from "../../core/redux/action";
 import { useDispatch, useSelector } from "react-redux";
@@ -129,7 +129,7 @@ const SalesDashbaord = () => {
           <div className="welcome d-lg-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center welcome-text">
               <h3 className="d-flex align-items-center">
-                <ImageWithBasePath src="assets/img/icons/hi.svg" alt="img" />
+                <Image src="assets/img/icons/hi.svg" alt="img" />
                 &nbsp;Hi John Smilga,
               </h3>
               &nbsp;
@@ -189,7 +189,7 @@ const SalesDashbaord = () => {
                     increase compare to last week
                   </p>
                 </div>
-                <ImageWithBasePath
+                <Image
                   src="assets/img/icons/weekly-earning.svg"
                   alt="img"
                 />
@@ -197,7 +197,7 @@ const SalesDashbaord = () => {
             </div>
             <div className="col-xl-3 col-sm-6 col-12">
               <div className="card color-info bg-primary mb-4">
-                <ImageWithBasePath
+                <Image
                   src="assets/img/icons/total-sales.svg"
                   alt="img"
                 />
@@ -217,7 +217,7 @@ const SalesDashbaord = () => {
             </div>
             <div className="col-xl-3 col-sm-6 col-12">
               <div className="card color-info bg-secondary mb-4">
-                <ImageWithBasePath
+                <Image
                   src="assets/img/icons/purchased-earnings.svg"
                   alt="img"
                 />
@@ -260,7 +260,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-01.png"
                                   alt="product"
                                 />
@@ -285,7 +285,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-06.png"
                                   alt="product"
                                 />
@@ -308,7 +308,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-02.png"
                                   alt="product"
                                 />
@@ -331,7 +331,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-03.png"
                                   alt="product"
                                 />
@@ -356,7 +356,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-04.png"
                                   alt="product"
                                 />
@@ -414,7 +414,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-05.png"
                                   alt="product"
                                 />
@@ -447,7 +447,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-01.png"
                                   alt="product"
                                 />
@@ -482,7 +482,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-02.png"
                                   alt="product"
                                 />
@@ -517,7 +517,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-03.png"
                                   alt="product"
                                 />
@@ -552,7 +552,7 @@ const SalesDashbaord = () => {
                                 to={route.productlist}
                                 className="product-img"
                               >
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-04.png"
                                   alt="product"
                                 />

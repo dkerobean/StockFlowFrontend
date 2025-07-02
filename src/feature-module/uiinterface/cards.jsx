@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import { Link } from 'react-router-dom'
 
 const Cards = () => {
@@ -16,7 +16,7 @@ const Cards = () => {
                     <div className="row">
                         <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-6 col-sm-12">
                             <div className="card">
-                                <ImageWithBasePath src="assets/img/img-01.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-01.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <h6 className="card-title fw-semibold">Card title</h6>
                                     <p className="card-text text-muted">
@@ -77,7 +77,7 @@ const Cards = () => {
                         </div>
                         <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-6 col-sm-12">
                             <div className="card">
-                                <ImageWithBasePath src="assets/img/img-02.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-02.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <p className="card-text">
                                     &apos; can be escaped with &apos;&rsquo;&apos;
@@ -99,7 +99,7 @@ const Cards = () => {
                         </div>
                         <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-6 col-sm-12">
                             <div className="card">
-                                <ImageWithBasePath src="assets/img/img-03.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-03.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <h6 className="card-title fw-semibold">Card title</h6>
                                     <p className="card-text">
@@ -190,7 +190,7 @@ const Cards = () => {
                                 <div className="col">
                                     <div className="card">
                                         <div className="card-body">
-                                            <ImageWithBasePath
+                                            <Image
                                                 src="assets/img/img-04.jpg"
                                                 className="card-img mb-3"
                                                 alt="..."
@@ -209,7 +209,7 @@ const Cards = () => {
                                 <div className="col">
                                     <div className="card">
                                         <div className="card-body">
-                                            <ImageWithBasePath
+                                            <Image
                                                 src="assets/img/img-05.jpg"
                                                 className="card-img mb-3"
                                                 alt="..."
@@ -228,7 +228,7 @@ const Cards = () => {
                                 <div className="col">
                                     <div className="card">
                                         <div className="card-body">
-                                            <ImageWithBasePath
+                                            <Image
                                                 src="assets/img/img-02.jpg"
                                                 className="card-img mb-3"
                                                 alt="..."
@@ -258,7 +258,7 @@ const Cards = () => {
                                         <div className="card-body">
                                             <div className="mb-2">
                                                 <span className="avatar avatar-md">
-                                                    <ImageWithBasePath src="assets/img/img-01.jpg" alt="img" />
+                                                    <Image src="assets/img/img-01.jpg" alt="img" />
                                                 </span>
                                             </div>
                                             <h6 className="card-title fw-semibold">Where it come from</h6>
@@ -277,7 +277,7 @@ const Cards = () => {
                                         <div className="card-body">
                                             <div className="mb-2">
                                                 <span className="avatar avatar-md">
-                                                    <ImageWithBasePath src="assets/img/img-02.jpg" alt="img" />
+                                                    <Image src="assets/img/img-02.jpg" alt="img" />
                                                 </span>
                                             </div>
                                             <h6 className="card-title fw-semibold">Why do we use it?</h6>
@@ -296,7 +296,7 @@ const Cards = () => {
                                         <div className="card-body">
                                             <div className="mb-2">
                                                 <span className="avatar avatar-md">
-                                                    <ImageWithBasePath src="assets/img/img-03.jpg" alt="img" />
+                                                    <Image src="assets/img/img-03.jpg" alt="img" />
                                                 </span>
                                             </div>
                                             <h6 className="card-title fw-semibold">What is special?</h6>
@@ -346,7 +346,7 @@ const Cards = () => {
                             <div className="card">
                                 <div className="card-header">
                                     <div className="d-flex align-items-center w-100">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/avatar/avatar-1.jpg"
                                             alt="img"
                                             className="avatar avatar-rounded me-2"
@@ -431,7 +431,7 @@ const Cards = () => {
                                 <div className="card-footer">
                                     <div className="d-flex align-items-center">
                                         <span className="avatar avatar-sm avatar-rounded me-2">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                         </span>
                                         <div className="fw-semibold fs-14">Corey Anderson</div>
                                     </div>
@@ -447,7 +447,7 @@ const Cards = () => {
                                 </div>
                                 <div className="card-body pt-1">
                                     <span className="avatar avatar-xl avatar-rounded me-2 mb-2">
-                                        <ImageWithBasePath src="assets/img/avatar/avatar-7.jpg" alt="img" />
+                                        <Image src="assets/img/avatar/avatar-7.jpg" alt="img" />
                                     </span>
                                     <div className="fw-semibold fs-16">Sasha Max</div>
                                     <p className="mb-4 text-muted fs-11">Web Developer</p>
@@ -482,7 +482,7 @@ const Cards = () => {
                         <div className="col-xl-2">
                             <div className="card">
                                 <div className="card-body">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-1.jpg"
                                         className="card-img mb-3"
                                         alt="..."
@@ -500,7 +500,7 @@ const Cards = () => {
                         <div className="col-xl-2">
                             <div className="card">
                                 <div className="card-body">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-2.jpg"
                                         className="card-img mb-3"
                                         alt="..."
@@ -518,7 +518,7 @@ const Cards = () => {
                         <div className="col-xl-2">
                             <div className="card">
                                 <div className="card-body">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-3.jpg"
                                         className="card-img mb-3"
                                         alt="..."
@@ -565,7 +565,7 @@ const Cards = () => {
                                     <div className="d-flex w-100">
                                         <div className="me-4">
                                             <span className="avatar avatar-lg avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-3.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-3.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="d-flex align-items-center justify-content-between w-100 flex-wrap">
@@ -799,7 +799,7 @@ const Cards = () => {
                     <div className="row">
                         <div className="col-xl-4">
                             <div className="card">
-                                <ImageWithBasePath src="assets/img/img-01.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-01.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <h6 className="card-title fw-semibold">
                                         Image caps are widely used in Blog&apos;s
@@ -831,7 +831,7 @@ const Cards = () => {
                                         <small>Last updated 3 mins ago</small>
                                     </p>
                                 </div>
-                                <ImageWithBasePath
+                                <Image
                                     src="assets/img/img-02.jpg"
                                     className="card-img-bottom"
                                     alt="..."
@@ -850,7 +850,7 @@ const Cards = () => {
                                         longer.
                                     </p>
                                 </div>
-                                <ImageWithBasePath
+                                <Image
                                     src="assets/img/img-2.jpg"
                                     className="card-img rounded-0"
                                     alt="..."
@@ -876,7 +876,7 @@ const Cards = () => {
                                         longer.
                                     </p>
                                 </div>
-                                <ImageWithBasePath
+                                <Image
                                     src="assets/img/img-04.jpg"
                                     className="card-img rounded-0"
                                     alt="..."
@@ -890,7 +890,7 @@ const Cards = () => {
                         </div>
                         <div className="col-xl-4">
                             <div className="card">
-                                <ImageWithBasePath src="assets/img/img-05.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-05.jpg" className="card-img-top" alt="..." />
                                 <div className="card-header">
                                     <div className="card-title">
                                     Image caps are widely used in Blog&apos;s
@@ -929,7 +929,7 @@ const Cards = () => {
                                         <small>Last updated 3 mins ago</small>
                                     </p>
                                 </div>
-                                <ImageWithBasePath
+                                <Image
                                     src="assets/img/img-1.jpg"
                                     className="card-img-bottom"
                                     alt="..."
@@ -943,7 +943,7 @@ const Cards = () => {
                     <div className="row">
                         <div className="col-xl-4">
                             <div className="card overlay-card">
-                                <ImageWithBasePath src="assets/img/img-2.jpg" className="card-img" alt="..." />
+                                <Image src="assets/img/img-2.jpg" className="card-img" alt="..." />
                                 <div className="card-img-overlay d-flex flex-column p-0">
                                     <div className="card-header">
                                         <div className="card-title text-fixed-white">
@@ -963,7 +963,7 @@ const Cards = () => {
                         </div>
                         <div className="col-xl-4">
                             <div className="card overlay-card">
-                                <ImageWithBasePath src="assets/img/img-3.jpg" className="card-img" alt="..." />
+                                <Image src="assets/img/img-3.jpg" className="card-img" alt="..." />
                                 <div className="card-img-overlay d-flex flex-column p-0 over-content-bottom">
                                     <div className="card-body text-fixed-white">
                                         <div className="card-text text-fixed-white">
@@ -984,7 +984,7 @@ const Cards = () => {
                         </div>
                         <div className="col-xl-4">
                             <div className="card overlay-card">
-                                <ImageWithBasePath src="assets/img/img-4.jpg" className="card-img" alt="..." />
+                                <Image src="assets/img/img-4.jpg" className="card-img" alt="..." />
                                 <div className="card-img-overlay d-flex flex-column p-0">
                                     <div className="card-header">
                                         <div className="card-title text-fixed-white">
@@ -1013,7 +1013,7 @@ const Cards = () => {
                             <div className="card">
                                 <div className="row g-0">
                                     <div className="col-md-4">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-05.jpg"
                                             className="img-fluid rounded-start object-fit-cover h-100 w-100"
                                             alt="..."
@@ -1064,7 +1064,7 @@ const Cards = () => {
                                         </div>
                                     </div>
                                     <div className="col-md-4">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-01.jpg"
                                             className="img-fluid rounded-end object-fit-cover h-100 w-100"
                                             alt="..."
@@ -1097,7 +1097,7 @@ const Cards = () => {
                                         </div>
                                     </div>
                                     <div className="col-md-4">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-02.jpg"
                                             className="img-fluid rounded-end object-fit-cover h-100 w-100"
                                             alt="..."
@@ -1117,7 +1117,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1141,7 +1141,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-1.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-1.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1165,7 +1165,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-3.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-3.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1189,7 +1189,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-7.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-7.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1213,7 +1213,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-11.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-11.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1237,7 +1237,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-4.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-4.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1261,7 +1261,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-5.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-5.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1283,7 +1283,7 @@ const Cards = () => {
                                     <div className="d-flex align-items-center w-100">
                                         <div className="me-2">
                                             <span className="avatar avatar-rounded">
-                                                <ImageWithBasePath src="assets/img/avatar/avatar-6.jpg" alt="img" />
+                                                <Image src="assets/img/avatar/avatar-6.jpg" alt="img" />
                                             </span>
                                         </div>
                                         <div className="">
@@ -1317,13 +1317,13 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-1.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-1.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-3.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-3.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1340,10 +1340,10 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-4.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-4.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-5.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-5.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1360,16 +1360,16 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-6.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-6.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-7.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-7.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-8.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-8.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-9.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-9.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1387,13 +1387,13 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-10.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-10.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-11.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-11.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-12.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-12.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1412,7 +1412,7 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-13.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-13.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1431,10 +1431,10 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-14.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-14.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-15.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-15.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1451,13 +1451,13 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-16.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-16.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-17.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-17.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-18.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-18.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1472,16 +1472,16 @@ const Cards = () => {
                                     </div>
                                     <div className="avatar-list-stacked">
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-1.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-1.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-3.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-3.jpg" alt="img" />
                                         </span>
                                         <span className="avatar avatar-sm avatar-rounded">
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-4.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-4.jpg" alt="img" />
                                         </span>
                                     </div>
                                 </div>
@@ -1495,7 +1495,7 @@ const Cards = () => {
                         <div className="col-xl-12">
                             <div className="card-group">
                                 <div className="card">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-01.jpg"
                                         className="card-img-top"
                                         alt="..."
@@ -1515,7 +1515,7 @@ const Cards = () => {
                                     </div>
                                 </div>
                                 <div className="card">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-02.jpg"
                                         className="card-img-top"
                                         alt="..."
@@ -1534,7 +1534,7 @@ const Cards = () => {
                                     </div>
                                 </div>
                                 <div className="card">
-                                    <ImageWithBasePath
+                                    <Image
                                         src="assets/img/img-03.jpg"
                                         className="card-img-top"
                                         alt="..."
@@ -1561,7 +1561,7 @@ const Cards = () => {
                         <div className="col-xxl-3 col-xl-12">
                             <div className="card">
                                 <Link to="#" className="card-anchor" />
-                                <ImageWithBasePath src="assets/img/img-1.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-1.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <h6 className="card-title fw-semibold mb-0">
                                         Forests are Awesome.
@@ -1595,7 +1595,7 @@ const Cards = () => {
                                             <div className="d-flex align-items-center">
                                                 <div className="me-3">
                                                     <span className="avatar avatar-md">
-                                                        <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                                        <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                                     </span>
                                                 </div>
                                                 <div>
@@ -1615,7 +1615,7 @@ const Cards = () => {
                                             <div className="d-flex align-items-center">
                                                 <div className="me-3">
                                                     <span className="avatar avatar-xl">
-                                                        <ImageWithBasePath src="assets/img/avatar/avatar-1.jpg" alt="img" />
+                                                        <Image src="assets/img/avatar/avatar-1.jpg" alt="img" />
                                                     </span>
                                                 </div>
                                                 <div>
@@ -1660,7 +1660,7 @@ const Cards = () => {
                                                 </div>
                                             </div>
                                             <div className="col-md-4">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-5.jpg"
                                                     className="img-fluid rounded-end object-fit-cover h-100"
                                                     alt="..."
@@ -1674,7 +1674,7 @@ const Cards = () => {
                         <div className="col-xxl-3 col-xl-6">
                             <div className="card">
                                 <Link to="#" className="card-anchor" />
-                                <ImageWithBasePath src="assets/img/img-4.jpg" className="card-img-top" alt="..." />
+                                <Image src="assets/img/img-4.jpg" className="card-img-top" alt="..." />
                                 <div className="card-body">
                                     <h6 className="card-title fw-semibold">
                                         Most tropical areas are suitable
@@ -1697,7 +1697,7 @@ const Cards = () => {
                             <div className="row row-cols-1 row-cols-md-4 g-4">
                                 <div className="col">
                                     <div className="card">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-01.jpg"
                                             className="card-img-top"
                                             alt="..."
@@ -1717,7 +1717,7 @@ const Cards = () => {
                                 </div>
                                 <div className="col">
                                     <div className="card">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-02.jpg"
                                             className="card-img-top"
                                             alt="..."
@@ -1737,7 +1737,7 @@ const Cards = () => {
                                 </div>
                                 <div className="col">
                                     <div className="card">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-03.jpg"
                                             className="card-img-top"
                                             alt="..."
@@ -1757,7 +1757,7 @@ const Cards = () => {
                                 </div>
                                 <div className="col">
                                     <div className="card">
-                                        <ImageWithBasePath
+                                        <Image
                                             src="assets/img/img-04.jpg"
                                             className="card-img-top"
                                             alt="..."

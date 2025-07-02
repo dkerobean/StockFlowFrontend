@@ -3,7 +3,7 @@ import Breadcrumbs from "../../core/breadcrumbs";
 import { Eye, Sliders, Filter, Calendar, User, FileText, StopCircle } from "react-feather"; // Added StopCircle
 import { Link } from "react-router-dom";
 import Select from "react-select";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -308,7 +308,7 @@ const ExpensesList = () => {
                   >
                     <Filter className="filter-icon" />
                     <span>
-                      <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                      <Image src="assets/img/icons/closes.svg" alt="img" />
                     </span>
                   </button>
                 </div>

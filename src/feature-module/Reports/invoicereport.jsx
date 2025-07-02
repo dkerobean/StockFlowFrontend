@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, StopCircle, User, Calendar } from "react-feather";
 import Select from "react-select";
@@ -97,7 +97,7 @@ const Invoicereport = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

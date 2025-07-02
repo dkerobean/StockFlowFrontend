@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setToogleHeader } from '../../core/redux/action';
 
 // Core Components
-import ImageWithBasePath from '../../core/img/imagewithbasebath'; // Keep if used for header icons
+import Image from '../../core/img/image'; // Keep if used for header icons
 import Table from '../../core/pagination/datatable'; // Your custom Table component
 
 // Routes and Config

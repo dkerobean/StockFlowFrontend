@@ -18,7 +18,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setToogleHeader } from "../../core/redux/action";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import ImageWithBasePath from "../../core/img/imagewithbasebath"; // Used for upload icon in template
+import Image from "../../core/img/image"; // Used for upload icon in template
 import { all_routes } from "../../Router/all_routes";
 
 // Helper function to get Authentication Token
@@ -475,7 +475,7 @@ const EditProduct = () => {
                                         {/* Upload Area */}
                                         <div className="image-upload-box text-center p-4 p-lg-5 border rounded" style={{ borderStyle: 'dashed !important', cursor: 'pointer', backgroundColor: '#f8f9fa' }} onClick={() => document.getElementById('product-image-upload')?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleImageChange({ target: e.dataTransfer }); }}>
                                             <input type="file" id="product-image-upload" accept="image/*" onChange={handleImageChange} className="d-none" />
-                                            <ImageWithBasePath src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                                            <Image src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
                                             <p className="mb-0 text-muted small"> Drag & drop or click here to replace image </p>
                                         </div>
                                         {/* Preview Area */}

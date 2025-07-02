@@ -19,7 +19,7 @@ import Select from "react-select";
 import { DatePicker } from "antd";
 import withReactContent from "sweetalert2-react-content";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { setToogleHeader } from "../../core/redux/action";
 
 export const Units = () => {
@@ -184,14 +184,14 @@ const renderCollapseTooltip = (props) => (
           <li>
               <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                      <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                      <Image src="assets/img/icons/pdf.svg" alt="img" />
                   </Link>
               </OverlayTrigger>
           </li>
           <li>
               <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                      <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                      <Image src="assets/img/icons/excel.svg" alt="img" />
                   </Link>
               </OverlayTrigger>
           </li>
@@ -261,7 +261,7 @@ const renderCollapseTooltip = (props) => (
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                    <Image src="assets/img/icons/closes.svg" alt="img" />
                   </span>
                 </Link>
               </div>

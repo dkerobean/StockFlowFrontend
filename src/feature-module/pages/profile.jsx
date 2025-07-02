@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 
 const Profile = () => {
@@ -20,7 +20,7 @@ const Profile = () => {
               <div className="profile-top">
                 <div className="profile-content">
                   <div className="profile-contentimg">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/customer/customer5.jpg"
                       alt="img"
                       id="blah"
@@ -28,7 +28,7 @@ const Profile = () => {
                     <div className="profileupload">
                       <input type="file" id="imgInp" />
                      <Link to="#">
-                        <ImageWithBasePath src="assets/img/icons/edit-set.svg" alt="img" />
+                        <Image src="assets/img/icons/edit-set.svg" alt="img" />
                       </Link>
                     </div>
                   </div>

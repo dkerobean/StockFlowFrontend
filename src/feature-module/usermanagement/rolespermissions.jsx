@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { ChevronUp, RotateCcw } from "feather-icons-react/build/IconComponents";
 import { setToogleHeader } from "../../core/redux/action";
@@ -153,7 +153,7 @@ const RolesPermissions = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -163,7 +163,7 @@ const RolesPermissions = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />
@@ -238,7 +238,7 @@ const RolesPermissions = () => {
                       onClick={toggleFilterVisibility}
                     />
                     <span onClick={toggleFilterVisibility}>
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/closes.svg"
                         alt="img"
                       />

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 
 const TablesBasic = () => {
   const route = all_routes;
@@ -941,7 +941,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-10.jpg"
                                   alt="img"
                                 />
@@ -966,19 +966,19 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-8.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   alt="img"
                                 />
@@ -1008,7 +1008,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   alt="img"
                                 />
@@ -1033,13 +1033,13 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-4.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-6.jpg"
                                   alt="img"
                                 />
@@ -1069,7 +1069,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-16.jpg"
                                   alt="img"
                                 />
@@ -1094,19 +1094,19 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-1.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-11.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-15.jpg"
                                   alt="img"
                                 />
@@ -1136,7 +1136,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-13.jpg"
                                   alt="img"
                                 />
@@ -1159,13 +1159,13 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-4.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-6.jpg"
                                   alt="img"
                                 />
@@ -1221,7 +1221,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-15.jpg"
                                   alt="img"
                                 />
@@ -1251,7 +1251,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-12.jpg"
                                   alt="img"
                                 />
@@ -1281,7 +1281,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-5.jpg"
                                   alt="img"
                                 />
@@ -1311,7 +1311,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="avatar avatar-sm me-2 avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-11.jpg"
                                   alt="img"
                                 />
@@ -1370,7 +1370,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar avatar-xs me-2 online avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-3.jpg"
                                   alt="img"
                                 />
@@ -1388,19 +1388,19 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-8.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   alt="img"
                                 />
@@ -1447,7 +1447,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar avatar-xs me-2 online avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-12.jpg"
                                   alt="img"
                                 />
@@ -1465,25 +1465,25 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-1.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-5.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-11.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-15.jpg"
                                   alt="img"
                                 />
@@ -1530,7 +1530,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar avatar-xs me-2 online avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-14.jpg"
                                   alt="img"
                                 />
@@ -1548,13 +1548,13 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-6.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-16.jpg"
                                   alt="img"
                                 />
@@ -1601,7 +1601,7 @@ const TablesBasic = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar avatar-xs me-2 online avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-5.jpg"
                                   alt="img"
                                 />
@@ -1619,19 +1619,19 @@ const TablesBasic = () => {
                           <td>
                             <div className="avatar-list-stacked">
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-3.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-10.jpg"
                                   alt="img"
                                 />
                               </span>
                               <span className="avatar avatar-sm avatar-rounded">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-14.jpg"
                                   alt="img"
                                 />

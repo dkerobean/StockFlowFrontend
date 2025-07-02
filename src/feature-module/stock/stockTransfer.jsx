@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
 import { Filter, Sliders } from "react-feather";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Select from "react-select";
 import { Link } from "react-router-dom";
 import { Archive, Calendar, User, Trash2, Edit } from "react-feather";
@@ -280,7 +280,7 @@ const StockTransfer = () => {
                     onClick={() => setIsFilterVisible(!isFilterVisible)}
                   />
                   <span onClick={() => setIsFilterVisible(!isFilterVisible)}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

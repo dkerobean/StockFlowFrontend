@@ -4,7 +4,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom'
 import { setToogleHeader } from '../../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
-import ImageWithBasePath from '../../../core/img/imagewithbasebath';
+import Image from '../../../core/img/image';
 import AddPrinter from '../../../core/modals/settings/addprinter';
 import EditPrinter from '../../../core/modals/settings/editprinter';
 import withReactContent from 'sweetalert2-react-content';
@@ -140,7 +140,7 @@ const PrinterSettings = () => {
                                             <li>
                                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                                     <Link>
-                                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                                     </Link>
                                                 </OverlayTrigger>
 
@@ -149,7 +149,7 @@ const PrinterSettings = () => {
 
                                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                                     <Link>
-                                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                                     </Link>
                                                 </OverlayTrigger>
                                             </li>
@@ -202,7 +202,7 @@ const PrinterSettings = () => {
                                                                         onClick={toggleFilterVisibility}
                                                                     />
                                                                     <span onClick={toggleFilterVisibility}>
-                                                                        <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                                        <Image src="assets/img/icons/closes.svg" alt="img" />
                                                                     </span>
                                                                 </Link>
                                                                 <div className="layout-hide-box">

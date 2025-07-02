@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { Link } from 'react-router-dom';
 import { PlusCircle } from 'feather-icons-react/build/IconComponents';
 import { MinusCircle } from 'react-feather';
-import ImageWithBasePath from '../../img/imagewithbasebath';
+import Image from '../../img/image';
 
 const EditQuotation = () => {
     const customer = [
@@ -131,7 +131,7 @@ const EditQuotation = () => {
                                                                 placeholder="Please type product code and select"
                                                             />
                                                             <div className="addonset">
-                                                               <ImageWithBasePath
+                                                               <Image
                                                                     src="assets/img/icons/scanners.svg"
                                                                     alt="img"
                                                                 />
@@ -162,7 +162,7 @@ const EditQuotation = () => {
                                                                         to="#"
                                                                         className="product-img stock-img"
                                                                     >
-                                                                       <ImageWithBasePath
+                                                                       <Image
                                                                             src="assets/img/products/stock-img-02.png"
                                                                             alt="product"
                                                                         />
@@ -200,7 +200,7 @@ const EditQuotation = () => {
                                                                         to="#"
                                                                         className="product-img stock-img"
                                                                     >
-                                                                       <ImageWithBasePath
+                                                                       <Image
                                                                             src="assets/img/products/stock-img-03.png"
                                                                             alt="product"
                                                                         />
@@ -239,7 +239,7 @@ const EditQuotation = () => {
                                                                         to="#"
                                                                         className="product-img stock-img"
                                                                     >
-                                                                       <ImageWithBasePath
+                                                                       <Image
                                                                             src="assets/img/products/stock-img-05.png"
                                                                             alt="product"
                                                                         />

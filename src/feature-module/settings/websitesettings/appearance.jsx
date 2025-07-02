@@ -6,7 +6,7 @@ import Select from 'react-select';
 import { setToogleHeader } from '../../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
 import SettingsSideBar from '../settingssidebar';
-import ImageWithBasePath from '../../../core/img/imagewithbasebath';
+import Image from '../../../core/img/image';
 
 const Appearance = () => {
 
@@ -91,19 +91,19 @@ const Appearance = () => {
                                                 <div className="theme-type-images d-flex align-items-center mb-4">
                                                     <div className="theme-image">
                                                         <div className="theme-image-set">
-                                                            <ImageWithBasePath src="assets/img/theme/theme-img-08.jpg" alt="" />
+                                                            <Image src="assets/img/theme/theme-img-08.jpg" alt="" />
                                                         </div>
                                                         <span>Light</span>
                                                     </div>
                                                     <div className="theme-image">
                                                         <div className="theme-image-set">
-                                                            <ImageWithBasePath src="assets/img/theme/theme-img-09.jpg" alt="" />
+                                                            <Image src="assets/img/theme/theme-img-09.jpg" alt="" />
                                                         </div>
                                                         <span>Dark</span>
                                                     </div>
                                                     <div className="theme-image">
                                                         <div className="theme-image-set">
-                                                            <ImageWithBasePath src="assets/img/theme/theme-img-10.jpg" alt="" />
+                                                            <Image src="assets/img/theme/theme-img-10.jpg" alt="" />
                                                         </div>
                                                         <span>Automatic</span>
                                                     </div>

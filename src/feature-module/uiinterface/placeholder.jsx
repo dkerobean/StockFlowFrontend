@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 
 const Placeholder = () => {
@@ -25,7 +25,7 @@ const Placeholder = () => {
                 <div className="row">
                   <div className="col-md-6">
                     <div className="card border shadow-none">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/img-1.jpg"
                         className="card-img-top"
                         alt="..."
@@ -47,7 +47,7 @@ const Placeholder = () => {
                       className="card border shadow-none mb-0"
                       aria-hidden="true"
                     >
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/img-2.jpg"
                         className="card-img-top"
                         alt="..."

@@ -7,7 +7,7 @@ import {
 } from "feather-icons-react/build/IconComponents";
 import Chart from "react-apexcharts";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { ArrowRight } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
 import withReactContent from "sweetalert2-react-content";
@@ -116,7 +116,7 @@ const Dashboard = () => {
               <div className="dash-widget w-100">
                 <div className="dash-widgetimg">
                   <span>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/dash1.svg"
                       alt="img"
                     />
@@ -134,7 +134,7 @@ const Dashboard = () => {
               <div className="dash-widget dash1 w-100">
                 <div className="dash-widgetimg">
                   <span>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/dash2.svg"
                       alt="img"
                     />
@@ -157,7 +157,7 @@ const Dashboard = () => {
               <div className="dash-widget dash2 w-100">
                 <div className="dash-widgetimg">
                   <span>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/dash3.svg"
                       alt="img"
                     />
@@ -181,7 +181,7 @@ const Dashboard = () => {
               <div className="dash-widget dash3 w-100">
                 <div className="dash-widgetimg">
                   <span>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/dash4.svg"
                       alt="img"
                     />
@@ -229,7 +229,7 @@ const Dashboard = () => {
                   <h5>Purchase Invoice</h5>
                 </div>
                 <div className="dash-imgs">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/file-text-icon-01.svg"
                     className="img-fluid"
                     alt="icon"
@@ -340,7 +340,7 @@ const Dashboard = () => {
                               to={route.productlist}
                               className="product-img"
                             >
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/products/stock-img-01.png"
                                 alt="product"
                               />
@@ -358,7 +358,7 @@ const Dashboard = () => {
                               to={route.productlist}
                               className="product-img"
                             >
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/products/stock-img-06.png"
                                 alt="product"
                               />
@@ -374,7 +374,7 @@ const Dashboard = () => {
                               to={route.productlist}
                               className="product-img"
                             >
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/products/stock-img-02.png"
                                 alt="product"
                               />
@@ -390,7 +390,7 @@ const Dashboard = () => {
                               to={route.productlist}
                               className="product-img"
                             >
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/products/stock-img-03.png"
                                 alt="product"
                               />
@@ -441,7 +441,7 @@ const Dashboard = () => {
                       <td>
                         <div className="productimgname">
                           <Link to="#" className="product-img stock-img">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/products/expire-product-01.png"
                               alt="product"
                             />
@@ -482,7 +482,7 @@ const Dashboard = () => {
                       <td>
                         <div className="productimgname">
                           <Link to="#" className="product-img stock-img">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/products/expire-product-02.png"
                               alt="product"
                             />
@@ -523,7 +523,7 @@ const Dashboard = () => {
                       <td>
                         <div className="productimgname">
                           <Link to="#" className="product-img stock-img">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/products/expire-product-03.png"
                               alt="product"
                             />
@@ -564,7 +564,7 @@ const Dashboard = () => {
                       <td>
                         <div className="productimgname">
                           <Link to="#" className="product-img stock-img">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/products/expire-product-04.png"
                               alt="product"
                             />
@@ -605,7 +605,7 @@ const Dashboard = () => {
                       <td>
                         <div className="productimgname">
                           <Link to="#" className="product-img stock-img">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/products/stock-img-03.png"
                               alt="product"
                             />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom/dist";
 import {
@@ -89,7 +89,7 @@ const DepartmentList = () => {
       render: (text, record) => (
         <span className="userimgname">
           <Link to="/profile">
-            <ImageWithBasePath
+            <Image
               alt=""
               src={record.img}
               className="product-img"
@@ -107,17 +107,17 @@ const DepartmentList = () => {
         <ul className="team-members">
           <li>
             <Link to="#" title="John Doe" className="team-members">
-              <ImageWithBasePath alt="" src="assets/img/users/user-01.jpg" />
+              <Image alt="" src="assets/img/users/user-01.jpg" />
             </Link>
           </li>
           <li>
             <Link to="#" title="Richard Miles">
-              <ImageWithBasePath alt="" src="assets/img/users/user-02.jpg" />
+              <Image alt="" src="assets/img/users/user-02.jpg" />
             </Link>
           </li>
           <li>
             <Link to="#" title="Richard Miles">
-              <ImageWithBasePath alt="" src="assets/img/users/user-03.jpg" />
+              <Image alt="" src="assets/img/users/user-03.jpg" />
             </Link>
           </li>
           <li className="dropdown avatar-dropdown">
@@ -228,7 +228,7 @@ const DepartmentList = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -238,7 +238,7 @@ const DepartmentList = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />
@@ -309,7 +309,7 @@ const DepartmentList = () => {
                         onClick={toggleFilterVisibility}
                       />
                       <span>
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/closes.svg"
                           alt="img"
                         />

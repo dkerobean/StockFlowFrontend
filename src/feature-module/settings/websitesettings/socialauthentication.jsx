@@ -1,7 +1,7 @@
 import { ChevronUp, RotateCcw, Tool } from 'feather-icons-react/build/IconComponents'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { setToogleHeader } from '../../../core/redux/action'
 import { useDispatch, useSelector } from 'react-redux'
@@ -76,7 +76,7 @@ const SocialAuthentication = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath src="assets/img/icons/fb-icon.svg" alt="" />
+                                                                    <Image src="assets/img/icons/fb-icon.svg" alt="" />
                                                                 </span>
                                                                 <div className="security-title">
                                                                     <h5>Facebook</h5>
@@ -123,7 +123,7 @@ const SocialAuthentication = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/twitter-icon.svg"
                                                                         alt=""
                                                                     />
@@ -174,7 +174,7 @@ const SocialAuthentication = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/google-icon.svg"
                                                                         alt=""
                                                                     />
@@ -225,7 +225,7 @@ const SocialAuthentication = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/linkedin-icon.svg"
                                                                         alt=""
                                                                     />

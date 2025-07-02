@@ -3,7 +3,7 @@ import "boxicons/css/boxicons.css";
 import "boxicons/css/boxicons.min.css";
 import { Plus, X, Phone, RotateCcw, ChevronUp } from "react-feather";
 import Scrollbars from "react-custom-scrollbars-2";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -122,7 +122,7 @@ const Videocall = () => {
                     {/* Horizontal View */}
                     <div className="join-contents horizontal-view fade-whiteboard">
                       <div className="join-video user-active">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/join-call.jpg"
                           className="img-fluid"
                           alt="Logo"
@@ -166,7 +166,7 @@ const Videocall = () => {
                       </div>
                       <div className="owl-carousel video-slide owl-theme d-flex">
                         <div className="join-video single-user">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-01.jpg"
                             className="img-fluid"
                             alt="Logo"
@@ -181,7 +181,7 @@ const Videocall = () => {
                           </div>
                         </div>
                         <div className="join-video single-user">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-02.jpg"
                             className="img-fluid"
                             alt="Logo"
@@ -196,7 +196,7 @@ const Videocall = () => {
                           </div>
                         </div>
                         <div className="join-video single-user">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-05.jpg"
                             className="img-fluid"
                             alt="Logo"
@@ -211,7 +211,7 @@ const Videocall = () => {
                           </div>
                         </div>
                         <div className="join-video single-user">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-03.jpg"
                             className="img-fluid"
                             alt="Logo"
@@ -259,7 +259,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-02.jpg"
                                     alt="image"
                                   />
@@ -286,7 +286,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-03.jpg"
                                     alt="image"
                                   />
@@ -313,7 +313,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-04.jpg"
                                     alt="image"
                                   />
@@ -340,7 +340,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-05.jpg"
                                     alt="image"
                                   />
@@ -367,7 +367,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-06.jpg"
                                     alt="image"
                                   />
@@ -394,7 +394,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-08.jpg"
                                     alt="image"
                                   />
@@ -421,7 +421,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-09.jpg"
                                     alt="image"
                                   />
@@ -448,7 +448,7 @@ const Videocall = () => {
                             <li>
                               <div className="user-list-item mb-0">
                                 <div className="avatar ">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/users/user-10.jpg"
                                     alt="image"
                                   />
@@ -507,7 +507,7 @@ const Videocall = () => {
                           <div className="chat-msg-blk ">
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className="dreams_chat"
                                   alt="image"
@@ -537,7 +537,7 @@ const Videocall = () => {
                                 </div>
                               </div>
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-02.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -546,7 +546,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -563,7 +563,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -580,7 +580,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -600,7 +600,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -617,7 +617,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -647,7 +647,7 @@ const Videocall = () => {
                                 </div>
                               </div>
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-02.jpg"
                                   className="dreams_chat"
                                   alt="image"
@@ -656,7 +656,7 @@ const Videocall = () => {
                             </div>
                             <div className="chats mb-0">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"

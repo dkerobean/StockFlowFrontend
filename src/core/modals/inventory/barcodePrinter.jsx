@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 import { Link } from 'react-router-dom'
 
 const BarcodePrinter = () => {
@@ -46,7 +46,7 @@ const BarcodePrinter = () => {
                         <p>Nike Jordan</p>
                         <p>Price: $400</p>
                         <div className="barscaner-img">
-                          <ImageWithBasePath
+                          <Image
                             src="./assets/img/barcode/barcode-01.png"
                             alt="Barcode"
                             className="img-fluid"
@@ -65,7 +65,7 @@ const BarcodePrinter = () => {
                         <p>Apple Series 5 Watch</p>
                         <p>Price: $300</p>
                         <div className="barscaner-img">
-                          <ImageWithBasePath
+                          <Image
                             src="./assets/img/barcode/barcode-02.png"
                             alt="Barcode"
                             className="img-fluid"
@@ -79,7 +79,7 @@ const BarcodePrinter = () => {
                         <p>Apple Series 5 Watch</p>
                         <p>Price: $300</p>
                         <div className="barscaner-img">
-                          <ImageWithBasePath
+                          <Image
                             src="./assets/img/barcode/barcode-02.png"
                             alt="Barcode"
                             className="img-fluid"
@@ -93,7 +93,7 @@ const BarcodePrinter = () => {
                         <p>Apple Series 5 Watch</p>
                         <p>Price: $300</p>
                         <div className="barscaner-img">
-                          <ImageWithBasePath
+                          <Image
                             src="./assets/img/barcode/barcode-02.png"
                             alt="Barcode"
                             className="img-fluid"

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 
 const Avatar = () => {
     return (
@@ -19,13 +19,13 @@ const Avatar = () => {
                             </div>
                             <div className="card-body d-flex flex-wrap gap-2">
                                 <span className="avatar avatar-xl me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xl me-2 avatar-radius-0">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xl me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xl bg-primary avatar-rounded">
                                     <span className="avatar-title">SR</span>
@@ -46,25 +46,25 @@ const Avatar = () => {
                             </div>
                             <div className="card-body">
                                 <span className="avatar avatar-xs me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-sm me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-md me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-lg me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xl me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xxl me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xxxl me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                 </span>
                             </div>
                         </div>
@@ -76,22 +76,22 @@ const Avatar = () => {
                             </div>
                             <div className="card-body">
                                 <span className="avatar avatar-xs me-2 online avatar-rounded me-2">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-sm online me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-md me-2 online avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-lg me-2 online avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xl me-2 online avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                                 <span className="avatar avatar-xxl me-2 online avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-03.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-03.jpg" alt="img" />
                                 </span>
                             </div>
                         </div>
@@ -103,35 +103,35 @@ const Avatar = () => {
                             </div>
                             <div className="card-body">
                                 <span className="avatar avatar-xs me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-primary avatar-badge">
                                         2
                                     </span>
                                 </span>
                                 <span className="avatar avatar-sm me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-secondary avatar-badge">
                                         5
                                     </span>
                                 </span>
                                 <span className="avatar avatar-md me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-warning avatar-badge">
                                         1
                                     </span>
                                 </span>
                                 <span className="avatar avatar-lg me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-info avatar-badge">7</span>
                                 </span>
                                 <span className="avatar avatar-xl me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-success avatar-badge">
                                         3
                                     </span>
                                 </span>
                                 <span className="avatar avatar-xxl me-2 avatar-rounded">
-                                    <ImageWithBasePath src="assets/img/profiles/avatar-02.jpg" alt="img" />
+                                    <Image src="assets/img/profiles/avatar-02.jpg" alt="img" />
                                     <span className="badge rounded-pill bg-danger avatar-badge">
                                         9
                                     </span>
@@ -195,13 +195,13 @@ const Avatar = () => {
                             <div className="card-body">
                                 <div className="avatar-list-stacked avatar-group-lg mb-4">
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary text-fixed-white"
@@ -212,13 +212,13 @@ const Avatar = () => {
                                 </div>
                                 <div className="avatar-list-stacked mb-4">
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary text-fixed-white"
@@ -229,13 +229,13 @@ const Avatar = () => {
                                 </div>
                                 <div className="avatar-list-stacked avatar-group-sm">
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <span className="avatar">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-04.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-04.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary text-fixed-white"
@@ -255,21 +255,21 @@ const Avatar = () => {
                             <div className="card-body">
                                 <div className="avatar-list-stacked avatar-group-lg mb-4">
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-05.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-05.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary avatar-rounded text-fixed-white"
@@ -280,21 +280,21 @@ const Avatar = () => {
                                 </div>
                                 <div className="avatar-list-stacked mb-4">
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-05.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-05.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary avatar-rounded text-fixed-white"
@@ -305,21 +305,21 @@ const Avatar = () => {
                                 </div>
                                 <div className="avatar-list-stacked avatar-group-sm">
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath
+                                        <Image
                                             className="border border-white"
                                             src="assets/img/profiles/avatar-05.jpg"
                                             alt="img"
                                         />
                                     </span>
                                     <span className="avatar avatar-rounded">
-                                        <ImageWithBasePath src="assets/img/profiles/avatar-05.jpg" alt="img" />
+                                        <Image src="assets/img/profiles/avatar-05.jpg" alt="img" />
                                     </span>
                                     <Link
                                         className="avatar bg-primary avatar-rounded text-fixed-white"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../breadcrumbs";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, MapPin, User, Edit, Trash2, Search, RotateCcw, PlusCircle, Clock, Phone, Mail } from "react-feather";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import Select from "react-select";
 import { Table, Modal, Button, Form, Input, Row, Col, Select as AntSelect, TimePicker, DatePicker, Tag, Badge } from "antd";
 import Swal from "sweetalert2";
@@ -331,7 +331,7 @@ const StoreList = () => {
         <span className="productimgname">
           <Link to="#" className="product-img stock-img">
             {record.image ? (
-              <ImageWithBasePath alt={text} src={record.image} />
+              <Image alt={text} src={record.image} />
             ) : (
               <div className="store-avatar">
                 <MapPin size={20} />
@@ -462,7 +462,7 @@ const StoreList = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

@@ -1,7 +1,7 @@
 import { Tool } from 'feather-icons-react/build/IconComponents'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import Paypal from '../../../core/modals/settings/paypal'
 import SettingsSideBar from '../settingssidebar'
 
@@ -51,7 +51,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-01.svg"
                                                                         alt="Payment"
                                                                     />
@@ -99,7 +99,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-02.svg"
                                                                         alt="Payment"
                                                                     />
@@ -143,7 +143,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-03.svg"
                                                                         alt="Payment"
                                                                     />
@@ -187,7 +187,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-04.svg"
                                                                         alt="Payment"
                                                                     />
@@ -223,7 +223,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-05.svg"
                                                                         alt="Payment"
                                                                     />
@@ -267,7 +267,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-06.svg"
                                                                         alt="Payment"
                                                                     />
@@ -306,7 +306,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-07.svg"
                                                                         alt="Payment"
                                                                     />
@@ -350,7 +350,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-08.svg"
                                                                         alt="Payment"
                                                                     />
@@ -389,7 +389,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-09.svg"
                                                                         alt="Payment"
                                                                     />
@@ -427,7 +427,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-10.svg"
                                                                         alt="Payment"
                                                                     />
@@ -469,7 +469,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-11.svg"
                                                                         alt="Payment"
                                                                     />
@@ -511,7 +511,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-12.svg"
                                                                         alt="Payment"
                                                                     />
@@ -553,7 +553,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-13.svg"
                                                                         alt="Payment"
                                                                     />
@@ -595,7 +595,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-14.svg"
                                                                         alt="Payment"
                                                                     />
@@ -637,7 +637,7 @@ const PaymentGateway = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100 mb-2">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span>
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/payment-icon-15.svg"
                                                                         alt="Payment"
                                                                     />

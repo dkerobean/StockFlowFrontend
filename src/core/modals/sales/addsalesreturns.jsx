@@ -1,7 +1,7 @@
 import { PlusCircle } from "feather-icons-react/build/IconComponents";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import Select from "react-select";
 import { DatePicker } from "antd";
 
@@ -98,7 +98,7 @@ const AddSalesReturns = () => {
                                 placeholder="Please type product code and select"
                               />
                               <div className="addonset">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/icons/qrcode-scan.svg"
                                   alt="img"
                                 />

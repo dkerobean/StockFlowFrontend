@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Filter, Sliders } from "react-feather";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Select from "react-select";
 import { Zap } from "react-feather/dist";
 import { CreditCard } from "feather-icons-react/build/IconComponents";
@@ -140,7 +140,7 @@ const TaxReport = () => {
                           onClick={toggleFilterVisibility}
                         />
                         <span onClick={toggleFilterVisibility}>
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/closes.svg"
                             alt="img"
                           />
@@ -252,7 +252,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}
@@ -275,7 +275,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/stripe.svg"
                                 alt="Pay"
                               />{" "}
@@ -298,7 +298,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/razorpay.svg"
                                 alt="Pay"
                               />{" "}
@@ -321,7 +321,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}
@@ -344,7 +344,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}
@@ -388,7 +388,7 @@ const TaxReport = () => {
                           onClick={toggleFilterVisibilityTwo}
                         />
                         <span onClick={toggleFilterVisibilityTwo}>
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/closes.svg"
                             alt="img"
                           />
@@ -495,7 +495,7 @@ const TaxReport = () => {
                           </td>
                           <td className="userimgname">
                             <Link to="#" className="product-img">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/users/user-01.jpg"
                                 alt="product"
                               />
@@ -508,7 +508,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}
@@ -526,7 +526,7 @@ const TaxReport = () => {
                           </td>
                           <td className="userimgname">
                             <Link to="#" className="product-img">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/users/user-02.jpg"
                                 alt="product"
                               />
@@ -539,7 +539,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/stripe.svg"
                                 alt="Pay"
                               />{" "}
@@ -557,7 +557,7 @@ const TaxReport = () => {
                           </td>
                           <td className="userimgname">
                             <Link to="#" className="product-img">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/users/user-03.jpg"
                                 alt="product"
                               />
@@ -570,7 +570,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/razorpay.svg"
                                 alt="Pay"
                               />{" "}
@@ -588,7 +588,7 @@ const TaxReport = () => {
                           </td>
                           <td className="userimgname">
                             <Link to="#" className="product-img">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/users/user-04.jpg"
                                 alt="product"
                               />
@@ -601,7 +601,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}
@@ -619,7 +619,7 @@ const TaxReport = () => {
                           </td>
                           <td className="userimgname">
                             <Link to="#" className="product-img">
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/users/user-05.jpg"
                                 alt="product"
                               />
@@ -632,7 +632,7 @@ const TaxReport = () => {
                           <td className="payment-info">
                             <Link to="#">
                               {" "}
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/icons/pay.svg"
                                 alt="Pay"
                               />{" "}

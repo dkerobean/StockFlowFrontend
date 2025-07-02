@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import { useDispatch, useSelector } from 'react-redux';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -83,14 +83,14 @@ const LeavesEmployee = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -162,7 +162,7 @@ const LeavesEmployee = () => {
                                                 onClick={toggleFilterVisibility}
                                             />
                                             <span onClick={toggleFilterVisibility}>
-                                                <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                <Image src="assets/img/icons/closes.svg" alt="img" />
                                             </span>
                                         </Link>
                                         <div className={`layout-hide-box ${isLayoutVisible ? 'layout-show-box' : 'layout-hide-box'}`}>

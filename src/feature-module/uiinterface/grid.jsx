@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 
 const Grid = () => {
   return (
@@ -568,7 +568,7 @@ const Grid = () => {
                   clear the float if the text is shorter.
                 </p>
                 <div className="clearfix">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/supplier/edit-supplier.jpg"
                     className="bd-placeholder-img col-md-6 float-md-end mb-3 ms-md-3 rounded img-fluid"
                     alt="..."

@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -13,10 +13,10 @@ const Forgotpassword = () => {
             <form>
               <div className="login-userset">
                 <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <ImageWithBasePath src="assets/img/logo-white.png" alt />
+                  <Image src="assets/img/logo-white.png" alt />
                 </Link>
                 <div className="login-userheading">
                   <h3>Forgot password?</h3>
@@ -29,7 +29,7 @@ const Forgotpassword = () => {
                   <label>Email</label>
                   <div className="form-addons">
                     <input type="email" className="form-control" />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/mail.svg"
                       alt="img"
                     />
@@ -56,7 +56,7 @@ const Forgotpassword = () => {
                   <ul className="d-flex justify-content-center">
                     <li>
                       <Link to="#" className="facebook-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/facebook-logo.svg"
                           alt="Facebook"
                         />
@@ -64,7 +64,7 @@ const Forgotpassword = () => {
                     </li>
                     <li>
                       <Link to="#">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/google.png"
                           alt="Google"
                         />
@@ -72,7 +72,7 @@ const Forgotpassword = () => {
                     </li>
                     <li>
                       <Link to="#" className="apple-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/apple-logo.svg"
                           alt="Apple"
                         />

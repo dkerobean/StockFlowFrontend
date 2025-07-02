@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Filter, Sliders } from "react-feather";
 import Select from "react-select";
 import { Link } from "react-router-dom";
@@ -202,7 +202,7 @@ const SupplierReport = () => {
                           onClick={toggleFilterVisibility}
                         />
                         <span onClick={toggleFilterVisibility}>
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/closes.svg"
                             alt="img"
                           />
@@ -309,7 +309,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-01.png"
                                   alt="product"
                                 />
@@ -338,7 +338,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-06.png"
                                   alt="product"
                                 />
@@ -367,7 +367,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-02.png"
                                   alt="product"
                                 />
@@ -396,7 +396,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-03.png"
                                   alt="product"
                                 />
@@ -425,7 +425,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-04.png"
                                   alt="product"
                                 />
@@ -454,7 +454,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/stock-img-05.png"
                                   alt="product"
                                 />
@@ -483,7 +483,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-01.png"
                                   alt="product"
                                 />
@@ -512,7 +512,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-02.png"
                                   alt="product"
                                 />
@@ -541,7 +541,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-03.png"
                                   alt="product"
                                 />
@@ -570,7 +570,7 @@ const SupplierReport = () => {
                           <td className="productimgname">
                             <div className="view-product me-2">
                               <Link to="#">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/products/expire-product-04.png"
                                   alt="product"
                                 />
@@ -629,7 +629,7 @@ const SupplierReport = () => {
                           onClick={toggleFilterVisibilityTwo}
                         />
                         <span onClick={toggleFilterVisibilityTwo}>
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/closes.svg"
                             alt="img"
                           />
@@ -910,7 +910,7 @@ const SupplierReport = () => {
                           onClick={toggleFilterVisibilityThree}
                         />
                         <span onClick={toggleFilterVisibilityThree}>
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/icons/closes.svg"
                             alt="img"
                           />
@@ -952,7 +952,7 @@ const SupplierReport = () => {
                         </div>
                         <div className="col-lg-3 col-sm-6 col-12">
                           <div className="input-blocks">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/icons/payment-status.svg"
                               className="info-img status-icon"
                               alt="Icon"

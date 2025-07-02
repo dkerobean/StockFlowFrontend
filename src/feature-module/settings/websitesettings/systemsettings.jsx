@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import { useDispatch, useSelector } from 'react-redux';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -76,7 +76,7 @@ const SystemSettings = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/app-icon-07.svg"
                                                                         alt=""
                                                                     />
@@ -124,7 +124,7 @@ const SystemSettings = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/app-icon-08.svg"
                                                                         alt=""
                                                                     />
@@ -173,7 +173,7 @@ const SystemSettings = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/app-icon-09.svg"
                                                                         alt=""
                                                                     />
@@ -222,7 +222,7 @@ const SystemSettings = () => {
                                                         <div className="d-flex align-items-center justify-content-between w-100">
                                                             <div className="security-type d-flex align-items-center">
                                                                 <span className="system-app-icon">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/app-icon-10.svg"
                                                                         alt=""
                                                                     />

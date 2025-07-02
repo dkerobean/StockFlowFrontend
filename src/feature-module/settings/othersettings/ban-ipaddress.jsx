@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { setToogleHeader } from '../../../core/redux/action';
 import { Filter } from 'react-feather';
-import ImageWithBasePath from '../../../core/img/imagewithbasebath';
+import Image from '../../../core/img/image';
 import Select from 'react-select';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
@@ -151,7 +151,7 @@ const BanIpaddress = () => {
                                                                         onClick={toggleFilterVisibility}
                                                                     />
                                                                     <span onClick={toggleFilterVisibility}>
-                                                                        <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                                        <Image src="assets/img/icons/closes.svg" alt="img" />
                                                                     </span>
                                                                 </Link>
                                                             </div>

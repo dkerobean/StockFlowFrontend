@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, User, Globe, Edit, Eye, Trash2, Search, RotateCcw, PlusCircle } from "react-feather";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Select from "react-select";
 import { Table, Modal, Button, Form, Input, Row, Col } from "antd";
 import Swal from "sweetalert2";
@@ -190,7 +190,7 @@ const Suppliers = () => {
         <span className="productimgname">
           <Link to="#" className="product-img stock-img">
             {record.image ? (
-              <ImageWithBasePath alt={text} src={record.image} />
+              <Image alt={text} src={record.image} />
             ) : (
               <div className="supplier-avatar">
                 <User size={20} />
@@ -276,7 +276,7 @@ const Suppliers = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

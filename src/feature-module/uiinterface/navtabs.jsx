@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import { Link } from 'react-router-dom'
 
 const NavTabs = () => {
@@ -2305,7 +2305,7 @@ const NavTabs = () => {
                                                         <tr>
                                                             <th scope="row">
                                                                 <span className="avatar avatar-sm">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/products/product49.jpg"
                                                                         alt="img"
                                                                     />
@@ -2318,7 +2318,7 @@ const NavTabs = () => {
                                                         <tr>
                                                             <th scope="row">
                                                                 <span className="avatar avatar-sm">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/products/product28.jpg"
                                                                         alt="img"
                                                                     />
@@ -2331,7 +2331,7 @@ const NavTabs = () => {
                                                         <tr>
                                                             <th scope="row">
                                                                 <span className="avatar avatar-sm">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/products/product60.jpg"
                                                                         alt="img"
                                                                     />
@@ -2586,7 +2586,7 @@ const NavTabs = () => {
                                                     <div className="d-sm-flex">
                                                         <div className="me-3">
                                                             <span className="avatar avatar-xxl">
-                                                                <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                                                <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                                             </span>
                                                         </div>
                                                         <div>

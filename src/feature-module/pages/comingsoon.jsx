@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 
 const Comingsoon = () => {
@@ -23,7 +23,7 @@ const Comingsoon = () => {
       <div className="comming-soon-pg w-100">
         <div className="coming-soon-box">
           <div className="pos-logo">
-            <ImageWithBasePath src="assets/img/logo-small.png" alt />
+            <Image src="assets/img/logo-small.png" alt />
           </div>
           <span>Our Website is</span>
           <h1>

@@ -8,7 +8,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { setToogleHeader } from '../../../core/redux/action'
 import { useDispatch, useSelector } from 'react-redux'
 import SettingsSideBar from '../settingssidebar'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 
 const SmsGateway = () => {
     const dispatch = useDispatch();
@@ -83,7 +83,7 @@ const SmsGateway = () => {
                                             <div className="connected-app-card d-flex w-100">
                                                 <ul className="w-100 d-flex justify-content-between align-items-center">
                                                     <li className="gateway-icon mb-0">
-                                                        <ImageWithBasePath src="assets/img/icons/sms-icon-01.svg" alt="" />
+                                                        <Image src="assets/img/icons/sms-icon-01.svg" alt="" />
                                                     </li>
                                                     <li className="setting-gateway d-flex align-items-center">
                                                         <Link
@@ -113,7 +113,7 @@ const SmsGateway = () => {
                                             <div className="connected-app-card d-flex w-100">
                                                 <ul className="w-100 d-flex justify-content-between align-items-center">
                                                     <li className="gateway-icon mb-0">
-                                                        <ImageWithBasePath src="assets/img/icons/sms-icon-02.svg" alt="" />
+                                                        <Image src="assets/img/icons/sms-icon-02.svg" alt="" />
                                                     </li>
                                                     <li className="setting-gateway d-flex align-items-center">
                                                         <Link
@@ -142,7 +142,7 @@ const SmsGateway = () => {
                                             <div className="connected-app-card d-flex w-100">
                                                 <ul className="w-100 d-flex justify-content-between align-items-center">
                                                     <li className="gateway-icon mb-0">
-                                                        <ImageWithBasePath src="assets/img/icons/sms-icon-03.svg" alt="" />
+                                                        <Image src="assets/img/icons/sms-icon-03.svg" alt="" />
                                                     </li>
                                                     <li className="setting-gateway d-flex align-items-center">
                                                         <Link

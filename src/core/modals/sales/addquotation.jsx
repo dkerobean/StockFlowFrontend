@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TextEditor from '../../../feature-module/inventory/texteditor'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 import Select from 'react-select'
 import { DatePicker } from 'antd'
 
@@ -61,7 +61,7 @@ const AddQuotation = () => {
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#add-units"
                                                                 >
-                                                                    <ImageWithBasePath src="assets/img/icons/plus1.svg" alt="img" />
+                                                                    <Image src="assets/img/icons/plus1.svg" alt="img" />
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -100,7 +100,7 @@ const AddQuotation = () => {
                                                             placeholder="Please type product code and select"
                                                         />
                                                         <div className="addonset">
-                                                            <ImageWithBasePath
+                                                            <Image
                                                                 src="assets/img/icons/qrcode-scan.svg"
                                                                 alt="img"
                                                             />

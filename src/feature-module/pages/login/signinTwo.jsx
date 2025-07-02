@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -13,10 +13,10 @@ const SigninTwo = () => {
             <form>
               <div className="login-userset">
                 <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <ImageWithBasePath src="assets/img/logo-white.png" alt />
+                  <Image src="assets/img/logo-white.png" alt />
                 </Link>
                 <div className="login-userheading">
                   <h3>Sign In</h3>
@@ -28,7 +28,7 @@ const SigninTwo = () => {
                   <label>Email Address</label>
                   <div className="form-addons">
                     <input type="text" className="form-control" />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/mail.svg"
                       alt="img"
                     />
@@ -83,7 +83,7 @@ const SigninTwo = () => {
                   <ul className="d-flex">
                     <li>
                       <Link to="#" className="facebook-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/facebook-logo.svg"
                           alt="Facebook"
                         />
@@ -91,7 +91,7 @@ const SigninTwo = () => {
                     </li>
                     <li>
                       <Link to="#">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/google.png"
                           alt="Google"
                         />
@@ -99,7 +99,7 @@ const SigninTwo = () => {
                     </li>
                     <li>
                       <Link to="#" className="apple-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/apple-logo.svg"
                           alt="Apple"
                         />
@@ -114,7 +114,7 @@ const SigninTwo = () => {
             </form>
           </div>
           <div className="login-img">
-            <ImageWithBasePath
+            <Image
               src="assets/img/authentication/login02.png"
               alt="img"
             />

@@ -1,6 +1,6 @@
 import React from "react";
 import Select from "react-select";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 
 const SupplierModal = () => {
   const options1 = [
@@ -164,7 +164,7 @@ const SupplierModal = () => {
                           <div className="profile-pic-upload edit-pic">
                             <div className="profile-pic">
                               <span>
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/supplier/edit-supplier.jpg"
                                   alt
                                 />

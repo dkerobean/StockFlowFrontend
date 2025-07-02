@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -13,11 +13,11 @@ const TwostepverificationTwo = () => {
             <div className="login-userset">
               <div className="login-userset">
                 <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
               </div>
               <Link to={route.dashboard} className="login-logo logo-white">
-                <ImageWithBasePath src="assets/img/logo-white.png" alt />
+                <Image src="assets/img/logo-white.png" alt />
               </Link>
               <div className="login-userheading">
                 <h3>Login With Your Email Address</h3>
@@ -72,7 +72,7 @@ const TwostepverificationTwo = () => {
             </div>
           </div>
           <div className="login-img">
-            <ImageWithBasePath
+            <Image
               src="assets/img/authentication/step-two.png"
               alt="img"
             />

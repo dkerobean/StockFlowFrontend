@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import Select from 'react-select'
 import { ChevronUp, MinusCircle, PlusCircle, RotateCcw, Search } from 'feather-icons-react/build/IconComponents';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { setToogleHeader } from '../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
@@ -187,7 +187,7 @@ const PrintBarcode = () => {
                                             <td>
                                                 <div className="productimgname">
                                                     <Link to="#" className="product-img stock-img">
-                                                        <ImageWithBasePath src="assets/img/products/stock-img-02.png" alt="product" />
+                                                        <Image src="assets/img/products/stock-img-02.png" alt="product" />
                                                     </Link>
                                                     <Link to="#">Nike Jordan</Link>
                                                 </div>
@@ -225,7 +225,7 @@ const PrintBarcode = () => {
                                             <td>
                                                 <div className="productimgname">
                                                     <Link to="#" className="product-img stock-img">
-                                                        <ImageWithBasePath src="assets/img/products/stock-img-03.png" alt="product" />
+                                                        <Image src="assets/img/products/stock-img-03.png" alt="product" />
                                                     </Link>
                                                     <Link to="#">Apple Series 5 Watch</Link>
                                                 </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Filter, Sliders } from "react-feather";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Select from "react-select";
 import { User, Zap } from "react-feather";
 import { Calendar } from "react-feather";
@@ -109,7 +109,7 @@ const ExpenseReport = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

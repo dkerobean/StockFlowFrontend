@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { all_routes } from "../../Router/all_routes";
 import { Link } from "react-router-dom";
 
@@ -9,7 +9,7 @@ const Undermaintainence = () => {
     <div className="main-wrapper">
       <div className="error-box">
         <div className="error-img">
-          <ImageWithBasePath
+          <Image
             src="assets/img/authentication/under-maintenance.png"
             className="img-fluid"
             alt

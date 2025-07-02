@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setToogleHeader } from "../../core/redux/action";
 import FileContent from "./fileContent";
 import FileModal from "../../core/modals/applications/fileModal";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import {
   ChevronUp,
   Clock,
@@ -270,7 +270,7 @@ const FileManager = () => {
               </div>
               <span>78.5 GB of 1 TB Free Used</span>
               <div className="space-manager p-4">
-                <ImageWithBasePath
+                <Image
                   src="assets/img/icons/half-circle.svg"
                   alt="Folder"
                 />

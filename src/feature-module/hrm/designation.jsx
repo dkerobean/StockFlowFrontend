@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { Link } from 'react-router-dom';
 import { ChevronUp, FileText, Filter, PlusCircle, RotateCcw, Sliders, Users } from 'feather-icons-react/build/IconComponents';
 import Select from 'react-select';
@@ -106,14 +106,14 @@ const Designation = () => {
                         <li>
                             <OverlayTrigger placement="top" overlay={renderTooltip}>
                                 <Link>
-                                    <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                    <Image src="assets/img/icons/pdf.svg" alt="img" />
                                 </Link>
                             </OverlayTrigger>
                         </li>
                         <li>
                             <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                 <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                    <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                    <Image src="assets/img/icons/excel.svg" alt="img" />
                                 </Link>
                             </OverlayTrigger>
                         </li>
@@ -185,7 +185,7 @@ const Designation = () => {
                                             onClick={toggleFilterVisibility}
                                         />
                                         <span>
-                                            <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                            <Image src="assets/img/icons/closes.svg" alt="img" />
                                         </span>
                                     </Link>
                                 </div>
@@ -273,27 +273,27 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-08.jpg" alt="" />
+                                        <Image src="assets/img/users/user-08.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-13.jpg" alt="" />
+                                        <Image src="assets/img/users/user-13.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-09.jpg" alt="" />
+                                        <Image src="assets/img/users/user-09.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-11.jpg" alt="" />
+                                        <Image src="assets/img/users/user-11.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+3</span>
                                       </Link>
                                     </li>
@@ -339,22 +339,22 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-05.jpg" alt="" />
+                                        <Image src="assets/img/users/user-05.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-06.jpg" alt="" />
+                                        <Image src="assets/img/users/user-06.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-02.jpg" alt="" />
+                                        <Image src="assets/img/users/user-02.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+5</span>
                                       </Link>
                                     </li>
@@ -400,27 +400,27 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-09.jpg" alt="" />
+                                        <Image src="assets/img/users/user-09.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-08.jpg" alt="" />
+                                        <Image src="assets/img/users/user-08.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-11.jpg" alt="" />
+                                        <Image src="assets/img/users/user-11.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+2</span>
                                       </Link>
                                     </li>
@@ -466,17 +466,17 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-09.jpg" alt="" />
+                                        <Image src="assets/img/users/user-09.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-01.jpg" alt="" />
+                                        <Image src="assets/img/users/user-01.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+1</span>
                                       </Link>
                                     </li>
@@ -522,22 +522,22 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-05.jpg" alt="" />
+                                        <Image src="assets/img/users/user-05.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-02.jpg" alt="" />
+                                        <Image src="assets/img/users/user-02.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-01.jpg" alt="" />
+                                        <Image src="assets/img/users/user-01.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+2</span>
                                       </Link>
                                     </li>
@@ -583,22 +583,22 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-07.jpg" alt="" />
+                                        <Image src="assets/img/users/user-07.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-11.jpg" alt="" />
+                                        <Image src="assets/img/users/user-11.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-09.jpg" alt="" />
+                                        <Image src="assets/img/users/user-09.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+5</span>
                                       </Link>
                                     </li>
@@ -644,22 +644,22 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-12.jpg" alt="" />
+                                        <Image src="assets/img/users/user-12.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-13.jpg" alt="" />
+                                        <Image src="assets/img/users/user-13.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-01.jpg" alt="" />
+                                        <Image src="assets/img/users/user-01.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-04.jpg" alt="" />
+                                        <Image src="assets/img/users/user-04.jpg" alt="" />
                                         <span>+6</span>
                                       </Link>
                                     </li>
@@ -705,22 +705,22 @@ const Designation = () => {
                                   <ul>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-11.jpg" alt="" />
+                                        <Image src="assets/img/users/user-11.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-07.jpg" alt="" />
+                                        <Image src="assets/img/users/user-07.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-02.jpg" alt="" />
+                                        <Image src="assets/img/users/user-02.jpg" alt="" />
                                       </Link>
                                     </li>
                                     <li>
                                       <Link to="#">
-                                        <ImageWithBasePath src="assets/img/users/user-11.jpg" alt="" />
+                                        <Image src="assets/img/users/user-11.jpg" alt="" />
                                         <span>+1</span>
                                       </Link>
                                     </li>

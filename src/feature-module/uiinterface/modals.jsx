@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../Router/all_routes";
 
@@ -670,7 +670,7 @@ const Modals = () => {
                               className="logo logo-dark"
                             >
                               <span className="logo-lg">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/logo.png"
                                   alt="Logo"
                                   height={42}
@@ -763,7 +763,7 @@ const Modals = () => {
                               className="logo logo-dark"
                             >
                               <span className="logo-lg">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/logo.png"
                                   alt="Logo"
                                   height={42}

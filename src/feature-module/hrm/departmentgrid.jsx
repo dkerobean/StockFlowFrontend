@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom/dist";
 import { all_routes } from "../../Router/all_routes";
 import {
@@ -119,7 +119,7 @@ const DepartmentGrid = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -129,7 +129,7 @@ const DepartmentGrid = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />
@@ -204,7 +204,7 @@ const DepartmentGrid = () => {
                         onClick={toggleFilterVisibility}
                       />
                       <span>
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/closes.svg"
                           alt="img"
                         />
@@ -320,7 +320,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-01.jpg"
                         alt=""
                       />
@@ -333,7 +333,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-01.jpg"
                               alt=""
                             />
@@ -341,7 +341,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-02.jpg"
                               alt=""
                             />
@@ -349,7 +349,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -357,7 +357,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -413,7 +413,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-02.jpg"
                         alt=""
                       />
@@ -426,7 +426,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -434,7 +434,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -442,7 +442,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -498,7 +498,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-03.jpg"
                         alt=""
                       />
@@ -511,7 +511,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -519,7 +519,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -527,7 +527,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -535,7 +535,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -591,7 +591,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-06.jpg"
                         alt=""
                       />
@@ -604,7 +604,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -612,7 +612,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -620,7 +620,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -628,7 +628,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -684,7 +684,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-04.jpg"
                         alt=""
                       />
@@ -697,7 +697,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -705,7 +705,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -713,7 +713,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -721,7 +721,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -777,7 +777,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-05.jpg"
                         alt=""
                       />
@@ -790,7 +790,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -798,7 +798,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -806,7 +806,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -814,7 +814,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -870,7 +870,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-07.jpg"
                         alt=""
                       />
@@ -883,7 +883,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -891,7 +891,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -899,7 +899,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -907,7 +907,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-09.jpg"
                               alt=""
                             />
@@ -915,7 +915,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -971,7 +971,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-08.jpg"
                         alt=""
                       />
@@ -984,7 +984,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -992,7 +992,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -1000,7 +1000,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -1008,7 +1008,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -1064,7 +1064,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-11.jpg"
                         alt=""
                       />
@@ -1077,7 +1077,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -1085,7 +1085,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -1093,7 +1093,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -1101,7 +1101,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -1157,7 +1157,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-12.jpg"
                         alt=""
                       />
@@ -1170,7 +1170,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -1178,7 +1178,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -1186,7 +1186,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -1194,7 +1194,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -1250,7 +1250,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-09.jpg"
                         alt=""
                       />
@@ -1263,7 +1263,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -1271,7 +1271,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -1279,7 +1279,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -1287,7 +1287,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />
@@ -1346,7 +1346,7 @@ const DepartmentGrid = () => {
                   </div>
                   <div className="profile-info department-profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-13.jpg"
                         alt=""
                       />
@@ -1359,7 +1359,7 @@ const DepartmentGrid = () => {
                       <ul>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-03.jpg"
                               alt=""
                             />
@@ -1367,7 +1367,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-04.jpg"
                               alt=""
                             />
@@ -1375,7 +1375,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-06.jpg"
                               alt=""
                             />
@@ -1383,7 +1383,7 @@ const DepartmentGrid = () => {
                         </li>
                         <li>
                           <Link to="#">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/users/user-05.jpg"
                               alt=""
                             />

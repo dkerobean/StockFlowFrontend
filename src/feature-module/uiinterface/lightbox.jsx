@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 
 const Lightboxes = () => {
   const [open, setOpen] = React.useState(false);
@@ -39,7 +39,7 @@ const Lightboxes = () => {
                   {imageItems.map((item, index) => (
                     <div className="col-md-4 mb-2 mb-md-0" key={index}>
                       <Link to="#" className="image-popup">
-                        <ImageWithBasePath
+                        <Image
                           src={item.img}
                           className="img-fluid"
                           alt="image"
@@ -77,7 +77,7 @@ const Lightboxes = () => {
                         data-title="Title 01"
                         data-description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit"
                       >
-                        <ImageWithBasePath
+                        <Image
                           src={item.img}
                           className="img-fluid"
                           alt="work-thumbnail"

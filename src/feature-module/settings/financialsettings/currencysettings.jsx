@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { setToogleHeader } from '../../../core/redux/action';
-import ImageWithBasePath from '../../../core/img/imagewithbasebath';
+import Image from '../../../core/img/image';
 import AddCurrency from '../../../core/modals/settings/addcurrency';
 import EditCurrency from '../../../core/modals/editcurrency';
 import Select from 'react-select';
@@ -155,7 +155,7 @@ const CurrencySettings = () => {
                                                                         onClick={toggleFilterVisibility}
                                                                     />
                                                                     <span onClick={toggleFilterVisibility}>
-                                                                        <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                                        <Image src="assets/img/icons/closes.svg" alt="img" />
                                                                     </span>
                                                                 </Link>
                                                             </div>

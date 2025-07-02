@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip, Modal, Button, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { ChevronUp, FileText, PlusCircle, RotateCcw, Search, Sliders, StopCircle, User } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
@@ -712,14 +712,14 @@ const SalesList = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -787,7 +787,7 @@ const SalesList = () => {
                                             <button type="button" className={`btn btn-info ${isFilterVisible ? "setclose" : ""}`} id="filter_search" onClick={toggleFilterVisibility}>
                                                 <Filter className="feather-16" />
                                                 <span>
-                                                    <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                                    <Image src="assets/img/icons/closes.svg" alt="img" />
                                                 </span>
                                             </button>
                                         </div>
@@ -1180,7 +1180,7 @@ const SalesList = () => {
                                                                     placeholder="Please type product code and select"
                                                                 />
                                                                 <div className="addonset">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/icons/qrcode-scan.svg"
                                                                         alt="img"
                                                                     />
@@ -1342,7 +1342,7 @@ const SalesList = () => {
                                                     data-bs-placement="top"
                                                     title="Pdf"
                                                 >
-                                                    <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                                    <Image src="assets/img/icons/pdf.svg" alt="img" />
                                                 </Link>
                                             </li>
                                             <li>
@@ -1351,7 +1351,7 @@ const SalesList = () => {
                                                     data-bs-placement="top"
                                                     title="Excel"
                                                 >
-                                                    <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                                    <Image src="assets/img/icons/excel.svg" alt="img" />
                                                 </Link>
                                             </li>
                                             <li>
@@ -1445,7 +1445,7 @@ const SalesList = () => {
                                                                                 to="#"
                                                                                 className="product-img stock-img"
                                                                             >
-                                                                                <ImageWithBasePath
+                                                                                <Image
                                                                                     src="assets/img/products/stock-img-02.png"
                                                                                     alt="product"
                                                                                 />
@@ -1489,7 +1489,7 @@ const SalesList = () => {
                                                                                 to="#"
                                                                                 className="product-img stock-img"
                                                                             >
-                                                                                <ImageWithBasePath
+                                                                                <Image
                                                                                     src="assets/img/products/stock-img-03.png"
                                                                                     alt="product"
                                                                                 />
@@ -1535,7 +1535,7 @@ const SalesList = () => {
                                                                                 to="#"
                                                                                 className="product-img stock-img"
                                                                             >
-                                                                                <ImageWithBasePath
+                                                                                <Image
                                                                                     src="assets/img/products/stock-img-05.png"
                                                                                     alt="product"
                                                                                 />

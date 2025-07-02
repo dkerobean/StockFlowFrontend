@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 import Select from 'react-select'
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
@@ -176,7 +176,7 @@ const QRcode = () => {
                                                             to="#"
                                                             className="product-img stock-img"
                                                         >
-                                                            <ImageWithBasePath
+                                                            <Image
                                                                 src="assets/img/products/stock-img-02.png"
                                                                 alt="product"
                                                             />

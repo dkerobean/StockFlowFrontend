@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Filter, Sliders } from "react-feather";
 import Select from "react-select";
 import { Globe, User } from "react-feather";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import Breadcrumbs from "../../breadcrumbs";
 
 const WareHouses = () => {
@@ -80,7 +80,7 @@ const WareHouses = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />
@@ -172,7 +172,7 @@ const WareHouses = () => {
                     <td>
                       <div className="userimgname">
                         <Link to="#" className="product-img">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-08.jpg"
                             alt="product"
                           />
@@ -226,7 +226,7 @@ const WareHouses = () => {
                     <td>
                       <div className="userimgname">
                         <Link to="#" className="product-img">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-04.jpg"
                             alt="product"
                           />
@@ -280,7 +280,7 @@ const WareHouses = () => {
                     <td>
                       <div className="userimgname">
                         <Link to="#" className="product-img">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-09.jpg"
                             alt="product"
                           />
@@ -334,7 +334,7 @@ const WareHouses = () => {
                     <td>
                       <div className="userimgname">
                         <Link to="#" className="product-img">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/users/user-10.jpg"
                             alt="product"
                           />

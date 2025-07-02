@@ -20,7 +20,7 @@ import {
 import { useDispatch, useSelector } from "react-redux"; // Keep if used for header toggle
 import { setToogleHeader } from "../../core/redux/action"; // Keep if used
 import { OverlayTrigger, Tooltip } from "react-bootstrap"; // Keep if used for collapse tooltip
-import ImageWithBasePath from "../../core/img/imagewithbasebath"; // Your image component
+import Image from "../../core/img/image"; // Your image component
 import { all_routes } from "../../Router/all_routes"; // Your routes definition
 
 // Helper function to get Authentication Token
@@ -549,7 +549,7 @@ const AddProduct = () => {
                                                 className="d-none" // Hide the actual input
                                             />
                                             {/* Use your image component or a simple img tag */}
-                                            <ImageWithBasePath src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                                            <Image src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
                                             <p className="mb-0 text-muted small">
                                                 Drag and drop a file to upload <br/> or click here
                                             </p>

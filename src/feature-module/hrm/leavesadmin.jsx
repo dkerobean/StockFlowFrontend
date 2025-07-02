@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { ChevronUp, RotateCcw } from "feather-icons-react/build/IconComponents";
 import { setToogleHeader } from "../../core/redux/action";
 import { useDispatch, useSelector } from "react-redux";
@@ -167,7 +167,7 @@ const LeavesAdmin = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -177,7 +177,7 @@ const LeavesAdmin = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />

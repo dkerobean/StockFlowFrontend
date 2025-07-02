@@ -1,6 +1,6 @@
 import { X } from "feather-icons-react/build/IconComponents";
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 
 const Alert = () => {
@@ -959,7 +959,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-01.jpg"
                       alt="img"
                     />
@@ -979,7 +979,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -999,7 +999,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-03.jpg"
                       alt="img"
                     />
@@ -1019,7 +1019,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-04.jpg"
                       alt="img"
                     />
@@ -1039,7 +1039,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-05.jpg"
                       alt="img"
                     />
@@ -1059,7 +1059,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-06.jpg"
                       alt="img"
                     />
@@ -1079,7 +1079,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3 avatar-rounded">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-07.jpg"
                       alt="img"
                     />
@@ -1110,7 +1110,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-xs me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -1130,7 +1130,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-sm me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -1150,7 +1150,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -1170,7 +1170,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-md me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -1190,7 +1190,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-lg me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />
@@ -1210,7 +1210,7 @@ const Alert = () => {
                   role="alert"
                 >
                   <div className="avatar avatar-xl me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avatar-02.jpg"
                       alt="img"
                     />

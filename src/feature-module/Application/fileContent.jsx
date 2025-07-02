@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Select from "react-select";
 
 import { Edit, Grid, Layout, List, Search, Star, Trash2 } from "react-feather";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 
 const FileContent = () => {
   const options1 = [
@@ -124,7 +124,7 @@ const FileContent = () => {
                 className="d-flex align-items-center justify-content-center bg-light-orange bg p-4"
               >
                 <span className="d-flex align-items-center justify-content-center">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/folder.svg"
                     alt="Folder"
                   />
@@ -145,7 +145,7 @@ const FileContent = () => {
                 className="d-flex align-items-center justify-content-center bg-light-red bg p-4"
               >
                 <span className="d-flex align-items-center justify-content-center">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/pdf-02.svg"
                     alt="Folder"
                   />
@@ -166,7 +166,7 @@ const FileContent = () => {
                 className="d-flex align-items-center justify-content-center bg-light-green bg p-4"
               >
                 <span className="d-flex align-items-center justify-content-center">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/image.svg"
                     alt="Folder"
                   />
@@ -187,7 +187,7 @@ const FileContent = () => {
                 className="d-flex align-items-center justify-content-center bg-light-red bg p-4"
               >
                 <span className="d-flex align-items-center justify-content-center">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/video.svg"
                     alt="Folder"
                   />
@@ -208,7 +208,7 @@ const FileContent = () => {
                 className="d-flex align-items-center justify-content-center bg-light-orange bg p-4"
               >
                 <span className="d-flex align-items-center justify-content-center">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/audio.svg"
                     alt="Folder"
                   />
@@ -252,7 +252,7 @@ const FileContent = () => {
                 <div className="folders p-3 me-3">
                   <div className="d-flex align-items-center justify-content-between head">
                     <div className="d-flex align-items-center">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/folder.svg"
                         alt="Folder"
                         className="me-2"
@@ -331,7 +331,7 @@ const FileContent = () => {
                           aria-label="Member 1"
                           data-bs-original-title="Member 1"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             alt="Avatar"
                           />
@@ -345,7 +345,7 @@ const FileContent = () => {
                           aria-label="Member 2"
                           data-bs-original-title="Member 2"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-1.jpg"
                             alt="Avatar"
                           />
@@ -364,7 +364,7 @@ const FileContent = () => {
                 <div className="folders p-3">
                   <div className="d-flex align-items-center justify-content-between head">
                     <div className="d-flex align-items-center">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/folder.svg"
                         alt="Folder"
                         className="me-2"
@@ -443,7 +443,7 @@ const FileContent = () => {
                           aria-label="Member 1"
                           data-bs-original-title="Member 1"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-1.jpg"
                             alt="Avatar"
                           />
@@ -457,7 +457,7 @@ const FileContent = () => {
                           aria-label="Member 2"
                           data-bs-original-title="Member 2"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-2.jpg"
                             alt="Avatar"
                           />
@@ -471,7 +471,7 @@ const FileContent = () => {
                           aria-label="Member 3"
                           data-bs-original-title="Member 3"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-3.jpg"
                             alt="Avatar"
                           />
@@ -485,7 +485,7 @@ const FileContent = () => {
                           aria-label="Member 4"
                           data-bs-original-title="Member 4"
                         >
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/avatar/avatar-4.jpg"
                             alt="Avatar"
                           />
@@ -529,7 +529,7 @@ const FileContent = () => {
                 <div className="folders p-3 me-2">
                   <div className="d-flex align-items-center justify-content-between head">
                     <div className="d-flex align-items-center">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/pdf-02.svg"
                         alt="File"
                         className="me-2"
@@ -601,7 +601,7 @@ const FileContent = () => {
                 <div className="folders p-3 me-2">
                   <div className="d-flex align-items-center justify-content-between head">
                     <div className="d-flex align-items-center">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/pdf-02.svg"
                         alt="File"
                         className="me-2"
@@ -678,7 +678,7 @@ const FileContent = () => {
                 <div className="folders p-3">
                   <div className="d-flex align-items-center justify-content-between head">
                     <div className="d-flex align-items-center">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/xls.svg"
                         alt="File"
                         className="me-2"
@@ -780,7 +780,7 @@ const FileContent = () => {
               <div className="video-section d-flex">
                 <div className="item me-2">
                   <div className="js-player">
-                    <ImageWithBasePath src="assets/img/file-manager/video3.jpg" />
+                    <Image src="assets/img/file-manager/video3.jpg" />
                   </div>
 
                   <div className="info">
@@ -856,7 +856,7 @@ const FileContent = () => {
                 </div>
                 <div className="item me-2">
                   <div className="js-player">
-                    <ImageWithBasePath src="assets/img/file-manager/video2.jpg" />
+                    <Image src="assets/img/file-manager/video2.jpg" />
                   </div>
 
                   <div className="info">
@@ -932,7 +932,7 @@ const FileContent = () => {
                 </div>
                 <div className="item me-2">
                   <div className="js-player">
-                    <ImageWithBasePath src="assets/img/file-manager/video3.jpg" />
+                    <Image src="assets/img/file-manager/video3.jpg" />
                   </div>
 
                   <div className="info">
@@ -1063,7 +1063,7 @@ const FileContent = () => {
                     to="product-list"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/folder.svg"
                       alt="Product"
                       className="me-2"
@@ -1081,7 +1081,7 @@ const FileContent = () => {
                     to="#"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/avatar/avatar-6.jpg"
                       alt="Product"
                       className="me-2 rounded-circle"
@@ -1133,7 +1133,7 @@ const FileContent = () => {
                     to="product-list"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/xls.svg"
                       alt="Product"
                       className="me-2"
@@ -1148,7 +1148,7 @@ const FileContent = () => {
                     to="#"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/avatar/avatar-5.jpg"
                       alt="Product"
                       className="me-2 rounded-circle"
@@ -1200,7 +1200,7 @@ const FileContent = () => {
                     to="product-list"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf-02.svg"
                       alt="Product"
                       className="me-2"
@@ -1215,7 +1215,7 @@ const FileContent = () => {
                     to="#"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/avatar/avatar-10.jpg"
                       alt="Product"
                       className="me-2 rounded-circle"
@@ -1267,7 +1267,7 @@ const FileContent = () => {
                     to="product-list"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/video.svg"
                       alt="Product"
                       className="me-2"
@@ -1286,7 +1286,7 @@ const FileContent = () => {
                     to="#"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/avatar/avatar-2.jpg"
                       alt="Product"
                       className="me-2 rounded-circle"
@@ -1338,7 +1338,7 @@ const FileContent = () => {
                     to="product-list"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/audio.svg"
                       alt="Product"
                       className="me-2"
@@ -1353,7 +1353,7 @@ const FileContent = () => {
                     to="#"
                     className="product-img d-flex align-items-center"
                   >
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/avatar/avatar-7.jpg"
                       alt="Product"
                       className="me-2 rounded-circle"

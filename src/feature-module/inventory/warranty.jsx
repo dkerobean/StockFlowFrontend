@@ -8,7 +8,7 @@ import EditWarrenty from '../../core/modals/inventory/editwarrenty';
 import { ChevronUp, Clock, Filter, PlusCircle, RotateCcw, Sliders, StopCircle } from 'feather-icons-react/build/IconComponents';
 import Select from 'react-select';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { setToogleHeader } from '../../core/redux/action';
 import withReactContent from 'sweetalert2-react-content';
 const Warranty = () => {
@@ -159,14 +159,14 @@ const Warranty = () => {
                         <li>
                             <OverlayTrigger placement="top" overlay={renderTooltip}>
                                 <Link>
-                                    <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                    <Image src="assets/img/icons/pdf.svg" alt="img" />
                                 </Link>
                             </OverlayTrigger>
                         </li>
                         <li>
                             <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                 <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                    <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                    <Image src="assets/img/icons/excel.svg" alt="img" />
                                 </Link>
                             </OverlayTrigger>
                         </li>
@@ -236,7 +236,7 @@ const Warranty = () => {
                                         onClick={toggleFilterVisibility}
                                     />
                                     <span onClick={toggleFilterVisibility}>
-                                        <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                        <Image src="assets/img/icons/closes.svg" alt="img" />
                                     </span>
                                 </Link>
                             </div>

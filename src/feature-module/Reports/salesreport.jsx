@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CountUp from "react-countup";
 import Breadcrumbs from "../../core/breadcrumbs";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { Filter, Sliders, Box, Zap, ShoppingCart, CreditCard } from "react-feather";
 import Select from "react-select";
@@ -142,7 +142,7 @@ const SalesReport = () => {
             <div className="dash-widget w-100">
               <div className="dash-widgetimg">
                 <span>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/dash3.svg"
                     alt="img"
                   />
@@ -183,7 +183,7 @@ const SalesReport = () => {
             <div className="dash-widget dash1 w-100">
               <div className="dash-widgetimg">
                 <span>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/dash2.svg"
                     alt="img"
                   />
@@ -246,7 +246,7 @@ const SalesReport = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />

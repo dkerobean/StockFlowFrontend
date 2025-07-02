@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import { useDispatch, useSelector } from 'react-redux';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ChevronUp, RotateCcw } from 'feather-icons-react/build/IconComponents';
@@ -73,7 +73,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-01.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-01.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn">
                                                             <Link to="#">Connected</Link>
@@ -105,7 +105,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-02.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-02.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn not-connect">
                                                             <Link to="#">Connect</Link>
@@ -137,7 +137,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-03.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-03.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn">
                                                             <Link to="#">Connected</Link>
@@ -169,7 +169,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-04.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-04.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn not-connect">
                                                             <Link to="#">Connect</Link>
@@ -201,7 +201,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-05.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-05.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn not-connect">
                                                             <Link to="#">Connect</Link>
@@ -233,7 +233,7 @@ const ConnectedApps = () => {
                                                 <ul>
                                                     <li>
                                                         <div className="app-icon">
-                                                            <ImageWithBasePath src="assets/img/icons/app-icon-06.svg" alt="" />
+                                                            <Image src="assets/img/icons/app-icon-06.svg" alt="" />
                                                         </div>
                                                         <div className="connect-btn">
                                                             <Link to="#">Connected</Link>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 import { DatePicker } from 'antd'
 import { PlusCircle } from 'feather-icons-react/build/IconComponents'
 
@@ -102,7 +102,7 @@ const EditSalesRetuens = () => {
                                                                 placeholder="Please type product code and select"
                                                             />
                                                             <div className="addonset">
-                                                                <ImageWithBasePath
+                                                                <Image
                                                                     src="assets/img/icons/qrcode-scan.svg"
                                                                     alt="img"
                                                                 />
@@ -132,7 +132,7 @@ const EditSalesRetuens = () => {
                                                                         to="#"
                                                                         className="product-img"
                                                                     >
-                                                                        <ImageWithBasePath
+                                                                        <Image
                                                                             src="assets/img/products/product6.jpg"
                                                                             alt="product"
                                                                         />
@@ -154,7 +154,7 @@ const EditSalesRetuens = () => {
                                                                         to="#"
                                                                         className="product-img"
                                                                     >
-                                                                        <ImageWithBasePath
+                                                                        <Image
                                                                             src="assets/img/products/product7.jpg"
                                                                             alt="product"
                                                                         />

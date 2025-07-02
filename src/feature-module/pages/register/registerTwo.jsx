@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -13,10 +13,10 @@ const RegisterTwo = () => {
             <form action="signin-2">
               <div className="login-userset">
                 <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/logo-white.png"
                     alt="img"
                   />
@@ -29,7 +29,7 @@ const RegisterTwo = () => {
                   <label>Name</label>
                   <div className="form-addons">
                     <input type="text" className="form-control" />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/user-icon.svg"
                       alt="img"
                     />
@@ -39,7 +39,7 @@ const RegisterTwo = () => {
                   <label>Email Address</label>
                   <div className="form-addons">
                     <input type="text" className="form-control" />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/mail.svg"
                       alt="img"
                     />
@@ -96,7 +96,7 @@ const RegisterTwo = () => {
                   <ul className="d-flex">
                     <li>
                       <Link to="#" className="facebook-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/facebook-logo.svg"
                           alt="Facebook"
                         />
@@ -104,7 +104,7 @@ const RegisterTwo = () => {
                     </li>
                     <li>
                       <Link to="#">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/google.png"
                           alt="Google"
                         />
@@ -112,7 +112,7 @@ const RegisterTwo = () => {
                     </li>
                     <li>
                       <Link to="#" className="apple-logo">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/apple-logo.svg"
                           alt="Apple"
                         />
@@ -127,7 +127,7 @@ const RegisterTwo = () => {
             </form>
           </div>
           <div className="login-img">
-            <ImageWithBasePath
+            <Image
               src="assets/img/authentication/register02.png"
               alt="img"
             />

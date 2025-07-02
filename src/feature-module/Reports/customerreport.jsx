@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Filter, Sliders } from "react-feather";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import Select from "react-select";
 import { StopCircle, User } from "react-feather";
 import Breadcrumbs from "../../core/breadcrumbs";
@@ -73,7 +73,7 @@ const CustomerReport = () => {
                     onClick={toggleFilterVisibility}
                   />
                   <span onClick={toggleFilterVisibility}>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/closes.svg"
                       alt="img"
                     />
@@ -130,7 +130,7 @@ const CustomerReport = () => {
                   </div>
                   <div className="col-lg-3 col-sm-6 col-12">
                     <div className="input-blocks">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/payment-status.svg"
                         className="info-img status-icon"
                         alt="Icon"

@@ -1,5 +1,5 @@
 import React from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image'
 
 const Carousel = () => {
     return (
@@ -32,21 +32,21 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner" role="listbox">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-1.jpg"
                                                     alt="First slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-3.jpg"
                                                     alt="Second slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-4.jpg"
                                                     alt="Third slide"
@@ -75,21 +75,21 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner" role="listbox">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-1.jpg"
                                                     alt="First slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-3.jpg"
                                                     alt="Second slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-4.jpg"
                                                     alt="Third slide"
@@ -160,21 +160,21 @@ const Carousel = () => {
                                         </ol>
                                         <div className="carousel-inner" role="listbox">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-1.jpg"
                                                     alt="First slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-2.jpg"
                                                     alt="Second slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-4.jpg"
                                                     alt="Third slide"
@@ -229,7 +229,7 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner" role="listbox">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-1.jpg"
                                                     alt="Slide"
                                                     className="d-block img-fluid"
@@ -242,7 +242,7 @@ const Carousel = () => {
                                                 </div>
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-2.jpg"
                                                     alt="Slide"
                                                     className="d-block img-fluid"
@@ -255,7 +255,7 @@ const Carousel = () => {
                                                 </div>
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-3.jpg"
                                                     alt="Slide"
                                                     className="d-block img-fluid"
@@ -317,21 +317,21 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-1.jpg"
                                                     alt="First slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-2.jpg"
                                                     alt="Second slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-3.jpg"
                                                     alt="Third slide"
@@ -386,21 +386,21 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-2.jpg"
                                                     alt="First slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-3.jpg"
                                                     alt="Second slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     className="d-block img-fluid"
                                                     src="assets/img/img-4.jpg"
                                                     alt="Third slide"
@@ -453,21 +453,21 @@ const Carousel = () => {
                                     >
                                         <div className="carousel-inner">
                                             <div className="carousel-item active">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-2.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-3.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"
                                                 />
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-4.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"
@@ -542,7 +542,7 @@ const Carousel = () => {
                                                 className="carousel-item active"
                                                 data-bs-interval={10000}
                                             >
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-2.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"
@@ -556,7 +556,7 @@ const Carousel = () => {
                                                 </div>
                                             </div>
                                             <div className="carousel-item" data-bs-interval={2000}>
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-3.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"
@@ -570,7 +570,7 @@ const Carousel = () => {
                                                 </div>
                                             </div>
                                             <div className="carousel-item">
-                                                <ImageWithBasePath
+                                                <Image
                                                     src="assets/img/img-4.jpg"
                                                     className="d-block w-100"
                                                     alt="Slide"

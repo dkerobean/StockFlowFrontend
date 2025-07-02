@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../Router/all_routes";
 
@@ -9,7 +9,7 @@ const Lockscreen = () => {
     <div className="main-wrapper login-body">
       <div className="login-wrapper">
         <div className="container">
-          <ImageWithBasePath
+          <Image
             className="img-fluid logo-dark mb-5"
             src="assets/img/logo.png"
             alt="Logo"
@@ -19,7 +19,7 @@ const Lockscreen = () => {
               <div className="login-right-wrap">
                 <div className="login-info">
                   <p className="account-subtitle">Welcome back!</p>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/login-user.png"
                     className="img-fluid"
                     alt="User-Img"

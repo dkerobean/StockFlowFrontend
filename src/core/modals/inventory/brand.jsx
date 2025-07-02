@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
-import ImageWithBasePath from '../../img/imagewithbasebath';
+import Image from '../../img/image';
 
 const Brand = () => {
     const product = [
@@ -88,7 +88,7 @@ const Brand = () => {
                                                         <div className="image-upload download">
                                                             <input type="file" />
                                                             <div className="image-uploads">
-                                                                <ImageWithBasePath src="assets/img/download-img.png" alt="img" />
+                                                                <Image src="assets/img/download-img.png" alt="img" />
                                                                 <h4>
                                                                     Drag and drop a <span>file to upload</span>
                                                                 </h4>

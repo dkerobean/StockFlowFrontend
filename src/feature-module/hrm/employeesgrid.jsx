@@ -4,7 +4,7 @@ import { all_routes } from "../../Router/all_routes";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import {
   Edit,
   Grid,
@@ -121,7 +121,7 @@ const EmployeesGrid = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -131,7 +131,7 @@ const EmployeesGrid = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />
@@ -201,7 +201,7 @@ const EmployeesGrid = () => {
                         onClick={toggleFilterVisibility}
                       />
                       <span>
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/icons/closes.svg"
                           alt="img"
                         />
@@ -320,7 +320,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-01.jpg"
                         alt=""
                       />
@@ -387,7 +387,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-02.jpg"
                         alt=""
                       />
@@ -454,7 +454,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-03.jpg"
                         alt=""
                       />
@@ -521,7 +521,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-06.jpg"
                         alt=""
                       />
@@ -588,7 +588,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-04.jpg"
                         alt=""
                       />
@@ -655,7 +655,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-05.jpg"
                         alt=""
                       />
@@ -722,7 +722,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-07.jpg"
                         alt=""
                       />
@@ -789,7 +789,7 @@ const EmployeesGrid = () => {
                   </div>
                   <div className="profile-info">
                     <div className="profile-pic active-profile">
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/users/user-08.jpg"
                         alt=""
                       />

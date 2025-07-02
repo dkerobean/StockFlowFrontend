@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../Router/all_routes";
 
@@ -9,7 +9,7 @@ const Error500 = () => {
     <div className="main-wrapper">
       <div className="error-box">
         <div className="error-img">
-          <ImageWithBasePath
+          <Image
             src="assets/img/authentication/error-500.png"
             className="img-fluid"
             alt="img"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ImageWithBasePath from '../../core/img/imagewithbasebath'
+import Image from '../../core/img/image';
 import { Link } from 'react-router-dom'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { setToogleHeader } from '../../core/redux/action';
@@ -113,14 +113,14 @@ const PurchaseReturns = () => {
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                                     <Link>
-                                        <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                                        <Image src="assets/img/icons/pdf.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
                             <li>
                                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                                     <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                                        <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                                        <Image src="assets/img/icons/excel.svg" alt="img" />
                                     </Link>
                                 </OverlayTrigger>
                             </li>
@@ -190,7 +190,7 @@ const PurchaseReturns = () => {
                                             onClick={toggleFilterVisibility}
                                         />
                                         <span onClick={toggleFilterVisibility}>
-                                            <ImageWithBasePath src="assets/img/icons/closes.svg" alt="img" />
+                                            <Image src="assets/img/icons/closes.svg" alt="img" />
                                         </span>
                                     </Link>
                                 </div>
@@ -285,7 +285,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product1.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product1.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>2/27/2022</td>
@@ -325,7 +325,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product2.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product2.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>1/15/2022</td>
@@ -365,7 +365,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product3.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product3.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>3/24/2022</td>
@@ -405,7 +405,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product4.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product4.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>1/15/2022</td>
@@ -445,7 +445,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product5.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product5.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>1/15/2022</td>
@@ -485,7 +485,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product6.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product6.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>3/24/2022</td>
@@ -525,7 +525,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product7.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product7.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>1/15/2022</td>
@@ -565,7 +565,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product8.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product8.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>3/24/2022</td>
@@ -605,7 +605,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product9.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product9.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>3/24/2022</td>
@@ -645,7 +645,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath
+                                                    <Image
                                                         src="assets/img/products/product10.jpg"
                                                         alt="product"
                                                     />
@@ -688,7 +688,7 @@ const PurchaseReturns = () => {
                                             </td>
                                             <td>
                                                 <Link className="product-img">
-                                                    <ImageWithBasePath src="assets/img/products/product5.jpg" alt="product" />
+                                                    <Image src="assets/img/products/product5.jpg" alt="product" />
                                                 </Link>
                                             </td>
                                             <td>3/24/2022</td>

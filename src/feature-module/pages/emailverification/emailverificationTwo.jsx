@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { all_routes } from "../../../Router/all_routes";
 import { Link } from "react-router-dom";
 
@@ -13,11 +13,11 @@ const EmailverificationTwo = () => {
             <div className="login-userset">
               <div className="login-userset">
                 <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
               </div>
               <Link to={route.dashboard} className="login-logo logo-white">
-                <ImageWithBasePath src="assets/img/logo-white.png" alt />
+                <Image src="assets/img/logo-white.png" alt />
               </Link>
               <div className="login-userheading text-center">
                 <h3>Verify Your Email</h3>
@@ -45,7 +45,7 @@ const EmailverificationTwo = () => {
             </div>
           </div>
           <div className="login-img">
-            <ImageWithBasePath
+            <Image
               src="assets/img/authentication/email02.png"
               alt="img"
             />

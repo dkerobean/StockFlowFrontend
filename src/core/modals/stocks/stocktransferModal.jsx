@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -320,7 +320,7 @@ const StockTransferModal = ({ onTransferCreated, locations, products }) => {
                                         to="#"
                                         className="product-img stock-img"
                                       >
-                                        <ImageWithBasePath
+                                        <Image
                                           src="assets/img/products/stock-img-02.png"
                                           alt="product"
                                         />
@@ -478,7 +478,7 @@ const StockTransferModal = ({ onTransferCreated, locations, products }) => {
                         <div className="image-upload download">
                           <input type="file" />
                           <div className="image-uploads">
-                            <ImageWithBasePath
+                            <Image
                               src="assets/img/download-img.png"
                               alt="img"
                             />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import {
   ChevronUp,
   Filter,
@@ -155,7 +155,7 @@ const PurchaseOrderReport = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderTooltip}>
                   <Link>
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/pdf.svg"
                       alt="img"
                     />
@@ -165,7 +165,7 @@ const PurchaseOrderReport = () => {
               <li>
                 <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
                   <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/excel.svg"
                       alt="img"
                     />
@@ -284,7 +284,7 @@ const PurchaseOrderReport = () => {
                       onClick={toggleFilterVisibility}
                     />
                     <span onClick={toggleFilterVisibility}>
-                      <ImageWithBasePath
+                      <Image
                         src="assets/img/icons/closes.svg"
                         alt="img"
                       />
@@ -414,7 +414,7 @@ const PurchaseOrderReport = () => {
                         <td className="productimgname">
                           <Link className="product-img">
                             {item.productImage ? (
-                              <ImageWithBasePath
+                              <Image
                                 src={item.productImage}
                                 alt="product"
                               />

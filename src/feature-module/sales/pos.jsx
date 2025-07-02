@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import { OverlayTrigger, Tooltip, Modal, Button, Form } from 'react-bootstrap'; // Assuming Form is needed for modals
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import {
   ShoppingCart,
   RefreshCcw as RefreshIcon, // Assuming RefreshIcon should be RefreshCcw
@@ -1200,7 +1200,7 @@ const Pos = () => {
                                     // Use imported Smartphone icon directly
                                     <Smartphone size={24} style={{ marginBottom: '5px'}} />
                                 ) : (
-                                    <ImageWithBasePath
+                                    <Image
                                         src={`assets/img/icons/${methodOpt.iconName}.svg`}
                                         alt={methodOpt.label}
                                         style={{height: '24px', marginBottom: '5px'}}
@@ -1436,7 +1436,7 @@ const Pos = () => {
         </Modal.Header>
         <Modal.Body>
             <div className="icon-head text-center">
-                <Link to="#"><ImageWithBasePath src="assets/img/logo.png" width={100} height={30} alt="Receipt Logo"/></Link>
+                <Link to="#"><Image src="assets/img/logo.png" width={100} height={30} alt="Receipt Logo"/></Link>
             </div>
             <div className="text-center info text-center">
                 <h6>Your Company Name</h6>

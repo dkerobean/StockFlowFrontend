@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Components & Config
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { all_routes } from '../../Router/all_routes';
 import { ArrowLeft, Printer } from 'feather-icons-react/build/IconComponents'; // Added ArrowLeft
 
@@ -181,10 +181,10 @@ const ProductDetail = () => {
                                         <div className="bar-code-view mb-4">
                                             {/* Placeholder for barcode image generation */}
                                             <span className="text-muted small">Barcode: {product.barcode}</span>
-                                            {/* <ImageWithBasePath src="assets/img/barcode/barcode1.png" alt="barcode" /> */}
+                                            {/* <Image src="assets/img/barcode/barcode1.png" alt="barcode" /> */}
                                             {/* Print function needs implementation */}
                                             {/* <a className="printimg" href="#">
-                                                <ImageWithBasePath src="assets/img/icons/printer.svg" alt="print" />
+                                                <Image src="assets/img/icons/printer.svg" alt="print" />
                                             </a> */}
                                         </div>
                                     )}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Scrollbars from "react-custom-scrollbars-2";
 import { X, Phone, Send } from "react-feather";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Link } from "react-router-dom";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -82,7 +82,7 @@ const Audiocall = () => {
                           <ul>
                             <li className="active">
                               <div className="avatar ">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/avatar/avatar-2.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -99,7 +99,7 @@ const Audiocall = () => {
                             </li>
                             <li>
                               <div className="avatar ">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-16.jpg"
                                   className="rounded-circle"
                                   alt="image"
@@ -165,7 +165,7 @@ const Audiocall = () => {
                           <div className="chat-msg-blk ">
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className="dreams_chat"
                                   alt="image"
@@ -195,7 +195,7 @@ const Audiocall = () => {
                                 </div>
                               </div>
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-02.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -204,7 +204,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -221,7 +221,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -238,7 +238,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -258,7 +258,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -275,7 +275,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"
@@ -305,7 +305,7 @@ const Audiocall = () => {
                                 </div>
                               </div>
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-02.jpg"
                                   className="dreams_chat"
                                   alt="image"
@@ -314,7 +314,7 @@ const Audiocall = () => {
                             </div>
                             <div className="chats">
                               <div className="chat-avatar">
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/users/user-01.jpg"
                                   className=" dreams_chat"
                                   alt="image"

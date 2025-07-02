@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import ImageWithBasePath from '../../core/img/imagewithbasebath';
+import Image from '../../core/img/image';
 import { Link } from 'react-router-dom';
 
 const Tooltips = () => {
@@ -411,7 +411,7 @@ const Tooltips = () => {
                                             to="#"
                                             className="avatar avatar-md me-2 online avatar-rounded"
                                         >
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-1.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-1.jpg" alt="img" />
                                         </Link>
                                     </OverlayTrigger>
                                     <OverlayTrigger
@@ -422,7 +422,7 @@ const Tooltips = () => {
                                             to="#"
                                             className="avatar avatar-lg me-2 online avatar-rounded"
                                         >
-                                            <ImageWithBasePath src="assets/img/avatar/avatar-2.jpg" alt="img" />
+                                            <Image src="assets/img/avatar/avatar-2.jpg" alt="img" />
                                         </Link>
                                     </OverlayTrigger>
                                     <OverlayTrigger
@@ -433,7 +433,7 @@ const Tooltips = () => {
                                       to="#"
                                       className="avatar avatar-xl me-2 offline avatar-rounded"
                                     >
-                                      <ImageWithBasePath src="assets/img/avatar/avatar-3.jpg" alt="img" />
+                                      <Image src="assets/img/avatar/avatar-3.jpg" alt="img" />
                                     </Link>
                                   </OverlayTrigger>
                                 </div>

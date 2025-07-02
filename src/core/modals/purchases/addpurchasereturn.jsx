@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { PlusCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 
 const AddPurchaseReturn = () => {
     const suppliers = [
@@ -97,7 +97,7 @@ const AddPurchaseReturn = () => {
                                                                 placeholder="Please type product code and select"
                                                             />
                                                             <div className="addonset">
-                                                                <ImageWithBasePath
+                                                                <Image
                                                                     src="assets/img/icons/qrcode-scan.svg"
                                                                     alt="img"
                                                                 />

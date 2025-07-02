@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios
-import ImageWithBasePath from "../../../core/img/imagewithbasebath";
+import Image from "../../../core/img/image";
 import { all_routes } from "../../../Router/all_routes";
 
 // --- Import react-toastify ---
@@ -190,10 +190,10 @@ const Register = () => {
               <div className="login-userset">
                 {/* ... Logo ... */}
                  <div className="login-logo logo-normal">
-                  <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+                  <Image src="assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <ImageWithBasePath src="assets/img/logo-white.png" alt="" />
+                  <Image src="assets/img/logo-white.png" alt="" />
                 </Link>
 
                 <div className="login-userheading">
@@ -213,7 +213,7 @@ const Register = () => {
                         required
                         disabled={loading}
                     />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/user-icon.svg"
                       alt="img"
                     />
@@ -232,7 +232,7 @@ const Register = () => {
                         required
                         disabled={loading}
                     />
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/icons/mail.svg"
                       alt="img"
                     />
@@ -323,9 +323,9 @@ const Register = () => {
                 <div className="form-setlogin or-text"><h4>OR</h4></div>
                  <div className="form-sociallink">
                    <ul className="d-flex">
-                     <li><Link to="#" className="facebook-logo"><ImageWithBasePath src="assets/img/icons/facebook-logo.svg" alt="Facebook" /></Link></li>
-                     <li><Link to="#"><ImageWithBasePath src="assets/img/icons/google.png" alt="Google" /></Link></li>
-                     <li><Link to="#" className="apple-logo"><ImageWithBasePath src="assets/img/icons/apple-logo.svg" alt="Apple" /></Link></li>
+                     <li><Link to="#" className="facebook-logo"><Image src="assets/img/icons/facebook-logo.svg" alt="Facebook" /></Link></li>
+                     <li><Link to="#"><Image src="assets/img/icons/google.png" alt="Google" /></Link></li>
+                     <li><Link to="#" className="apple-logo"><Image src="assets/img/icons/apple-logo.svg" alt="Apple" /></Link></li>
                    </ul>
                  </div>
                  <div className="my-4 d-flex justify-content-center align-items-center copyright-text">

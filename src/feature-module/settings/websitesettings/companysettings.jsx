@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ImageWithBasePath from '../../../core/img/imagewithbasebath'
+import Image from '../../../core/img/image'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { ChevronUp, RotateCcw, Upload, X } from 'feather-icons-react/build/IconComponents'
 import { setToogleHeader } from '../../../core/redux/action'
@@ -148,7 +148,7 @@ const CompanySettings = () => {
                                                     </div>
                                                     <div className="new-logo ms-auto">
                                                         <Link to="#">
-                                                            <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                            <Image src="assets/img/logo-small.png" alt="Logo" />
                                                             <span>
                                                                 <i data-feather="x" />
                                                                 <X />
@@ -181,7 +181,7 @@ const CompanySettings = () => {
                                                     </div>
                                                     <div className="new-logo ms-auto">
                                                         <Link to="#">
-                                                            <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                            <Image src="assets/img/logo-small.png" alt="Logo" />
                                                             <span>
                                                                 <X />
                                                             </span>
@@ -216,7 +216,7 @@ const CompanySettings = () => {
                                                     </div>
                                                     <div className="new-logo ms-auto">
                                                         <Link to="#">
-                                                            <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                            <Image src="assets/img/logo-small.png" alt="Logo" />
                                                             <span>
                                                                 <X />
                                                             </span>
@@ -249,7 +249,7 @@ const CompanySettings = () => {
                                                     </div>
                                                     <div className="new-logo ms-auto">
                                                         <Link to="#">
-                                                            <ImageWithBasePath src="assets/img/logo-small.png" alt="Logo" />
+                                                            <Image src="assets/img/logo-small.png" alt="Logo" />
                                                             <span>
                                                                 <X />
                                                             </span>

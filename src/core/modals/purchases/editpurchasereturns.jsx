@@ -3,7 +3,7 @@ import { PlusCircle } from 'feather-icons-react/build/IconComponents'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
-import ImageWithBasePath from '../../img/imagewithbasebath'
+import Image from '../../img/image'
 
 const EditPurchaseReturns = () => {
     const suppliers = [
@@ -98,7 +98,7 @@ const EditPurchaseReturns = () => {
                                                                 defaultValue="Apex Computers"
                                                             />
                                                             <div className="addonset">
-                                                                <ImageWithBasePath
+                                                                <Image
                                                                     src="assets/img/icons/qrcode-scan.svg"
                                                                     alt="img"
                                                                 />
@@ -126,7 +126,7 @@ const EditPurchaseReturns = () => {
                                                         <tr>
                                                             <td>
                                                                 <a className="product-img">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/products/product1.jpg"
                                                                         alt="product"
                                                                     />
@@ -150,7 +150,7 @@ const EditPurchaseReturns = () => {
                                                         <tr>
                                                             <td>
                                                                 <a className="product-img">
-                                                                    <ImageWithBasePath
+                                                                    <Image
                                                                         src="assets/img/products/product5.jpg"
                                                                         alt="product"
                                                                     />

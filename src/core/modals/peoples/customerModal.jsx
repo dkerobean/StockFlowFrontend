@@ -1,6 +1,6 @@
 import React from "react";
 import Select from "react-select";
-import ImageWithBasePath from "../../img/imagewithbasebath";
+import Image from "../../img/image";
 import { Link } from "react-router-dom";
 
 const CustomerModal = () => {
@@ -167,7 +167,7 @@ const CustomerModal = () => {
                     <div className="new-employee-field">
                       <div className="profile-pic-upload">
                         <div className="profile-pic people-profile-pic">
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/profiles/profile.png"
                             alt="Img"
                           />

@@ -1,5 +1,5 @@
 import React from "react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 
 const Media = () => {
   return (
@@ -24,7 +24,7 @@ const Media = () => {
                 </p>
                 <div className="d-flex align-items-start text-muted mb-4">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-5.jpg"
                       className="avatar avatar-xl rounded"
                       alt="..."
@@ -43,7 +43,7 @@ const Media = () => {
                     this with any content and adjust it as needed.
                   </div>
                   <div className="flex-shrink-0 ms-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-6.jpg"
                       className="avatar avatar-xl rounded"
                       alt="..."
@@ -52,7 +52,7 @@ const Media = () => {
                 </div>
                 <div className="d-flex align-items-start text-muted">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-7.jpg"
                       className="avatar avatar-xl rounded"
                       alt="..."
@@ -83,7 +83,7 @@ const Media = () => {
                 </p>
                 <div className="d-flex align-items-start text-muted mb-4">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-5.jpg"
                       className="avatar avatar-xl rounded"
                       alt="..."
@@ -95,7 +95,7 @@ const Media = () => {
                     this with any content and adjust it as needed.
                     <div className="d-flex align-items-start text-muted mt-3">
                       <div className="flex-shrink-0 me-3">
-                        <ImageWithBasePath
+                        <Image
                           src="assets/img/users/user-6.jpg"
                           className="avatar avatar-xl rounded"
                           alt="..."
@@ -111,7 +111,7 @@ const Media = () => {
                 </div>
                 <div className="d-flex align-items-start text-muted">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-7.jpg"
                       className="avatar avatar-xl rounded"
                       alt="..."
@@ -142,7 +142,7 @@ const Media = () => {
                 </p>
                 <div className="d-flex align-items-start text-muted mb-4">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-5.jpg"
                       className="avatar avatar-xxxl rounded"
                       alt="..."
@@ -166,7 +166,7 @@ const Media = () => {
                 </div>
                 <div className="d-flex align-items-center text-muted mb-4">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-6.jpg"
                       className="avatar avatar-xxxl rounded"
                       alt="..."
@@ -190,7 +190,7 @@ const Media = () => {
                 </div>
                 <div className="d-flex align-items-end text-muted">
                   <div className="flex-shrink-0 me-3">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/users/user-7.jpg"
                       className="avatar avatar-xxxl rounded"
                       alt="..."
