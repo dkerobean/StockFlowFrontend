@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
-import ImageWithBasePath from "./img/imagewithbasebath";
+import Image from "./img/image";
 import { PlusCircle, Printer } from "react-feather";
 import { Download, RotateCcw } from "feather-icons-react/build/IconComponents";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -57,7 +57,7 @@ const Breadcrumbs = (props) => {
         <ul className="table-top-head">
           <li>
             <Link data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf">
-              <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+              <Image src="assets/img/icons/pdf.svg" alt="img" />
             </Link>
           </li>
           <li>
@@ -66,7 +66,7 @@ const Breadcrumbs = (props) => {
               data-bs-placement="top"
               title="Excel"
             >
-              <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+              <Image src="assets/img/icons/excel.svg" alt="img" />
             </Link>
           </li>
           <li>
@@ -133,14 +133,14 @@ const Breadcrumbs = (props) => {
           <li>
             <OverlayTrigger placement="top" overlay={renderTooltip}>
               <Link>
-                <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                <Image src="assets/img/icons/pdf.svg" alt="img" />
               </Link>
             </OverlayTrigger>
           </li>
           <li>
             <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
               <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                <Image src="assets/img/icons/excel.svg" alt="img" />
               </Link>
             </OverlayTrigger>
           </li>
@@ -198,14 +198,14 @@ const Breadcrumbs = (props) => {
           <li>
             <OverlayTrigger placement="top" overlay={renderTooltip}>
               <Link>
-                <ImageWithBasePath src="assets/img/icons/pdf.svg" alt="img" />
+                <Image src="assets/img/icons/pdf.svg" alt="img" />
               </Link>
             </OverlayTrigger>
           </li>
           <li>
             <OverlayTrigger placement="top" overlay={renderExcelTooltip}>
               <Link data-bs-toggle="tooltip" data-bs-placement="top">
-                <ImageWithBasePath src="assets/img/icons/excel.svg" alt="img" />
+                <Image src="assets/img/icons/excel.svg" alt="img" />
               </Link>
             </OverlayTrigger>
           </li>

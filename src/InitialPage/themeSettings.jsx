@@ -3,7 +3,7 @@ import { Settings } from "react-feather";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { setLayoutChange } from "../core/redux/action";
-import ImageWithBasePath from "../core/img/imagewithbasebath";
+import Image from "../core/img/image";
 
 const ThemeSettings = () => {
   const dispatch = useDispatch();
@@ -177,7 +177,7 @@ const ThemeSettings = () => {
                               htmlFor="light_mode"
                               className="checktoggles"
                             >
-                              <ImageWithBasePath
+                              <Image
                                 src="assets/img/theme/theme-img-01.jpg"
                                 alt="img"
                               />
@@ -200,7 +200,7 @@ const ThemeSettings = () => {
                             />
                             <label htmlFor="dark_mode" className="checktoggles">
                               <div onClick={DarkThemes}>
-                                <ImageWithBasePath
+                                <Image
                                   src="assets/img/theme/theme-img-02.jpg"
                                   alt="img"
                                 />
@@ -233,7 +233,7 @@ const ThemeSettings = () => {
                               />
                               <label htmlFor="ltr" className="checktoggles">
                                 <Link to="/">
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-01.jpg"
                                     alt
                                   />
@@ -260,7 +260,7 @@ const ThemeSettings = () => {
                                   to="https://dreamspos.dreamstechnologies.com/react/template-rtl/"
                                   target="_blank"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-03.jpg"
                                     alt
                                   />
@@ -296,7 +296,7 @@ const ThemeSettings = () => {
                                   htmlFor="default_layout"
                                   className="checktoggles"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-01.jpg"
                                     alt="img"
                                   />
@@ -324,7 +324,7 @@ const ThemeSettings = () => {
                                   htmlFor="box_layout"
                                   className="checktoggles"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-07.jpg"
                                     alt="img"
                                   />
@@ -352,7 +352,7 @@ const ThemeSettings = () => {
                                   htmlFor="collapse_layout"
                                   className="checktoggles"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-05.jpg"
                                     alt="img"
                                   />
@@ -380,7 +380,7 @@ const ThemeSettings = () => {
                                   htmlFor="horizontal_layout"
                                   className="checktoggles"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-06.jpg"
                                     alt
                                   />
@@ -408,7 +408,7 @@ const ThemeSettings = () => {
                                   htmlFor="modern_layout"
                                   className="checktoggles"
                                 >
-                                  <ImageWithBasePath
+                                  <Image
                                     src="assets/img/theme/theme-img-04.jpg"
                                     alt
                                   />

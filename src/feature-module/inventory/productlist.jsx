@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Select from "react-select"; // Ensure Select is imported
+import Select from "react-select";
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // Icons
 import {
     Box, ChevronUp, Download, Edit, Eye, Filter, GitMerge, PlusCircle,
-    RotateCcw, Sliders, StopCircle, Trash2, Search, X // Added X icon
+    RotateCcw, Sliders, StopCircle, Trash2, Search, X, FileText, Users
 } from "feather-icons-react/build/IconComponents";
 
 // Redux
@@ -16,24 +16,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { setToogleHeader } from "../../core/redux/action";
 
 // Components
-import ImageWithBasePath from "../../core/img/imagewithbasebath"; // Your custom image component
-import Table from "../../core/pagination/datatable"; // Your custom Table component
-import { OverlayTrigger, Tooltip, Button } from "react-bootstrap"; // Added Button
+import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Table from "../../core/pagination/datatable";
+import { OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 
 // Routes and Config
-import { all_routes } from "../../Router/all_routes"; // Your route definitions
-const API_URL = process.env.REACT_APP_API_URL; // Your API base URL from .env
-const BACKEND_BASE_URL = API_URL ? API_URL.replace('/api', '') : ''; // Base URL for images if served directly
+import { all_routes } from "../../Router/all_routes";
+const API_URL = process.env.REACT_APP_API_URL;
+const BACKEND_BASE_URL = API_URL ? API_URL.replace('/api', '') : '';
 
 // Helper function to get Authorization Header
 const getAuthHeader = () => {
-    const token = localStorage.getItem('token'); // Adjust key if needed
+    const token = localStorage.getItem('token');
     if (!token) {
         console.error("Authentication token not found.");
-        // Returning null might lead to errors later, better to handle immediately
-        // Throwing an error or redirecting might be suitable depending on context
         return null;
     }
     return { Authorization: `Bearer ${token}` };
@@ -43,85 +41,99 @@ const getAuthHeader = () => {
 const selectStyles = {
     control: (baseStyles, state) => ({
         ...baseStyles,
-        minHeight: 'calc(1.5em + 0.75rem + 2px)',
+        minHeight: '38px',
         borderColor: state.isFocused ? '#86b7fe' : '#ced4da',
         boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)' : 'none',
         '&:hover': {
             borderColor: state.isFocused ? '#86b7fe' : '#adb5bd',
         },
+        fontSize: '14px'
     }),
-    menu: base => ({ ...base, zIndex: 5 }), // Ensure dropdown appears above other elements
+    menu: base => ({ ...base, zIndex: 5 }),
 };
-
 
 const ProductList = () => {
     const route = all_routes;
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const data = useSelector((state) => state.toggle_header); // For collapse button
-    const MySwal = withReactContent(Swal); // SweetAlert wrapper
+    const data = useSelector((state) => state.toggle_header);
+    const MySwal = withReactContent(Swal);
 
     // --- Component State ---
-    const [products, setProducts] = useState([]); // Holds the list of products
-    const [isLoading, setIsLoading] = useState(false); // For loading indicator during product fetch
-    const [isFetchingFilters, setIsFetchingFilters] = useState(false); // For loading indicator for filter dropdowns
-    const [error, setError] = useState(null); // Stores any error during data fetching
-    const [isFilterVisible, setIsFilterVisible] = useState(false); // Controls visibility of the filter card
-    const [searchQuery, setSearchQuery] = useState(""); // Holds the text from the search input
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingFilters, setIsFetchingFilters] = useState(false);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // --- Filter Data State ---
-    const [categories, setCategories] = useState([]); // Options for category filter
-    const [brands, setBrands] = useState([]); // Options for brand filter
-    const [locations, setLocations] = useState([]); // Options for location filter
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+    const [locations, setLocations] = useState([]);
 
     // --- Selected Filter State ---
-    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState(null); // Currently selected category
-    const [selectedBrandFilter, setSelectedBrandFilter] = useState(null); // Currently selected brand
-    const [selectedLocationFilter, setSelectedLocationFilter] = useState(null); // Currently selected location
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState(null);
+    const [selectedBrandFilter, setSelectedBrandFilter] = useState(null);
+    const [selectedLocationFilter, setSelectedLocationFilter] = useState(null);
+    const [selectedStatusFilter, setSelectedStatusFilter] = useState(null);
+    const [sortBy, setSortBy] = useState({ value: "createdAt", label: "Last 7 Days" });
 
-    // --- Fetch Filter Data (Categories, Brands, Locations) ---
+    // Status options
+    const statusOptions = [
+        { value: null, label: "All Status" },
+        { value: true, label: "Active" },
+        { value: false, label: "Inactive" }
+    ];
+
+    // Sort options matching the desired UI
+    const sortOptions = [
+        { value: "createdAt", label: "Last 7 Days" },
+        { value: "name", label: "Name A-Z" },
+        { value: "-name", label: "Name Z-A" },
+        { value: "-price", label: "Price High-Low" },
+        { value: "price", label: "Price Low-High" }
+    ];
+
+    // --- Fetch Filter Data ---
     const fetchFilterData = useCallback(async () => {
         setIsFetchingFilters(true);
         const authHeader = getAuthHeader();
         if (!authHeader) {
-             toast.error("Authentication required for fetching filters.");
-             setIsFetchingFilters(false);
-             return;
-        }
-        if (!API_URL) {
-            console.error("API_URL is not configured.");
-            toast.error("Application configuration error (API URL).");
+            toast.error("Authentication required for fetching filters.");
             setIsFetchingFilters(false);
             return;
         }
         try {
-            // Fetch all filter data concurrently
             const [catRes, brandRes, locRes] = await Promise.all([
-                axios.get(`${API_URL}/product-categories`, { headers: authHeader }), // Updated endpoint
+                axios.get(`${API_URL}/product-categories`, { headers: authHeader }),
                 axios.get(`${API_URL}/brands`, { headers: authHeader }),
-                axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader })
+                axios.get(`${API_URL}/locations`, { headers: authHeader })
             ]);
 
-            // Format data for react-select
-            setCategories(catRes.data.map(cat => ({ value: cat._id, label: cat.name })));
-            setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
-            setLocations(locRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
+            setCategories([
+                { value: null, label: "All Categories" },
+                ...catRes.data.map(cat => ({ value: cat._id, label: cat.name }))
+            ]);
+            setBrands([
+                { value: null, label: "All Brands" },
+                ...brandRes.data.map(br => ({ value: br._id, label: br.name }))
+            ]);
+            setLocations([
+                { value: null, label: "All Locations" },
+                ...(locRes.data.locations || []).map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` }))
+            ]);
         } catch (err) {
             console.error("Error fetching filter data:", err.response ? err.response.data : err);
             toast.error("Could not load filter options. Please try refreshing.");
-            if (err.response && err.response.status === 401) {
-                localStorage.removeItem('token');
-                navigate(route.login);
-            }
         } finally {
             setIsFetchingFilters(false);
         }
-    }, [API_URL, navigate, route.login]);
+    }, [API_URL]);
 
-    // --- Fetch Products (Handles Search and Filtering) ---
+    // --- Fetch Products ---
     const fetchProducts = useCallback(async () => {
         setIsLoading(true);
-        setError(null); // Clear previous errors
+        setError(null);
         const authHeader = getAuthHeader();
         if (!authHeader) {
             toast.error("Authentication required. Please log in.");
@@ -129,85 +141,70 @@ const ProductList = () => {
             navigate(route.login);
             return;
         }
-         if (!API_URL || !BACKEND_BASE_URL) {
-              console.error("API_URL or BACKEND_BASE_URL is not configured.");
-              toast.error("Application configuration error.");
-              setIsLoading(false);
-              setError("Application configuration error.");
-              return;
-         }
 
-        // Prepare query parameters for the API request
         const params = {
-            populate: 'category,brand,createdBy', // Fields to populate on the backend
+            populate: 'category,brand,createdBy',
             search: searchQuery || undefined,
-            includeInactive: 'false',
+            includeInactive: selectedStatusFilter === null ? 'true' : selectedStatusFilter ? 'false' : 'true',
             category: selectedCategoryFilter?.value || undefined,
             brand: selectedBrandFilter?.value || undefined,
             locationId: selectedLocationFilter?.value || undefined,
+            includeInventory: 'true', // Always include inventory data
+            sort: sortBy?.value || 'createdAt'
         };
 
-        // Remove undefined parameters
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         try {
-            const response = await axios.get(`${API_URL}/products`, { headers: authHeader, params });
+            const response = await axios.get(`${API_URL}/products`, { 
+                headers: authHeader, 
+                params 
+            });
             setProducts(response.data || []);
         } catch (err) {
             console.error("Error fetching products:", err.response ? err.response.data : err);
-            const errorMessage = err.response?.data?.message || err.message || "Failed to fetch products.";
-            setError(errorMessage);
-            if (err.response && err.response.status === 401) {
-                toast.error("Session expired. Please log in again.");
-                localStorage.removeItem('token');
-                navigate(route.login);
-            }
+            const fetchErrorMsg = err.response?.data?.message || "Failed to fetch products.";
+            setError(fetchErrorMsg);
+            toast.error(fetchErrorMsg);
         } finally {
             setIsLoading(false);
         }
-    }, [
-        navigate, route.login, searchQuery, API_URL, BACKEND_BASE_URL,
-        selectedCategoryFilter, selectedBrandFilter, selectedLocationFilter
-    ]);
+    }, [API_URL, searchQuery, selectedCategoryFilter, selectedBrandFilter, selectedLocationFilter, selectedStatusFilter, sortBy, navigate, route.login]);
 
-    // --- Effects ---
-    // Fetch filter data when the component mounts
+    // Load data on component mount and when filters change
     useEffect(() => {
         fetchFilterData();
     }, [fetchFilterData]);
 
-    // Fetch products when filters or search query change (with debounce)
     useEffect(() => {
-        // Set up a timer to delay the fetchProducts call
-        const debounceTimer = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             fetchProducts();
-        }, 300); // 300ms delay
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [fetchProducts]);
 
-        // Cleanup function: clear the timer if dependencies change before it fires
-        return () => {
-            clearTimeout(debounceTimer);
-        };
-    }, [fetchProducts]); // Re-run effect only when fetchProducts function identity changes
+    // Reset all filters
+    const resetFilters = () => {
+        setSearchQuery("");
+        setSelectedCategoryFilter(null);
+        setSelectedBrandFilter(null);
+        setSelectedLocationFilter(null);
+        setSelectedStatusFilter(null);
+        setSortBy({ value: "createdAt", label: "Last 7 Days" });
+        toast.info("Filters reset");
+    };
 
-
-    // --- Event Handlers ---
-
-    // Handle Deactivating a Product
-    const handleDelete = (productId, productName) => {
+    // Handle product deactivation
+    const handleDeactivateProduct = (productId, productName) => {
         MySwal.fire({
             title: "Are you sure?",
-            text: `This will deactivate the product "${productName}". You can reactivate it later.`,
+            text: `You are about to deactivate "${productName}". This action can be reversed later.`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
             confirmButtonText: "Yes, deactivate it!",
-            cancelButtonText: "Cancel",
-            customClass: {
-                confirmButton: "btn btn-danger",
-                cancelButton: "btn btn-secondary ms-2"
-            },
-            buttonsStyling: false
+            cancelButtonText: "Cancel"
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const authHeader = getAuthHeader();
@@ -217,218 +214,204 @@ const ProductList = () => {
                     return;
                 }
                 try {
-                    // Send DELETE request to the backend endpoint (maps to soft delete)
                     await axios.delete(`${API_URL}/products/${productId}`, { headers: authHeader });
                     MySwal.fire({
-                       title: "Deactivated!",
-                       text: `Product "${productName}" has been deactivated.`,
-                       icon: "success",
-                       timer: 1500, // Auto close after 1.5s
-                       showConfirmButton: false,
+                        title: "Deactivated!",
+                        text: `Product "${productName}" has been deactivated.`,
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false,
                     });
-                    // Refetch the product list to reflect the change
                     fetchProducts();
                 } catch (err) {
                     console.error("Error deactivating product:", err.response ? err.response.data : err);
-                    const deleteErrorMsg = err.response?.data?.message || "Failed to deactivate product.";
-                    MySwal.fire("Error!", deleteErrorMsg, "error");
-                     if (err.response && err.response.status === 401) {
-                        toast.error("Session expired. Please log in again.");
-                        localStorage.removeItem('token');
-                        navigate(route.login);
-                     }
+                    MySwal.fire("Error!", "Failed to deactivate product.", "error");
                 }
             }
         });
     };
 
-    // Toggle the visibility of the filter section
-    const toggleFilterVisibility = () => {
-        setIsFilterVisible((prevVisibility) => !prevVisibility);
-    };
+    // Tooltip components
+    const renderRefreshTooltip = <Tooltip>Refresh</Tooltip>;
+    const renderCollapseTooltip = <Tooltip>Collapse</Tooltip>;
 
-    // Reset all filters and the search query
-    const resetFilters = () => {
-        setSearchQuery("");
-        setSelectedCategoryFilter(null);
-        setSelectedBrandFilter(null);
-        setSelectedLocationFilter(null);
-        setIsFilterVisible(false); // Optionally hide filters on reset
-        // fetchProducts will be called automatically by the useEffect hook due to state changes
-        toast.info("Filters reset");
-    };
-
-
-    // --- Table Column Definitions ---
+    // Table columns
     const columns = [
+        {
+            title: "SKU",
+            dataIndex: "sku",
+            render: (text) => <span className="fw-medium">{text}</span>
+        },
         {
             title: "Product",
             dataIndex: "name",
             render: (text, record) => {
-                // Determine the image source, handling different URL types and providing fallback
-                 let placeholderSrc = "/assets/img/placeholder-product.png"; // Path to your placeholder
-                 let imageSrc = placeholderSrc;
+                let imageSrc = "/assets/img/placeholder-product.png";
+                if (record.imageUrl) {
+                    if (record.imageUrl.startsWith('http')) {
+                        imageSrc = record.imageUrl;
+                    } else if (BACKEND_BASE_URL) {
+                        imageSrc = `${BACKEND_BASE_URL}/${record.imageUrl.replace(/^\/+/, '')}`;
+                    }
+                }
 
-                 if (record.imageUrl) {
-                     if (record.imageUrl.startsWith('http://') || record.imageUrl.startsWith('https://')) {
-                         // Absolute URL
-                         imageSrc = record.imageUrl;
-                     } else if (record.imageUrl.startsWith('/') && BACKEND_BASE_URL) {
-                         // Relative URL starting with '/', needs backend base URL
-                         imageSrc = `${BACKEND_BASE_URL}${record.imageUrl}`;
-                     } else if (BACKEND_BASE_URL) {
-                          // Relative URL not starting with '/', assume relative to backend root
-                         imageSrc = `${BACKEND_BASE_URL}/${record.imageUrl.startsWith('/') ? record.imageUrl.substring(1) : record.imageUrl}`;
-                     } else {
-                        // Cannot determine URL, use placeholder
-                        console.warn(`Cannot construct image URL for product ${record.name} (${record.imageUrl}) without BACKEND_BASE_URL.`);
-                     }
-                 }
-
-                 return (
-                     <span className="productimgname">
-                         {/* Link to product details page */}
-                         <Link to={route.productdetails.replace(':productId', record._id)} className="product-img stock-img">
-                             {/* Use standard img tag with onError fallback */}
-                             <img
+                return (
+                    <div className="productimgname">
+                        <Link to={route.productdetails?.replace(':productId', record._id)} className="product-img">
+                            <img
                                 alt={text}
                                 src={imageSrc}
-                                style={{ objectFit: 'contain', width: '40px', height: '40px', border: '0px solid #eee' }}
+                                style={{ objectFit: 'contain', width: '40px', height: '40px' }}
                                 onError={(e) => {
-                                    // If image fails to load, log error and set src to placeholder
-                                    console.error(`IMAGE LOAD ERROR for src: ${imageSrc} (Product: ${record.name})`);
-                                    e.target.onerror = null; // Prevent infinite loop if placeholder also fails
-                                    e.target.src = placeholderSrc;
+                                    e.target.src = "/assets/img/placeholder-product.png";
                                 }}
-                             />
-                         </Link>
-                         {/* Link to product details page (text) */}
-                         <Link to={route.productdetails.replace(':productId', record._id)}>{text}</Link>
-                     </span>
-                 );
-            },
-            sorter: (a, b) => a.name.localeCompare(b.name), // Sort alphabetically by name
-            width: '300px', // Fixed width for consistency
-        },
-        {
-            title: "SKU",
-            dataIndex: "sku",
-            sorter: (a, b) => (a.sku || '').localeCompare(b.sku || ''), // Sort by SKU
+                            />
+                        </Link>
+                        <Link to={route.productdetails?.replace(':productId', record._id)}>{text}</Link>
+                    </div>
+                );
+            }
         },
         {
             title: "Category",
-            dataIndex: "category", // Field from populated data
-            render: (category) => category?.name || <span className="text-muted">N/A</span>, // Display category name or N/A
-            sorter: (a, b) => (a.category?.name || '').localeCompare(b.category?.name || ''), // Sort by category name
+            dataIndex: "category",
+            render: (category) => category?.name || "N/A"
         },
         {
             title: "Brand",
-            dataIndex: "brand", // Field from populated data
-            render: (brand) => brand?.name || <span className="text-muted">N/A</span>, // Display brand name or N/A
-            sorter: (a, b) => (a.brand?.name || '').localeCompare(b.brand?.name || ''), // Sort by brand name
+            dataIndex: "brand",
+            render: (brand) => brand?.name || "N/A"
         },
         {
             title: "Price",
             dataIndex: "price",
-            render: (price) => price !== undefined && price !== null ? `$${Number(price).toFixed(2)}` : <span className="text-muted">N/A</span>, // Format price
-            sorter: (a, b) => (a.price || 0) - (b.price || 0), // Sort numerically by price
+            render: (price) => `$${(price || 0).toFixed(2)}`
         },
-        // NOTE: "Location" column is intentionally omitted.
-        // Displaying all locations a product exists in is complex for a list view.
-        // Use the "Filter by Location" dropdown instead to see products at a specific location.
+        {
+            title: "Unit",
+            dataIndex: "unit",
+            render: () => "Pc" // Default unit
+        },
+        {
+            title: "Qty",
+            dataIndex: "quantity",
+            render: (text, record) => {
+                // If a specific location is selected, show stock for that location
+                if (selectedLocationFilter?.value && record.totalStock !== undefined) {
+                    return record.totalStock;
+                }
+                // If no location filter, calculate total across all locations
+                if (record.inventory && Array.isArray(record.inventory)) {
+                    const totalQty = record.inventory.reduce((sum, inv) => sum + (inv.quantity || 0), 0);
+                    return totalQty;
+                }
+                // Fallback to zero if no inventory data
+                return 0;
+            }
+        },
         {
             title: "Created By",
-            dataIndex: "createdBy", // Field from populated data
+            dataIndex: "createdBy",
             render: (createdBy) => (
-                <span className="userimgname">
-                    {/* Link might go to user profile if available */}
-                    <Link to="#">{createdBy?.name || <span className="text-muted">Unknown</span>}</Link>
-                </span>
-            ),
-            sorter: (a, b) => (a.createdBy?.name || '').localeCompare(b.createdBy?.name || ''), // Sort by creator name
+                <div className="userimgname">
+                    <div className="user-img">
+                        <Users size={16} />
+                    </div>
+                    <div className="ms-2">
+                        <span>{createdBy?.name || "Unknown"}</span>
+                    </div>
+                </div>
+            )
         },
         {
             title: "Action",
-            key: "action",
-            render: (_, record) => {
-                // Generate paths for action links using route constants
-                const editProductPath = route.editproduct?.replace(':productId', record._id) || '#';
-                const productDetailsPath = route.productdetails?.replace(':productId', record._id) || '#';
-
-                // Log warnings if routes seem misconfigured
-                if (editProductPath === '#') console.warn("Edit product route not configured correctly.");
-                if (productDetailsPath === '#') console.warn("Product details route not configured correctly.");
-
-                return (
+            render: (text, record) => (
+                <div className="action-table-data">
                     <div className="edit-delete-action">
-                        {/* View Details */}
-                        <Link className="me-1 p-1 action-icon" to={productDetailsPath} title="View Details">
-                            <Eye className="feather-view" size={18} />
-                        </Link>
-                        {/* Edit Product */}
-                        <Link className="me-1 p-1 action-icon" to={editProductPath} title="Edit Product">
-                            <Edit className="feather-edit" size={18} />
-                        </Link>
-                        {/* Deactivate Product */}
-                        <Link
-                            className="p-1 action-icon"
-                            to="#"
-                            onClick={() => handleDelete(record._id, record.name)}
-                            title="Deactivate Product"
-                        >
-                            <Trash2 className="feather-trash-2" size={18}/>
-                        </Link>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>View Details</Tooltip>}>
+                            <Link className="me-1 p-1" to={route.productdetails?.replace(':productId', record._id)}>
+                                <Eye size={14} className="feather-eye" />
+                            </Link>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Edit Product</Tooltip>}>
+                            <Link className="me-1 p-1" to={route.editproduct?.replace(':productId', record._id)}>
+                                <Edit size={14} className="feather-edit" />
+                            </Link>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Delete Product</Tooltip>}>
+                            <Link 
+                                className="confirm-text p-1" 
+                                to="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDeactivateProduct(record._id, record.name);
+                                }}
+                            >
+                                <Trash2 size={14} className="feather-trash-2" />
+                            </Link>
+                        </OverlayTrigger>
                     </div>
-                );
-            },
-            width: '100px', // Fixed width for action buttons
-        },
+                </div>
+            )
+        }
     ];
 
-
-    // --- Tooltip Render Functions (for top buttons) ---
-    const renderRefreshTooltip = (props) => (<Tooltip id="refresh-tooltip" {...props}>Refresh</Tooltip>);
-    const renderCollapseTooltip = (props) => (<Tooltip id="collapse-tooltip" {...props}>Collapse</Tooltip>);
-
-
-    // --- Render Component ---
     return (
         <div className="page-wrapper">
-             {/* Toast notifications container */}
-             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
-
             <div className="content">
                 {/* Page Header */}
                 <div className="page-header">
-                     <div className="add-item d-flex">
+                    <div className="add-item d-flex">
                         <div className="page-title">
                             <h4>Product List</h4>
                             <h6>Manage your products</h6>
                         </div>
                     </div>
-                    {/* Header Action Buttons */}
                     <ul className="table-top-head">
-                        <li><OverlayTrigger placement="top" overlay={renderRefreshTooltip}><Link to="#" onClick={(e) => {e.preventDefault(); fetchProducts();}}><RotateCcw /></Link></OverlayTrigger></li>
-                        <li><OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
-                            <Link to="#" id="collapse-header" className={data ? "active" : ""} onClick={(e) => { e.preventDefault(); dispatch(setToogleHeader(!data)); }}>
-                                <ChevronUp />
-                            </Link>
-                        </OverlayTrigger></li>
+                        <li>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>Export PDF</Tooltip>}>
+                                <Link to="#"><FileText /></Link>
+                            </OverlayTrigger>
+                        </li>
+                        <li>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>Export Excel</Tooltip>}>
+                                <Link to="#"><FileText /></Link>
+                            </OverlayTrigger>
+                        </li>
+                        <li>
+                            <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
+                                <Link to="#" onClick={(e) => {e.preventDefault(); fetchProducts();}}>
+                                    <RotateCcw />
+                                </Link>
+                            </OverlayTrigger>
+                        </li>
+                        <li>
+                            <OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
+                                <Link 
+                                    to="#" 
+                                    className={data ? "active" : ""} 
+                                    onClick={(e) => { e.preventDefault(); dispatch(setToogleHeader(!data)); }}
+                                >
+                                    <ChevronUp />
+                                </Link>
+                            </OverlayTrigger>
+                        </li>
                     </ul>
-                    {/* Add Product Button */}
                     <div className="page-btn">
                         <Link to={route.addproduct} className="btn btn-added">
-                            <PlusCircle className="me-2 iconsize" />Add New Product
+                            <PlusCircle className="me-2" />Add New Product
+                        </Link>
+                        <Link to="#" className="btn btn-primary ms-2">
+                            <Download className="me-2" />Import Product
                         </Link>
                     </div>
                 </div>
 
-                {/* Main Card for Table and Filters */}
+                {/* Main Card */}
                 <div className="card table-list-card">
                     <div className="card-body">
-                        {/* Top section: Search and Filter Toggle */}
+                        {/* Search and Filters Bar */}
                         <div className="table-top">
-                            {/* Search Input */}
                             <div className="search-set">
                                 <div className="search-input">
                                     <input
@@ -438,115 +421,121 @@ const ProductList = () => {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
-                                     <button className="btn btn-searchset" onClick={fetchProducts} title="Search">
+                                    <Link to className="btn btn-searchset">
                                         <Search className="feather-search" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
-                            {/* Filter Toggle Button */}
+                            
+                            {/* Filter Controls */}
                             <div className="search-path">
-                                <Link
-                                    className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                                    id="filter_search"
-                                    to="#"
-                                    onClick={(e) => {e.preventDefault(); toggleFilterVisibility();}}
-                                    title={isFilterVisible ? "Hide Filters" : "Show Filters"}
-                                >
-                                    <Filter className="filter-icon" />
-                                    <span>{isFilterVisible ? <X size={14} style={{marginLeft: '5px'}}/> : ''}</span>
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* Filter Section - Collapsible */}
-                        <div
-                            className={`card filter-card ${isFilterVisible ? " visible" : ""}`}
-                            id="filter_inputs"
-                            style={{ display: isFilterVisible ? "block" : "none" }}
-                        >
-                            <div className="card-body pb-0">
-                                <div className="row">
-                                    {/* Category Filter Dropdown */}
-                                    <div className="col-lg-3 col-sm-6 col-12 mb-3">
-                                         <Select
+                                <div className="d-flex align-items-center gap-3">
+                                    {/* Category Filter */}
+                                    <div style={{ minWidth: '150px' }}>
+                                        <Select
                                             styles={selectStyles}
                                             options={categories}
                                             value={selectedCategoryFilter}
                                             onChange={setSelectedCategoryFilter}
-                                            placeholder="Filter by Category..."
-                                            isClearable
+                                            placeholder="Category"
+                                            isClearable={false}
                                             isLoading={isFetchingFilters}
-                                            classNamePrefix="react-select" // For potential custom CSS
                                         />
                                     </div>
-                                    {/* Brand Filter Dropdown */}
-                                    <div className="col-lg-3 col-sm-6 col-12 mb-3">
-                                         <Select
+                                    
+                                    {/* Brand Filter */}
+                                    <div style={{ minWidth: '150px' }}>
+                                        <Select
                                             styles={selectStyles}
                                             options={brands}
                                             value={selectedBrandFilter}
                                             onChange={setSelectedBrandFilter}
-                                            placeholder="Filter by Brand..."
-                                            isClearable
+                                            placeholder="Brand"
+                                            isClearable={false}
                                             isLoading={isFetchingFilters}
-                                            classNamePrefix="react-select"
                                         />
                                     </div>
-                                    {/* Location Filter Dropdown */}
-                                    <div className="col-lg-3 col-sm-6 col-12 mb-3">
-                                         <Select
+                                    
+                                    {/* Location Filter */}
+                                    <div style={{ minWidth: '150px' }}>
+                                        <Select
                                             styles={selectStyles}
                                             options={locations}
                                             value={selectedLocationFilter}
                                             onChange={setSelectedLocationFilter}
-                                            placeholder="Filter by Location..."
-                                            isClearable
+                                            placeholder="Location"
+                                            isClearable={false}
                                             isLoading={isFetchingFilters}
-                                            classNamePrefix="react-select"
                                         />
-                                        <small className="form-text text-muted d-block mt-1">
-                                            Shows products available at this location (Requires backend support).
-                                        </small>
                                     </div>
-                                    {/* Reset Filters Button */}
-                                     <div className="col-lg-3 col-sm-6 col-12 mb-3 d-flex align-items-end"> {/* Align button bottom */}
-                                        <Button variant="secondary" size="sm" onClick={resetFilters} className="w-100">
-                                            <RotateCcw size={14} className="me-1"/> Reset Filters
-                                        </Button>
+                                    
+                                    {/* Status Filter */}
+                                    <div style={{ minWidth: '150px' }}>
+                                        <Select
+                                            styles={selectStyles}
+                                            options={statusOptions}
+                                            value={selectedStatusFilter}
+                                            onChange={setSelectedStatusFilter}
+                                            placeholder="Status"
+                                            isClearable={false}
+                                        />
+                                    </div>
+                                    
+                                    {/* Sort By */}
+                                    <div style={{ minWidth: '150px' }}>
+                                        <Select
+                                            styles={selectStyles}
+                                            options={sortOptions}
+                                            value={sortBy}
+                                            onChange={setSortBy}
+                                            placeholder="Sort By"
+                                            isClearable={false}
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Table Section */}
+                        {/* Table */}
                         <div className="table-responsive">
-                            {/* Loading Indicator */}
-                            {isLoading && <div className="text-center p-5"><div className="spinner-border" role="status"><span className="visually-hidden">Loading products...</span></div></div>}
-                            {/* Error Message */}
-                            {!isLoading && error && <div className="alert alert-danger mx-2">Error: {error} <button onClick={fetchProducts} className="btn btn-sm btn-link p-0 ms-2">Retry</button></div>}
-                            {/* Table Display */}
+                            {isLoading && (
+                                <div className="text-center p-5">
+                                    <div className="spinner-border" role="status">
+                                        <span className="visually-hidden">Loading products...</span>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {!isLoading && error && (
+                                <div className="alert alert-danger">
+                                    Error: {error}
+                                    <button onClick={fetchProducts} className="btn btn-sm btn-link p-0 ms-2">
+                                        Retry
+                                    </button>
+                                </div>
+                            )}
+                            
                             {!isLoading && !error && (
-                                 <Table // Your custom AntD-like Table component
+                                <Table
                                     columns={columns}
-                                    dataSource={products} // Pass the fetched products
-                                    rowKey="_id" // Use MongoDB '_id' as the unique key
-                                    // Add pagination configuration if your Table component supports it
-                                    // Example: pagination={{ pageSize: 10, showSizeChanger: true }}
+                                    dataSource={products}
+                                    rowKey="_id"
                                 />
                             )}
-                            {/* No Results Messages */}
-                             {!isLoading && !error && products.length === 0 && !searchQuery && !selectedCategoryFilter && !selectedBrandFilter && !selectedLocationFilter &&(
-                                <div className="text-center p-5 text-muted">No products found. <Link to={route.addproduct}>Add your first product!</Link></div>
-                            )}
-                             {!isLoading && !error && products.length === 0 && (searchQuery || selectedCategoryFilter || selectedBrandFilter || selectedLocationFilter) && (
-                                <div className="text-center p-5 text-muted">No products match your current filters or search criteria.</div>
+                            
+                            {!isLoading && !error && products.length === 0 && (
+                                <div className="text-center p-5 text-muted">
+                                    No products found. 
+                                    <Link to={route.addproduct} className="ms-1">Add your first product!</Link>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };
 
-export default ProductList; // Export the component
+export default ProductList;

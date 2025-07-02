@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FeatherIcon from "feather-icons-react";
-import ImageWithBasePath from "../../core/img/imagewithbasebath";
+import Image from "../../core/img/image";
 import { Search, XCircle, ChevronDown } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
 import { toast } from "react-toastify";
@@ -216,13 +216,13 @@ const Header = () => {
           onMouseOver={expandMenuOpen}
         >
           <Link to="/dashboard" className="logo logo-normal">
-            <ImageWithBasePath src="assets/img/logo.png" alt="img" />
+            <Image src="assets/img/logo.png" alt="img" />
           </Link>
           <Link to="/dashboard" className="logo logo-white">
-            <ImageWithBasePath src="assets/img/logo-white.png" alt="img" />
+            <Image src="assets/img/logo-white.png" alt="img" />
           </Link>
           <Link to="/dashboard" className="logo-small">
-            <ImageWithBasePath src="assets/img/logo-small.png" alt="img" />
+            <Image src="assets/img/logo-small.png" alt="img" />
           </Link>
           <Link
             id="toggle_btn"
@@ -321,7 +321,7 @@ const Header = () => {
                       <li>
                         <Link to="#">
                           Aron Varu
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/profiles/avator1.jpg"
                             alt
                             className="img-fluid"
@@ -331,7 +331,7 @@ const Header = () => {
                       <li>
                         <Link to="#">
                           Jonita
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/profiles/avatar-01.jpg"
                             alt
                             className="img-fluid"
@@ -341,7 +341,7 @@ const Header = () => {
                       <li>
                         <Link to="#">
                           Aaron
-                          <ImageWithBasePath
+                          <Image
                             src="assets/img/profiles/avatar-10.jpg"
                             alt
                             className="img-fluid"
@@ -366,7 +366,7 @@ const Header = () => {
               >
                 <span className="user-info">
                   <span className="user-letter">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/store/store-01.png"
                       alt="Store Logo"
                       className="img-fluid"
@@ -381,7 +381,7 @@ const Header = () => {
 
               <Dropdown.Menu align="end">
                 <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/store/store-01.png"
                     alt="Store Logo"
                     className="img-fluid me-2"
@@ -390,7 +390,7 @@ const Header = () => {
                   Grocery Alpha
                 </Dropdown.Item>
                 <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/store/store-02.png"
                     alt="Store Logo"
                     className="img-fluid me-2"
@@ -399,7 +399,7 @@ const Header = () => {
                   Grocery Apex
                 </Dropdown.Item>
                 <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/store/store-03.png"
                     alt="Store Logo"
                     className="img-fluid me-2"
@@ -408,7 +408,7 @@ const Header = () => {
                   Grocery Bevy
                 </Dropdown.Item>
                 <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/store/store-04.png"
                     alt="Store Logo"
                     className="img-fluid me-2"
@@ -464,7 +464,7 @@ const Header = () => {
                     <Link to="/activities">
                       <div className="media d-flex">
                         <span className="avatar flex-shrink-0">
-                          <ImageWithBasePath
+                          <Image
                             alt="img"
                             src="assets/img/profiles/avatar-02.jpg"
                           />
@@ -490,7 +490,7 @@ const Header = () => {
                     <Link to="/activities">
                       <div className="media d-flex">
                         <span className="avatar flex-shrink-0">
-                          <ImageWithBasePath
+                          <Image
                             alt="img"
                             src="assets/img/profiles/avatar-03.jpg"
                           />
@@ -516,7 +516,7 @@ const Header = () => {
                     <Link to="/activities">
                       <div className="media d-flex">
                         <span className="avatar flex-shrink-0">
-                          <ImageWithBasePath
+                          <Image
                             alt="img"
                             src="assets/img/profiles/avatar-06.jpg"
                           />
@@ -545,7 +545,7 @@ const Header = () => {
                     <Link to="/activities">
                       <div className="media d-flex">
                         <span className="avatar flex-shrink-0">
-                          <ImageWithBasePath
+                          <Image
                             alt="img"
                             src="assets/img/profiles/avatar-17.jpg"
                           />
@@ -571,7 +571,7 @@ const Header = () => {
                     <Link to="/activities">
                       <div className="media d-flex">
                         <span className="avatar flex-shrink-0">
-                          <ImageWithBasePath
+                          <Image
                             alt="img"
                             src="assets/img/profiles/avatar-13.jpg"
                           />
@@ -617,7 +617,7 @@ const Header = () => {
               >
                 <span className="user-info">
                   <span className="user-letter">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avator1.jpg"
                       alt="img"
                       className="img-fluid"
@@ -634,7 +634,7 @@ const Header = () => {
               <div className="profilename">
                 <div className="profileset">
                   <span className="user-img">
-                    <ImageWithBasePath
+                    <Image
                       src="assets/img/profiles/avator1.jpg"
                       alt="img"
                     />
@@ -660,7 +660,7 @@ const Header = () => {
                   disabled={isLoggingOut}
                   style={{ cursor: isLoggingOut ? 'not-allowed' : 'pointer' }}
                 >
-                  <ImageWithBasePath
+                  <Image
                     src="assets/img/icons/log-out.svg"
                     alt="img"
                     className="me-2"
