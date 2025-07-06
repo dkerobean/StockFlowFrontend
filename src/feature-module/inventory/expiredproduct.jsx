@@ -32,9 +32,18 @@ const getAuthHeader = () => {
     return { Authorization: `Bearer ${token}` };
 };
 
-// Custom styles for react-select
+// Custom styles for react-select to match Bootstrap form controls
 const selectStyles = {
-    control: (baseStyles, state) => ({ /* ... styles ... */ }),
+    control: (baseStyles, state) => ({
+        ...baseStyles,
+        minHeight: '38px',
+        borderColor: state.isFocused ? '#86b7fe' : '#ced4da',
+        boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)' : 'none',
+        '&:hover': {
+            borderColor: state.isFocused ? '#86b7fe' : '#adb5bd',
+        },
+        fontSize: '14px'
+    }),
     menu: base => ({ ...base, zIndex: 5 }),
 };
 
@@ -49,14 +58,22 @@ const ExpiredProduct = () => {
     const [expiredItems, setExpiredItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isFetchingFilters, setIsFetchingFilters] = useState(false);
 
     // Filter State
     const [searchQuery, setSearchQuery] = useState("");
     const [locations, setLocations] = useState([]); // Options for location filter
+    const [categories, setCategories] = useState([]); // Options for category filter
     const [selectedLocationFilter, setSelectedLocationFilter] = useState(null);
-    // const [selectedDateRange, setSelectedDateRange] = useState([null, null]); // Example for date range
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState(null);
+    const [selectedStatusFilter, setSelectedStatusFilter] = useState(null);
+
+    // Status options for expired products
+    const statusOptions = [
+        { value: null, label: "All Status" },
+        { value: "recent", label: "Recently Expired" },
+        { value: "long", label: "Long Expired" }
+    ];
 
     // --- Fetch Location Filter Data ---
     const fetchLocationFilterData = useCallback(async () => {
@@ -67,16 +84,72 @@ const ExpiredProduct = () => {
             setIsFetchingFilters(false); return;
         }
         try {
-            const response = await axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader });
-            setLocations(response.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
+            console.log("Fetching location filter data...");
+            const response = await axios.get(`${API_URL}/locations`, { headers: authHeader });
+            console.log("Location filter response:", response.data);
+            
+            // Handle both direct array response and paginated response
+            const locationsArray = response.data.locations || response.data;
+            console.log("Locations array for filter:", locationsArray);
+            
+            if (Array.isArray(locationsArray)) {
+                const formattedLocations = [
+                    { value: null, label: "All Locations" },
+                    ...locationsArray.map(loc => ({ 
+                        value: loc._id, 
+                        label: `${loc.name} (${loc.type || 'Location'})` 
+                    }))
+                ];
+                setLocations(formattedLocations);
+                console.log("Formatted location options:", formattedLocations);
+            } else {
+                console.warn("Locations response is not an array:", locationsArray);
+                setLocations([]);
+            }
         } catch (err) {
             console.error("Error fetching location filter data:", err);
             toast.error("Could not load location options.");
-            if (err.response?.status === 401) { localStorage.removeItem('token'); navigate(route.login); }
+            if (err.response?.status === 401) { 
+                localStorage.removeItem('token'); 
+                navigate(route.signin); // Fixed route name
+            }
         } finally {
             setIsFetchingFilters(false);
         }
-    }, [API_URL, navigate, route.login]);
+    }, [API_URL, navigate, route.signin]);
+
+    // --- Fetch Categories Filter Data ---
+    const fetchCategories = useCallback(async () => {
+        const authHeader = getAuthHeader();
+        if (!authHeader || !API_URL) return;
+
+        try {
+            console.log("Fetching categories for filters...");
+            const categoryRes = await axios.get(`${API_URL}/product-categories`, { headers: authHeader });
+
+            console.log("Category filter response:", categoryRes.data);
+
+            // Format categories for react-select
+            const formattedCategories = [
+                { value: null, label: "All Categories" },
+                ...categoryRes.data.map(cat => ({ 
+                    value: cat._id, 
+                    label: cat.name 
+                }))
+            ];
+            setCategories(formattedCategories);
+
+            console.log("Formatted category options:", formattedCategories);
+
+        } catch (err) {
+            console.error("Error fetching categories filter data:", err);
+            toast.error("Could not load category options.");
+            if (err.response?.status === 401) { 
+                localStorage.removeItem('token'); 
+                navigate(route.signin);
+            }
+        }
+    }, [API_URL, navigate, route.signin]);
 
     // --- Fetch Expired Items Data ---
     const fetchExpiredItems = useCallback(async () => {
@@ -85,16 +158,15 @@ const ExpiredProduct = () => {
         const authHeader = getAuthHeader();
         if (!authHeader || !API_URL) {
             toast.error(!authHeader ? "Auth required." : "API URL missing.");
-            setLoading(false); if(!authHeader) navigate(route.login); return;
+            setLoading(false); if(!authHeader) navigate(route.signin); return;
         }
 
         // Prepare query parameters for the backend
         const params = {
             search: searchQuery || undefined,
             locationId: selectedLocationFilter?.value || undefined,
-            // Add date range params if implementing date filter
-            // expiryStartDate: selectedDateRange[0]?.toISOString() || undefined,
-            // expiryEndDate: selectedDateRange[1]?.toISOString() || undefined,
+            categoryId: selectedCategoryFilter?.value || undefined,
+            status: selectedStatusFilter?.value || undefined,
         };
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]); // Clean empty params
 
@@ -112,17 +184,31 @@ const ExpiredProduct = () => {
             setError(errorMessage);
             toast.error(errorMessage);
             setExpiredItems([]); // Clear data on error
-            if (err.response?.status === 401) { localStorage.removeItem('token'); navigate(route.login); }
+            if (err.response?.status === 401) { localStorage.removeItem('token'); navigate(route.signin); }
         } finally {
             setLoading(false);
         }
-    }, [API_URL, navigate, route.login, searchQuery, selectedLocationFilter /*, selectedDateRange */]);
+    }, [API_URL, navigate, route.signin, searchQuery, selectedLocationFilter, selectedCategoryFilter, selectedStatusFilter]);
 
     // --- Effects ---
     // Fetch filter options on mount
     useEffect(() => {
         fetchLocationFilterData();
-    }, [fetchLocationFilterData]);
+        fetchCategories();
+    }, [fetchLocationFilterData, fetchCategories]);
+
+    // Set default filter values after options are loaded
+    useEffect(() => {
+        if (categories.length > 0 && !selectedCategoryFilter) {
+            setSelectedCategoryFilter(categories[0]); // "All Categories"
+        }
+        if (locations.length > 0 && !selectedLocationFilter) {
+            setSelectedLocationFilter(locations[0]); // "All Locations"
+        }
+        if (statusOptions.length > 0 && !selectedStatusFilter) {
+            setSelectedStatusFilter(statusOptions[0]); // "All Status"
+        }
+    }, [categories, locations, statusOptions, selectedCategoryFilter, selectedLocationFilter, selectedStatusFilter]);
 
     // Fetch expired items when filters change (debounced)
     useEffect(() => {
@@ -133,15 +219,11 @@ const ExpiredProduct = () => {
     }, [fetchExpiredItems]); // Depends on the memoized fetch function
 
     // --- Handlers ---
-    const toggleFilterVisibility = () => {
-        setIsFilterVisible((prevVisibility) => !prevVisibility);
-    };
-
     const resetFilters = () => {
         setSearchQuery("");
         setSelectedLocationFilter(null);
-        // setSelectedDateRange([null, null]); // Reset date range if used
-        setIsFilterVisible(false);
+        setSelectedCategoryFilter(null);
+        setSelectedStatusFilter(null);
         toast.info("Filters reset");
         // Data will refetch via useEffect hook
     };
@@ -211,9 +293,6 @@ const ExpiredProduct = () => {
         // Removed Actions column as they are not usually performed directly on the expired list
     ];
 
-    // Example static sort options
-    const sortOptions = [ /* ... sort options if needed ... */ ];
-
     return (
         <div className="page-wrapper">
             <ToastContainer position="top-right" autoClose={3000} />
@@ -228,67 +307,62 @@ const ExpiredProduct = () => {
 
                 <div className="card table-list-card">
                     <div className="card-body">
-                        {/* Table Top: Search, Filter Toggle */}
-                        <div className="table-top">
-                            {/* Search Input */}
-                            <div className="search-set">
+                        {/* Table Top: Search and Inline Filters */}
+                        <div className="table-top d-flex justify-content-between align-items-center">
+                            <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
                                 <div className="search-input">
                                     <input
                                         type="text"
-                                        placeholder="Search by Product Name/SKU..."
+                                        placeholder="Search Products..."
                                         className="form-control form-control-sm formsearch"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
-                                    {/* Button can trigger fetch immediately or rely on debounce */}
-                                    <button className="btn btn-searchset" onClick={fetchExpiredItems} title="Search">
-                                        <Search size={18} />
-                                    </button>
+                                    <Link to className="btn btn-searchset">
+                                        <Search className="feather-search" />
+                                    </Link>
                                 </div>
                             </div>
-                            {/* Filter Toggle Button */}
+                            
+                            {/* Filter Controls - Right Side */}
                             <div className="search-path">
-                                <button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility} title={isFilterVisible ? "Hide Filters" : "Show Filters"}>
-                                    <Filter className="filter-icon" />
-                                    <span>{isFilterVisible ? <X size={14} style={{marginLeft: '5px'}}/> : ''}</span>
-                                </button>
-                            </div>
-                            {/* Sort Dropdown (Optional) */}
-                            {/* <div className="form-sort"> <Sliders className="info-img" /> <Select className="select" styles={selectStyles} options={sortOptions} placeholder="Sort by..." /> </div> */}
-                        </div>
-
-                        {/* Filter Card - Collapsible */}
-                        <div
-                            className={`card filter-card ${isFilterVisible ? " visible" : ""}`}
-                            id="filter_inputs"
-                            style={{ display: isFilterVisible ? "block" : "none" }}
-                        >
-                            <div className="card-body pb-0">
-                                <div className="row">
-                                    {/* Location Filter Dropdown */}
-                                    <div className="col-lg-4 col-sm-6 col-12 mb-3">
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    {/* Category Filter */}
+                                    <div style={{ minWidth: '130px' }}>
+                                        <Select
+                                            styles={selectStyles}
+                                            options={categories}
+                                            value={selectedCategoryFilter}
+                                            onChange={setSelectedCategoryFilter}
+                                            placeholder="All Categories"
+                                            isClearable={false}
+                                            isLoading={isFetchingFilters}
+                                        />
+                                    </div>
+                                    
+                                    {/* Location Filter */}
+                                    <div style={{ minWidth: '130px' }}>
                                         <Select
                                             styles={selectStyles}
                                             options={locations}
                                             value={selectedLocationFilter}
                                             onChange={setSelectedLocationFilter}
-                                            placeholder="Filter by Location..."
-                                            isClearable
+                                            placeholder="All Locations"
+                                            isClearable={false}
                                             isLoading={isFetchingFilters}
-                                            classNamePrefix="react-select"
-                                            noOptionsMessage={() => isFetchingFilters ? 'Loading...' : 'No locations found'}
                                         />
                                     </div>
-                                    {/* Optional Date Filter */}
-                                    <div className="col-lg-4 col-sm-6 col-12 mb-3">
-                                        {/* Add AntD DatePicker or RangePicker here if date filtering is needed */}
-                                        {/* <DatePicker placeholder="Filter by Expiry Date" className="form-control" style={{ width: '100%' }} /> */}
-                                    </div>
-                                    {/* Reset Filters Button */}
-                                    <div className="col-lg-2 col-sm-6 col-12 mb-3 ms-auto">
-                                        <Button variant="secondary" size="sm" onClick={resetFilters} className="w-100">
-                                            <RotateCcw size={14} className="me-1"/> Reset Filters
-                                        </Button>
+                                    
+                                    {/* Status Filter */}
+                                    <div style={{ minWidth: '130px' }}>
+                                        <Select
+                                            styles={selectStyles}
+                                            options={statusOptions}
+                                            value={selectedStatusFilter}
+                                            onChange={setSelectedStatusFilter}
+                                            placeholder="All Status"
+                                            isClearable={false}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -310,7 +384,7 @@ const ExpiredProduct = () => {
                             {/* Custom No Data Message */}
                             {!loading && !error && expiredItems.length === 0 && (
                                 <div className="text-center p-5 text-muted">
-                                    {searchQuery || selectedLocationFilter /* Add date filter check here if used */
+                                    {searchQuery || selectedLocationFilter?.value || selectedCategoryFilter?.value || selectedStatusFilter?.value
                                         ? "No expired items match your current filters."
                                         : "No expired items found."}
                                 </div>

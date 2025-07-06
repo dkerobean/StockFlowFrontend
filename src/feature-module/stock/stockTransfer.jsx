@@ -57,7 +57,7 @@ const StockTransfer = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const locationOptions = response.data.map((location) => ({
+      const locationOptions = response.data.locations.map((location) => ({
         value: location._id,
         label: location.name,
       }));
@@ -75,7 +75,7 @@ const StockTransfer = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      setProducts(response.data);
+      setProducts(response.data.products);
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to fetch products");

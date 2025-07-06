@@ -173,14 +173,16 @@ const Managestock = () => {
         try {
             const [locRes, prodRes] = await Promise.all([
                 axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader }),
-                // Fetch active products with essential fields for the dropdown
                 axios.get(`${API_URL}/products?fields=name,_id,sku&limit=500&isActive=true`, { headers: authHeader })
             ]);
 
             console.log("Filter data received:", { locations: locRes.data, products: prodRes.data });
 
-            setLocations(locRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type || 'N/A'})` })));
-            setProducts(prodRes.data.map(prod => ({ value: prod._id, label: `${prod.name} (${prod.sku || 'No SKU'})` })));
+            const locationsArray = locRes.data.locations || locRes.data;
+            const productsArray = prodRes.data.products || prodRes.data;
+
+            setLocations(locationsArray.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type || 'N/A'})` })));
+            setProducts(productsArray.map(prod => ({ value: prod._id, label: `${prod.name} (${prod.sku || 'No SKU'})` })));
 
         } catch (err) {
             console.error("Error fetching filter data:", err.response ? err.response.data : err);
@@ -438,48 +440,72 @@ const Managestock = () => {
                 }
 
                 // --- Image Rendering Logic ---
-                let placeholderSrc = "/assets/img/placeholder-product.png"; // Ensure this path is correct
-                let imageSrc = placeholderSrc;
-
-                 if (product.imageUrl) {
-                     if (product.imageUrl.startsWith('http://') || product.imageUrl.startsWith('https://')) {
-                         imageSrc = product.imageUrl;
-                     } else if (product.imageUrl.startsWith('/') && BACKEND_BASE_URL) {
-                         imageSrc = `${BACKEND_BASE_URL}${product.imageUrl}`;
-                     } else if (BACKEND_BASE_URL) {
-                         imageSrc = `${BACKEND_BASE_URL}/${product.imageUrl.startsWith('/') ? product.imageUrl.substring(1) : product.imageUrl}`;
-                     } else {
-                        console.warn(`Cannot construct image URL for product ${product.name} (${product.imageUrl}) without BACKEND_BASE_URL.`);
-                     }
-                 }
+                let imageSrc = "/assets/img/placeholder-product.png";
+                if (product.imageUrl) {
+                    if (product.imageUrl.startsWith('http')) {
+                        imageSrc = product.imageUrl;
+                    } else if (BACKEND_BASE_URL) {
+                        imageSrc = `${BACKEND_BASE_URL}/${product.imageUrl.replace(/^\/+/, '')}`;
+                    } else if (API_URL) {
+                        // Fallback to API_URL base
+                        const baseUrl = API_URL.replace('/api', '');
+                        imageSrc = `${baseUrl}/${product.imageUrl.replace(/^\/+/, '')}`;
+                    }
+                }
 
                 const productDetailsPath = route.productdetails?.replace(':productId', product._id) || '#';
 
+                const isInactive = !product.isActive;
+                const inactiveStyle = isInactive ? {
+                    opacity: 0.5,
+                    filter: 'grayscale(50%)'
+                } : {};
+
                 return (
-                    <span className="productimgname d-flex align-items-center">
-                        <Link to={productDetailsPath} className="product-img stock-img flex-shrink-0 me-2" title={`View details for ${product.name}`}>
+                    <div className="productimgname" style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '12px',
+                        ...inactiveStyle
+                    }}>
+                        <Link to={productDetailsPath} className="product-img">
                             <img
-                                alt={product.name || 'Product Image'}
+                                alt={product.name}
                                 src={imageSrc}
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    objectFit: 'cover', // Changed to cover for potentially better aspect ratio handling
-                                    border: '1px solid #eee',
-                                    borderRadius: '4px',
-                                    backgroundColor: '#f8f9fa' // Added background for empty space
-                                }}
+                                style={{ objectFit: 'cover', width: '50px', height: '50px', borderRadius: '6px' }}
                                 onError={(e) => {
-                                    console.error(`Image load error for product: ${product.name} (ID: ${product._id}) from src: ${imageSrc}`);
-                                    e.target.onerror = null;
-                                    e.target.src = placeholderSrc; // Fallback to placeholder
+                                    e.target.src = "/assets/img/placeholder-product.png";
                                 }}
                             />
                         </Link>
-                        <Link to={productDetailsPath} className="text-truncate product-link" title={product.name}>
-                            {product.name || <span className="text-muted fst-italic">Unknown Product</span>}
-                        </Link>
-                    </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <Link 
+                                to={productDetailsPath}
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    fontSize: '14px', 
+                                    fontWeight: '500', 
+                                    color: isInactive ? '#999' : '#333'
+                                }}
+                            >
+                                {product.name}
+                            </Link>
+                            {isInactive && (
+                                <span style={{
+                                    fontSize: '11px',
+                                    color: '#dc3545',
+                                    backgroundColor: '#f8d7da',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    display: 'inline-block',
+                                    width: 'fit-content',
+                                    fontWeight: '500'
+                                }}>
+                                    INACTIVE
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 );
             },
             sorter: (a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''),
@@ -665,9 +691,9 @@ const Managestock = () => {
                 <div className="card table-list-card">
                     <div className="card-body">
                         {/* Top section: Search and Filter Toggle */}
-                        <div className="table-top">
+                        <div className="table-top d-flex justify-content-between align-items-center">
                             {/* Search Input */}
-                            <div className="search-set">
+                            <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
                                 <div className="search-input">
                                     <input
                                         type="text"
@@ -681,18 +707,33 @@ const Managestock = () => {
                                     </button>
                                 </div>
                             </div>
-                            {/* Filter Toggle Button */}
                             <div className="search-path">
-                                <Link
-                                    className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                                    to="#"
-                                    onClick={(e) => { e.preventDefault(); toggleFilterVisibility(); }}
-                                    title={isFilterVisible ? "Hide Filters" : "Show Filters"}
-                                >
-                                    <Filter className="filter-icon" />
-                                    {/* Show X icon when filters are visible */}
-                                    <span>{isFilterVisible ? <X size={14} style={{ marginLeft: '5px' }} /> : ''}</span>
-                                </Link>
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <div style={{ minWidth: '130px' }}>
+                                        <Select
+                                            styles={selectStyles}
+                                            options={locations}
+                                            value={selectedLocationFilter}
+                                            onChange={handleFilterChange(setSelectedLocationFilter, 'Location')}
+                                            placeholder="Filter by Location..."
+                                            isClearable
+                                            isLoading={isFetchingFilters}
+                                            classNamePrefix="react-select"
+                                        />
+                                    </div>
+                                    <div style={{ minWidth: '130px' }}>
+                                         <Select
+                                            styles={selectStyles}
+                                            options={products}
+                                            value={selectedProductFilter}
+                                            onChange={handleFilterChange(setSelectedProductFilter, 'Product')}
+                                            placeholder="Filter by Product..."
+                                            isClearable
+                                            isLoading={isFetchingFilters}
+                                            classNamePrefix="react-select"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

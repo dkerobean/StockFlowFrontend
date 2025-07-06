@@ -77,30 +77,78 @@ const AddProduct = () => {
         if (!authHeader) {
              toast.error("Authentication required. Please log in.");
              setIsLoading(false);
-             navigate(route.login); // Redirect to login if no token
+             navigate(route.signin); // Redirect to login if no token
              return;
         }
 
         try {
-            // Use Promise.all for concurrent fetching
-            const [categoryRes, brandRes, locationRes] = await Promise.all([
-                axios.get(`${API_URL}/product-categories`, { headers: authHeader }),
-                axios.get(`${API_URL}/brands`, { headers: authHeader }),
-                axios.get(`${API_URL}/locations`, { headers: authHeader })
-            ]);
+            console.log("API_URL:", API_URL);
+            console.log("Auth token exists:", !!authHeader.Authorization);
+            
+            // Fetch categories
+            console.log("Fetching categories...");
+            const categoryRes = await axios.get(`${API_URL}/product-categories`, { headers: authHeader });
+            console.log("Categories fetched successfully:", categoryRes.data.length, "items");
+            
+            // Fetch brands
+            console.log("Fetching brands...");
+            const brandRes = await axios.get(`${API_URL}/brands`, { headers: authHeader });
+            console.log("Brands fetched successfully:", brandRes.data.length, "items");
+            
+            // Fetch locations
+            console.log("Fetching locations...");
+            const locationRes = await axios.get(`${API_URL}/locations`, { headers: authHeader });
+            console.log("Locations response structure:", locationRes.data);
+            
+            // Handle locations response - check both direct array and paginated response
+            const locationsArray = locationRes.data.locations || locationRes.data;
+            console.log("Locations array:", locationsArray);
+            console.log("Is locations array?", Array.isArray(locationsArray));
+            console.log("Locations count:", Array.isArray(locationsArray) ? locationsArray.length : 'Not an array');
 
             // Format data for react-select: { value: _id, label: name }
             setCategories(categoryRes.data.map(cat => ({ value: cat._id, label: cat.name })));
             setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
-            setLocations(locationRes.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
+            
+            // Handle locations with proper error checking
+            if (Array.isArray(locationsArray) && locationsArray.length > 0) {
+                const formattedLocations = locationsArray.map(loc => ({ 
+                    value: loc._id, 
+                    label: `${loc.name} (${loc.type || 'Location'})` 
+                }));
+                console.log("Formatted locations:", formattedLocations);
+                setLocations(formattedLocations);
+            } else {
+                console.warn("No locations found or locations is not an array:", locationsArray);
+                setLocations([]);
+                if (Array.isArray(locationsArray) && locationsArray.length === 0) {
+                    toast.warn("No locations found. Please add locations first before creating products.");
+                }
+            }
 
         } catch (error) {
             console.error("Error fetching initial data:", error);
-            toast.error("Failed to load necessary data. Please refresh the page or try again.");
-            if (error.response && error.response.status === 401) {
+            console.error("Error details:", {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                url: error.config?.url
+            });
+            
+            // More specific error messages
+            if (error.response?.status === 401) {
                 toast.error("Session expired. Please log in again.");
                 localStorage.removeItem('token');
-                navigate(route.login);
+                navigate(route.signin);
+            } else if (error.response?.status === 404) {
+                toast.error("API endpoint not found. Please check if the backend server is running.");
+            } else if (error.response?.status >= 500) {
+                toast.error("Server error occurred. Please try again or contact support.");
+            } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+                toast.error("Network error. Please check your connection and ensure the backend server is running.");
+            } else {
+                toast.error(`Failed to load necessary data: ${error.response?.data?.message || error.message}`);
             }
         } finally {
             setIsLoading(false);
@@ -168,7 +216,7 @@ const AddProduct = () => {
         if (!authHeader) {
             toast.error("Authentication failed. Please log in.");
             setIsSubmitting(false);
-            navigate(route.login);
+            navigate(route.signin);
             return;
         }
 
@@ -284,7 +332,7 @@ const AddProduct = () => {
             toast.error(`Failed to create product: ${error.response?.data?.message || error.message}`);
             if (error.response && error.response.status === 401) {
                  localStorage.removeItem('token');
-                 navigate(route.login);
+                 navigate(route.signin);
              }
         } finally {
             setIsSubmitting(false);
@@ -549,7 +597,7 @@ const AddProduct = () => {
                                                 className="d-none" // Hide the actual input
                                             />
                                             {/* Use your image component or a simple img tag */}
-                                            <Image src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                                            <Image src="/assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
                                             <p className="mb-0 text-muted small">
                                                 Drag and drop a file to upload <br/> or click here
                                             </p>

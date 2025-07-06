@@ -80,15 +80,19 @@ const Pos = () => {
         const response = await axios.get(`${API_BASE_URL}/locations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setLocations(response.data || []);
-        if (response.data && response.data.length > 0) {
+        // Fix: Extract locations array from response object
+        const locationsArray = response.data?.locations || [];
+        setLocations(locationsArray);
+        if (locationsArray && locationsArray.length > 0) {
           // Auto-select the first active location or a default one
-          const firstActiveLocation = response.data.find(loc => loc.isActive);
-          setSelectedLocation(firstActiveLocation || response.data[0]);
+          const firstActiveLocation = locationsArray.find(loc => loc.isActive);
+          setSelectedLocation(firstActiveLocation || locationsArray[0]);
         }
       } catch (error) {
         console.error("Error fetching locations:", error);
         toast.error("Failed to load locations.");
+        // Ensure locations is always an array even on error
+        setLocations([]);
       }
     };
     fetchLocations();
@@ -797,11 +801,11 @@ const Pos = () => {
                   <div className="location-select-pos">
                     <Select
                         className="select"
-                        options={locations.map(loc => ({ value: loc._id, label: loc.name }))}
+                        options={Array.isArray(locations) ? locations.map(loc => ({ value: loc._id, label: loc.name })) : []}
                         value={selectedLocation ? { value: selectedLocation._id, label: selectedLocation.name } : null}
                         onChange={handleLocationChange}
                         placeholder="Select Location"
-                        isDisabled={locations.length === 0}
+                        isDisabled={!Array.isArray(locations) || locations.length === 0}
                         styles={{
                           control: (base) => ({
                             ...base,

@@ -767,8 +767,8 @@ const ProductList = () => {
                 <div className="card table-list-card">
                     <div className="card-body">
                         {/* Search and Filters Bar */}
-                        <div className="table-top">
-                            <div className="search-set">
+                        <div className="table-top d-flex justify-content-between align-items-center">
+                            <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
                                 <div className="search-input">
                                     <input
                                         type="text"
@@ -783,68 +783,43 @@ const ProductList = () => {
                                 </div>
                             </div>
                             
-                            {/* Filter Controls */}
+                            {/* Filter Controls - Right Side */}
                             <div className="search-path">
-                                <div className="d-flex align-items-center gap-3">
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
                                     {/* Category Filter */}
-                                    <div style={{ minWidth: '150px' }}>
+                                    <div style={{ minWidth: '130px' }}>
                                         <Select
                                             styles={selectStyles}
                                             options={categories}
                                             value={selectedCategoryFilter}
                                             onChange={setSelectedCategoryFilter}
-                                            placeholder="Category"
-                                            isClearable={false}
-                                            isLoading={isFetchingFilters}
-                                        />
-                                    </div>
-                                    
-                                    {/* Brand Filter */}
-                                    <div style={{ minWidth: '150px' }}>
-                                        <Select
-                                            styles={selectStyles}
-                                            options={brands}
-                                            value={selectedBrandFilter}
-                                            onChange={setSelectedBrandFilter}
-                                            placeholder="Brand"
+                                            placeholder="All Categories"
                                             isClearable={false}
                                             isLoading={isFetchingFilters}
                                         />
                                     </div>
                                     
                                     {/* Location Filter */}
-                                    <div style={{ minWidth: '150px' }}>
+                                    <div style={{ minWidth: '130px' }}>
                                         <Select
                                             styles={selectStyles}
                                             options={locations}
                                             value={selectedLocationFilter}
                                             onChange={setSelectedLocationFilter}
-                                            placeholder="Location"
+                                            placeholder="All Locations"
                                             isClearable={false}
                                             isLoading={isFetchingFilters}
                                         />
                                     </div>
                                     
                                     {/* Status Filter */}
-                                    <div style={{ minWidth: '150px' }}>
+                                    <div style={{ minWidth: '130px' }}>
                                         <Select
                                             styles={selectStyles}
                                             options={statusOptions}
                                             value={selectedStatusFilter}
                                             onChange={setSelectedStatusFilter}
-                                            placeholder="Status"
-                                            isClearable={false}
-                                        />
-                                    </div>
-                                    
-                                    {/* Sort By */}
-                                    <div style={{ minWidth: '150px' }}>
-                                        <Select
-                                            styles={selectStyles}
-                                            options={sortOptions}
-                                            value={sortBy}
-                                            onChange={setSortBy}
-                                            placeholder="Sort By"
+                                            placeholder="All Status"
                                             isClearable={false}
                                         />
                                     </div>

@@ -90,7 +90,6 @@ const CategoryList = () => {
 
     const oldandlatestvalue = [
         { value: 'date', label: 'Sort by Date' },
-        { value: 'newest', label: 'Newest' },
         { value: 'oldest', label: 'Oldest' },
     ];
 
@@ -256,8 +255,8 @@ const CategoryList = () => {
                     {/* /product list */}
                     <div className="card table-list-card">
                         <div className="card-body">
-                            <div className="table-top">
-                                <div className="search-set">
+                            <div className="table-top d-flex justify-content-between align-items-center">
+                                <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
                                     <div className="search-input">
                                         <input
                                             type="text"
@@ -270,23 +269,18 @@ const CategoryList = () => {
                                     </div>
                                 </div>
                                 <div className="search-path">
-                                    <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                        <Filter
-                                            className="filter-icon"
-                                            onClick={toggleFilterVisibility}
-                                        />
-                                        <span onClick={toggleFilterVisibility}>
-                                            <Image src="assets/img/icons/closes.svg" alt="img" />
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="form-sort">
-                                    <Sliders className="info-img" />
-                                    <Select
-                                        className="select"
-                                        options={oldandlatestvalue}
-                                        placeholder="Newest"
-                                    />
+                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <div style={{ minWidth: '130px' }}>
+                                            <Select
+                                                className="select"
+                                                options={oldandlatestvalue}
+                                                placeholder="Newest"
+                                            />
+                                        </div>
+                                        <div style={{ minWidth: '130px' }}>
+                                            <Select options={status} className="select" placeholder="Choose Status" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {/* /Filter */}

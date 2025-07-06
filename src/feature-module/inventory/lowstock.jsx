@@ -57,7 +57,6 @@ const LowStock = () => {
     const [loadingOut, setLoadingOut] = useState(true);
     const [errorLow, setErrorLow] = useState(null);
     const [errorOut, setErrorOut] = useState(null);
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isFetchingFilters, setIsFetchingFilters] = useState(false);
 
     // --- Filter State ---
@@ -78,8 +77,24 @@ const LowStock = () => {
             setIsFetchingFilters(false); return;
         }
         try {
-            const response = await axios.get(`${API_URL}/locations?fields=name,type`, { headers: authHeader });
-            setLocations(response.data.map(loc => ({ value: loc._id, label: `${loc.name} (${loc.type})` })));
+            const response = await axios.get(`${API_URL}/locations`, { headers: authHeader });
+            
+            // Handle both direct array response and paginated response
+            const locationsArray = response.data.locations || response.data;
+            
+            if (Array.isArray(locationsArray)) {
+                const formattedLocations = [
+                    { value: null, label: "All Locations" },
+                    ...locationsArray.map(loc => ({ 
+                        value: loc._id, 
+                        label: `${loc.name} (${loc.type || 'Location'})` 
+                    }))
+                ];
+                setLocations(formattedLocations);
+            } else {
+                console.warn("Locations response is not an array:", locationsArray);
+                setLocations([{ value: null, label: "All Locations" }]);
+            }
         } catch (err) {
             console.error("Error fetching locations:", err);
             toast.error("Could not load location filters.");
@@ -164,8 +179,6 @@ const LowStock = () => {
     }, [fetchOutOfStock]); // Runs when fetchOutOfStock identity changes (due to its own deps)
 
     // --- Handlers ---
-    const toggleFilterVisibility = () => setIsFilterVisible(prev => !prev);
-
      const resetFilters = (type) => { // type 'low' or 'out'
         if (type === 'low') {
              setSearchQueryLow("");
@@ -176,7 +189,6 @@ const LowStock = () => {
              setSelectedLocationFilterOut(null);
              // Reset other out of stock filters if added
         }
-         setIsFilterVisible(false); // Hide filter card on reset
          toast.info(`Filters reset for ${type === 'low' ? 'Low Stock' : 'Out of Stock'}`);
          // Data will refetch via useEffect hooks because state changed
     };
@@ -230,70 +242,43 @@ const LowStock = () => {
         // Determine which state variables and setters to use based on the tab type ('low' or 'out')
         const currentSearchQuery = type === 'low' ? searchQueryLow : searchQueryOut;
         const setSearchQueryFn = type === 'low' ? setSearchQueryLow : setSearchQueryOut;
-        const fetchFn = type === 'low' ? fetchLowStock : fetchOutOfStock; // Fetch function specific to the tab
         const selectedLocation = type === 'low' ? selectedLocationFilterLow : selectedLocationFilterOut;
         const setSelectedLocationFn = type === 'low' ? setSelectedLocationFilterLow : setSelectedLocationFilterOut;
-        const resetFn = () => resetFilters(type); // Reset function specific to the tab
 
         return (
-             <>
-                {/* Search and Filter Toggle Row */}
-                <div className="table-top">
-                    <div className="search-set">
-                        <div className="search-input">
-                            <input
-                                type="text"
-                                placeholder={`Search ${type === 'low' ? 'Low' : 'Out of'} Stock...`}
-                                className="form-control form-control-sm formsearch"
-                                value={currentSearchQuery}
-                                onChange={(e) => setSearchQueryFn(e.target.value)} // Updates the correct search state
-                            />
-                            {/* Search button can trigger immediate fetch or rely on debounce */}
-                            <button className="btn btn-searchset" onClick={fetchFn} title="Search">
-                                <Search size={18} />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="search-path">
-                        <button type='button' className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} onClick={toggleFilterVisibility} title={isFilterVisible ? "Hide Filters" : "Show Filters"}>
-                            <Filter className="filter-icon" />
-                            <span>{isFilterVisible ? <X size={14} style={{marginLeft: '5px'}}/> : ''}</span>
+            <div className="table-top d-flex justify-content-between align-items-center">
+                <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
+                    <div className="search-input">
+                        <input
+                            type="text"
+                            placeholder={`Search ${type === 'low' ? 'Low' : 'Out of'} Stock...`}
+                            className="form-control form-control-sm formsearch"
+                            value={currentSearchQuery}
+                            onChange={(e) => setSearchQueryFn(e.target.value)}
+                        />
+                        <button className="btn btn-searchset" title="Search">
+                            <Search className="feather-search" />
                         </button>
                     </div>
-                    {/* Optional Sort Dropdown */}
-                    {/* <div className="form-sort"> ... </div> */}
                 </div>
-
-                {/* Filter Card (Collapsible) */}
-                <div className={`card filter_card ${isFilterVisible ? " visible" : ""}`} style={{ display: isFilterVisible ? "block" : "none" }}>
-                    <div className="card-body pb-0">
-                        <div className="row">
-                            {/* Location Filter Dropdown */}
-                            <div className="col-lg-4 col-sm-6 col-12 mb-3">
-                                <Select
-                                    styles={selectStyles}
-                                    options={locations} // Shared location options
-                                    value={selectedLocation} // Binds to the correct state variable
-                                    onChange={setSelectedLocationFn} // Updates the correct state variable
-                                    placeholder="Filter by Location..."
-                                    isClearable
-                                    isLoading={isFetchingFilters}
-                                    classNamePrefix="react-select"
-                                    noOptionsMessage={() => isFetchingFilters ? 'Loading...' : 'No locations found'}
-                                />
-                            </div>
-                            {/* Add other filter inputs here if needed (e.g., Category, Product) */}
-
-                            {/* Reset Button */}
-                            <div className="col-lg-2 col-sm-6 col-12 mb-3 ms-auto">
-                                <Button variant="secondary" size="sm" onClick={resetFn} className="w-100">
-                                    <RotateCcw size={14} className="me-1"/> Reset Filters
-                                </Button>
-                            </div>
+                
+                {/* Filter Controls - Right Side */}
+                <div className="search-path">
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <div style={{ minWidth: '130px' }}>
+                            <Select
+                                styles={selectStyles}
+                                options={locations}
+                                value={selectedLocation}
+                                onChange={setSelectedLocationFn}
+                                placeholder="All Locations"
+                                isClearable={false}
+                                isLoading={isFetchingFilters}
+                            />
                         </div>
                     </div>
                 </div>
-            </>
+            </div>
         );
     };
 

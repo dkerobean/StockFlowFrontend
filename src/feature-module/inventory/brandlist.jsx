@@ -229,8 +229,8 @@ const BrandList = () => {
 
                     <div className="card table-list-card">
                         <div className="card-body">
-                            <div className="table-top">
-                                <div className="search-set">
+                            <div className="table-top d-flex justify-content-between align-items-center">
+                                <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
                                     <div className="search-input">
                                         <input
                                             type="text"
@@ -243,23 +243,22 @@ const BrandList = () => {
                                     </div>
                                 </div>
                                 <div className="search-path">
-                                    <Link
-                                        className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                                        onClick={toggleFilterVisibility}
-                                    >
-                                        <Filter className="filter-icon" />
-                                        <span>
-                                            <i data-feather="x" className="feather-x" />
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="form-sort">
-                                    <Sliders className="info-img" />
-                                    <Select
-                                        className="select"
-                                        options={oldandlatestvalue}
-                                        placeholder="Newest"
-                                    />
+                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <div style={{ minWidth: '130px' }}>
+                                            <Select
+                                                className="select"
+                                                options={oldandlatestvalue}
+                                                placeholder="Sort by Date"
+                                            />
+                                        </div>
+                                        <div style={{ minWidth: '130px' }}>
+                                            <Select
+                                                className="select"
+                                                options={status}
+                                                placeholder="Choose Status"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

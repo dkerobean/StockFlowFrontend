@@ -100,12 +100,12 @@ const StockAdjustment = () => {
                 axios.get(`${API_URL}/products?fields=name,_id,sku,imageUrl&limit=1000&isActive=true`, { headers: authHeader }) // Increased limit for products
             ]);
 
-            setLocations(locRes.data.map(loc => ({
+            setLocations(locRes.data.locations.map(loc => ({
                 value: loc._id,
                 label: `${loc.name} (${loc.type || 'N/A'})`
             })));
 
-            const productData = Array.isArray(prodRes.data) ? prodRes.data : (prodRes.data.data || []);
+            const productData = Array.isArray(prodRes.data.products) ? prodRes.data.products : (prodRes.data.data || []);
             const mappedProducts = productData.map(prod => ({
                 value: prod._id, // Use _id as value
                 label: prod.name || 'Unnamed Product', // Use name as label

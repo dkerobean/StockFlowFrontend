@@ -227,49 +227,7 @@ const HorizontalSidebar = () => {
                   </li>
                 </ul>
               </li>
-              <li className="submenu">
-                <Link to="#">
-                  <span>Application</span>
-                  <span className="menu-arrow" />
-                </Link>
-                <ul>
-                  <li>
-                    <Link to="chat">Chat</Link>
-                  </li>
-                  <li className="submenu submenu-two">
-                    <Link to="#">
-                      <span>Call</span>
-                      <span className="menu-arrow inside-submenu" />
-                    </Link>
-                    <ul>
-                      <li>
-                        <Link to="video-call">Video Call</Link>
-                      </li>
-                      <li>
-                        <Link to="audio-call">Audio Call</Link>
-                      </li>
-                      <li>
-                        <Link to="call-history">Call History</Link>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <Link to="calendar">Calendar</Link>
-                  </li>
-                  <li>
-                    <Link to="email">Email</Link>
-                  </li>
-                  <li>
-                    <Link to="todo">To Do</Link>
-                  </li>
-                  <li>
-                    <Link to="notes">Notes</Link>
-                  </li>
-                  <li>
-                    <Link to="file-manager">File Manager</Link>
-                  </li>
-                </ul>
-              </li>
+              
             </ul>
           </li>
           <li className="submenu">
@@ -1143,16 +1101,7 @@ const HorizontalSidebar = () => {
                   <span>Inventory Report</span>
                 </Link>
               </li>
-              <li>
-                <Link to="invoice-report">
-                  <span>Invoice Report</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="supplier-report">
-                  <span>Supplier Report</span>
-                </Link>
-              </li>
+              
               <li>
                 <Link to="customer-report">
                   <span>Customer Report</span>

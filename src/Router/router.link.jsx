@@ -2,8 +2,10 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import ProductList from "../feature-module/inventory/productlist";
 import Dashboard from "../feature-module/dashboard/Dashboard";
+import EnhancedAdminDashboard from "../feature-module/dashboard/EnhancedAdminDashboard";
 import AddProduct from "../feature-module/inventory/addproduct";
 import SalesDashbaord from "../feature-module/dashboard/salesdashbaord";
+import EnhancedSalesDashboard from "../feature-module/dashboard/EnhancedSalesDashboard";
 import BrandList from "../feature-module/inventory/brandlist";
 import VariantAttributes from "../feature-module/inventory/variantattributes";
 import Warranty from "../feature-module/inventory/warranty";
@@ -201,7 +203,7 @@ export const publicRoutes = [
     id: 1,
     path: routes.dashboard,
     name: "home",
-    element: <Dashboard />,
+    element: <EnhancedAdminDashboard />,
     route: Route,
   },
   {
@@ -222,7 +224,7 @@ export const publicRoutes = [
     id: 4,
     path: routes.salesdashboard,
     name: "salesdashboard",
-    element: <SalesDashbaord />,
+    element: <EnhancedSalesDashboard />,
     route: Route,
   },
   {

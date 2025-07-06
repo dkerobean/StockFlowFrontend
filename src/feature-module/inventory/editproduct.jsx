@@ -186,23 +186,6 @@ const EditProduct = () => {
     }, [isLoadingDropdowns, productId, fetchProductData, categories, brands]);
 
 
-    // --- Effect to Fetch Dropdowns ---
-    useEffect(() => {
-    // Only proceed if dropdowns are done loading and we have a productId
-    if (!isLoadingDropdowns && productId) {
-        console.log("Dependencies met, calling fetchProductData...");
-        // We call fetchProductData which is stable due to useCallback,
-        // unless its own dependencies (categories/brands) change.
-        fetchProductData();
-    } else {
-        // Log why it's not fetching (useful for debugging)
-        console.log(
-            "Skipping fetchProductData call. Conditions:",
-            { isLoadingDropdowns: !isLoadingDropdowns, productId: !!productId }
-        );
-    }
-
-}, [productId, isLoadingDropdowns, fetchProductData]); // <-- CORRECTED DEPENDENCIES
 
 
     // --- Handlers ---
@@ -543,7 +526,7 @@ const EditProduct = () => {
                             className="d-none" // Hide the standard file input
                         />
                         {/* Upload Icon and Text */}
-                        <Image src="assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
+                        <Image src="/assets/img/icons/upload.svg" alt="upload" className="mb-2" style={{width: '50px', opacity: 0.7}}/>
                         <p className="mb-0 text-muted small">
                             Drag and drop a file to upload <br/> or click here to replace the current image
                         </p>
@@ -564,7 +547,7 @@ const EditProduct = () => {
                                 ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('blob:'))
                                     ? imageUrl // It's already an absolute URL (http/https) or a temporary Blob URL (preview) - use directly
                                     : `${process.env.REACT_APP_FILE_BASE_URL}${imageUrl}` // It's relative (starts with /), prepend API Base URL
-                                : '' // If imageUrl is null/empty, use empty string
+                                : '/assets/img/product/noimage.png' // Fallback placeholder image
                             }
                             // --- END MODIFIED SRC LOGIC ---
                             alt="Product Preview"
@@ -575,11 +558,11 @@ const EditProduct = () => {
                                     ? (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('blob:'))
                                         ? imageUrl
                                         : `${process.env.REACT_APP_FILE_BASE_URL}${imageUrl}`
-                                    : '';
+                                    : '/assets/img/product/noimage.png';
                                 console.error(`[EditProduct] Render: Failed to load image from calculated src: ${finalSrc}`);
                                 e.target.onerror = null;
-                                e.target.alt = "Failed to load image";
-                                // Optionally hide: e.target.style.display = 'none';
+                                e.target.src = "/assets/img/product/noimage.png"; // Set fallback image
+                                e.target.alt = "Image not available";
                             }}
                         />
                         {/* Remove Button */}

@@ -21,35 +21,7 @@ export const SidebarData = [
               { label: "Sales Dashboard", link: "/sales-dashboard" }
             ]
           },
-          {
-            label: "Application",
-            icon:  <Icon.Smartphone />,
-            submenu: true,
-            showSubRoute: false,
-            submenuItems: [
-              { label: "Chat", link: "/chat" , showSubRoute: false,
-            },
-              {
-                label: "Call",
-                submenu: true,
-                submenuItems: [
-                  { label: "Video Call", link: "/video-call" },
-                  { label: "Audio Call", link: "/audio-call" },
-                  { label: "Call History", link: "/call-history" }
-                ]
-              },
-              { label: "Calendar", link: "/calendar" , showSubRoute: false,
-            },
-              { label: "Email", link: "/email",showSubRoute: false,
-            },
-              { label: "To Do", link: "/todo",showSubRoute: false,
-            },
-              { label: "Notes", link: "/notes",showSubRoute: false,
-            },
-              { label: "File Manager", link: "/file-manager", showSubRoute: false,
-            }
-            ]
-          }
+          
         ]
       },
       {
@@ -171,8 +143,7 @@ export const SidebarData = [
           { label: "Sales Report", link: "/sales-report", icon:  <Icon.BarChart2 /> ,showSubRoute: false},
           { label: "Purchase Report", link: "/purchase-report", icon:  <Icon.PieChart />,showSubRoute: false },
           { label: "Inventory Report", link: "/inventory-report", icon:  <Icon.Inbox />,showSubRoute: false },
-          { label: "Invoice Report", link: "/invoice-report", icon:  <Icon.File />,showSubRoute: false },
-          { label: "Supplier Report", link: "/supplier-report", icon:  <Icon.UserCheck />,showSubRoute: false },
+          
           { label: "Expense Report", link: "/expense-report", icon:  <Icon.FileText />,showSubRoute: false },
           { label: "Income Report", link: "/income-report", icon:  <Icon.BarChart />,showSubRoute: false },
           { label: "Profit & Loss", link: "/profit-loss-report", icon:  <Icon.TrendingDown />,showSubRoute: false }
