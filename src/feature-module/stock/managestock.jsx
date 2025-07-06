@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, createElement } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import axios from 'axios';
@@ -12,7 +12,8 @@ import './managestock.css'; // Import the CSS file
 // Icons (Import necessary icons)
 import {
     Filter, Edit, Trash2, Search, RotateCcw, Upload, Download,
-    Eye, ChevronUp, PlusCircle, X // Ensure Eye and X are imported
+    Eye, ChevronUp, PlusCircle, X, MapPin, Package, Tag, // Ensure Eye and X are imported
+    AlertCircle, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown
 } from "react-feather";
 
 // Redux (Optional)
@@ -59,29 +60,39 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
     const effectiveMax = maxStock > 0 ? Math.max(quantity, maxStock) : estimatedMaxBasedOnThresholds;
     const percentage = effectiveMax > 0 ? Math.min(100, Math.max(0, (quantity / effectiveMax) * 100)) : 0;
 
-    // Determine status and color
+    // Determine status and color with enhanced logic
     let status = "success";
     let statusText = "Good";
     let variant = "success";
+    let statusIcon = CheckCircle;
+    let trendIcon = null;
 
     if (quantity <= 0) {
         status = "danger";
         statusText = "Out of Stock";
         variant = "danger";
+        statusIcon = XCircle;
+        trendIcon = TrendingDown;
     } else if (minStock !== undefined && quantity <= minStock) {
         status = "danger";
         statusText = "Below Minimum";
         variant = "danger";
+        statusIcon = AlertCircle;
+        trendIcon = TrendingDown;
     } else if (notifyAt !== undefined && quantity <= notifyAt) {
         status = "warning";
         statusText = "Low Stock";
         variant = "warning";
+        statusIcon = AlertCircle;
+        trendIcon = TrendingDown;
     } else if (percentage <= 25) {
         // Keep Low Stock/Below Minimum if applicable, otherwise Critical
         if (status === 'success') {
             status = "danger";
             statusText = "Critical";
             variant = "danger";
+            statusIcon = AlertCircle;
+            trendIcon = TrendingDown;
         }
     } else if (percentage <= 50) {
          // Keep Low Stock/Below Minimum if applicable, otherwise Moderate
@@ -89,7 +100,10 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
             status = "warning";
             statusText = "Moderate";
             variant = "warning";
+            statusIcon = Clock;
         }
+    } else {
+        trendIcon = TrendingUp;
     }
 
     const tooltipText = (
@@ -103,30 +117,36 @@ const StockLevelBar = ({ quantity, minStock, notifyAt, maxStock = null, recordId
     );
 
     return (
-        <div className="stock-level-container" style={{ minWidth: '150px' }}>
+        <div className="stock-level-container" style={{ minWidth: '170px' }}>
             <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip id={`tooltip-stock-${recordId}`}>{tooltipText}</Tooltip>}
             >
                 <div className="stock-level-wrapper">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                        {/* Use Bootstrap Badge for status */}
-                        <Badge bg={variant} className="text-capitalize stock-status-badge">{statusText}</Badge>
-                        <span className="text-muted small">{percentage.toFixed(0)}% Full</span>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        {/* Enhanced Badge with icon */}
+                        <Badge bg={variant} className="d-inline-flex align-items-center gap-1 stock-status-badge">
+                            {React.createElement(statusIcon, { size: 10 })}
+                            {statusText}
+                        </Badge>
+                        <div className="d-flex align-items-center gap-1">
+                            {trendIcon && React.createElement(trendIcon, { size: 12, className: `text-${variant}` })}
+                            <span className="text-muted small">{percentage.toFixed(0)}%</span>
+                        </div>
                     </div>
                     <ProgressBar
                         now={percentage}
                         variant={variant}
                         className="stock-progress-bar"
                         style={{
-                            height: '8px',
-                            borderRadius: '4px',
+                            height: '10px',
+                            borderRadius: '6px',
                             backgroundColor: '#e9ecef'
                         }}
                     />
-                    <div className="d-flex justify-content-between align-items-center mt-1 quantity-indicators">
+                    <div className="d-flex justify-content-between align-items-center mt-2 quantity-indicators">
                         <span className="text-muted small">0</span>
-                        <span className="fw-bold">{quantity}</span>
+                        <span className="fw-bold text-primary">{quantity}</span>
                         <span className="text-muted small">{effectiveMax}</span>
                     </div>
                 </div>
@@ -415,7 +435,7 @@ const Managestock = () => {
 
     // --- Table Column Definitions ---
     const columns = [
-        // *** MOVED LOCATION COLUMN TO THE START ***
+        // *** ENHANCED LOCATION COLUMN ***
         {
             title: "Location",
             dataIndex: ["location", "name"], // Access nested location name
@@ -423,7 +443,17 @@ const Managestock = () => {
             render: (name, record) => {
                 const locationType = record.location?.type;
                 const label = name || <span className="text-muted">N/A</span>;
-                return locationType ? `${label} (${locationType})` : label;
+                return (
+                    <div className="d-flex align-items-center gap-2">
+                        <MapPin size={14} className="text-muted" />
+                        <div>
+                            <div className="fw-semibold">{label}</div>
+                            {locationType && (
+                                <small className="text-muted">{locationType}</small>
+                            )}
+                        </div>
+                    </div>
+                );
             },
             sorter: (a, b) => (a.location?.name || '').localeCompare(b.location?.name || ''),
             width: '180px',
@@ -468,42 +498,71 @@ const Managestock = () => {
                         gap: '12px',
                         ...inactiveStyle
                     }}>
-                        <Link to={productDetailsPath} className="product-img">
+                        <Link to={productDetailsPath} className="product-img position-relative">
                             <img
                                 alt={product.name}
                                 src={imageSrc}
-                                style={{ objectFit: 'cover', width: '50px', height: '50px', borderRadius: '6px' }}
+                                style={{ 
+                                    objectFit: 'cover', 
+                                    width: '56px', 
+                                    height: '56px', 
+                                    borderRadius: '8px',
+                                    border: '2px solid #e9ecef'
+                                }}
                                 onError={(e) => {
                                     e.target.src = "/assets/img/placeholder-product.png";
                                 }}
                             />
+                            {/* Product status indicator overlay */}
+                            <div className="position-absolute" style={{
+                                top: '-2px',
+                                right: '-2px',
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '50%',
+                                backgroundColor: isInactive ? '#dc3545' : '#28a745',
+                                border: '2px solid #fff',
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)'
+                            }}></div>
                         </Link>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
                             <Link 
                                 to={productDetailsPath}
                                 style={{ 
                                     textDecoration: 'none', 
-                                    fontSize: '14px', 
-                                    fontWeight: '500', 
-                                    color: isInactive ? '#999' : '#333'
+                                    fontSize: '15px', 
+                                    fontWeight: '600', 
+                                    color: isInactive ? '#999' : '#333',
+                                    lineHeight: '1.2'
                                 }}
+                                className="product-name-link"
                             >
                                 {product.name}
                             </Link>
-                            {isInactive && (
-                                <span style={{
-                                    fontSize: '11px',
-                                    color: '#dc3545',
-                                    backgroundColor: '#f8d7da',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    display: 'inline-block',
-                                    width: 'fit-content',
-                                    fontWeight: '500'
-                                }}>
-                                    INACTIVE
-                                </span>
-                            )}
+                            <div className="d-flex align-items-center gap-2">
+                                {product.sku && (
+                                    <span style={{
+                                        fontSize: '12px',
+                                        color: '#6c757d',
+                                        backgroundColor: '#f8f9fa',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        fontFamily: 'monospace',
+                                        border: '1px solid #e9ecef'
+                                    }}>
+                                        {product.sku}
+                                    </span>
+                                )}
+                                {isInactive && (
+                                    <Badge bg="danger" className="d-inline-flex align-items-center gap-1" style={{
+                                        fontSize: '10px',
+                                        padding: '2px 6px'
+                                    }}>
+                                        <XCircle size={8} />
+                                        INACTIVE
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
                     </div>
                 );
@@ -519,12 +578,28 @@ const Managestock = () => {
             sorter: (a, b) => (a.product?.sku || '').localeCompare(b.product?.sku || ''),
             width: '120px',
         },
-        // *** ADDED CATEGORY COLUMN ***
+        // *** ENHANCED CATEGORY COLUMN ***
         {
             title: "Category",
             dataIndex: ["product", "category", "name"], // Access nested category name
             key: 'categoryName',
-            render: (categoryName) => categoryName || <span className="text-muted">N/A</span>,
+            render: (categoryName) => {
+                if (categoryName) {
+                    return (
+                        <div className="d-flex align-items-center gap-2">
+                            <Tag size={14} className="text-muted" />
+                            <span className="fw-medium">{categoryName}</span>
+                        </div>
+                    );
+                } else {
+                    return (
+                        <div className="d-flex align-items-center gap-2">
+                            <Tag size={14} className="text-muted" />
+                            <span className="text-muted">N/A</span>
+                        </div>
+                    );
+                }
+            },
             sorter: (a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''),
             width: '150px',
         },
@@ -539,16 +614,35 @@ const Managestock = () => {
             align: 'right',
             width: '100px',
         },
-        // *** ADDED STATUS COLUMN ***
+        // *** ENHANCED STATUS COLUMN ***
         {
             title: "Status",
             dataIndex: ["product", "isActive"], // Access nested status
             key: 'productStatus',
-            render: (isActive) => (
-                isActive === true ? <Badge bg="success">Active</Badge> :
-                isActive === false ? <Badge bg="danger">Inactive</Badge> :
-                <Badge bg="secondary">Unknown</Badge> // Handle undefined/null case
-            ),
+            render: (isActive) => {
+                if (isActive === true) {
+                    return (
+                        <Badge bg="success" className="d-inline-flex align-items-center gap-1">
+                            <CheckCircle size={12} />
+                            Active
+                        </Badge>
+                    );
+                } else if (isActive === false) {
+                    return (
+                        <Badge bg="danger" className="d-inline-flex align-items-center gap-1">
+                            <XCircle size={12} />
+                            Inactive
+                        </Badge>
+                    );
+                } else {
+                    return (
+                        <Badge bg="secondary" className="d-inline-flex align-items-center gap-1">
+                            <AlertCircle size={12} />
+                            Unknown
+                        </Badge>
+                    );
+                }
+            },
             sorter: (a, b) => {
                 // Handle undefined/null values for sorting
                 const valA = a.product?.isActive === true ? 1 : a.product?.isActive === false ? 0 : -1;
@@ -556,16 +650,24 @@ const Managestock = () => {
                 return valA - valB;
             },
             align: 'center',
-            width: '100px',
+            width: '110px',
         },
         {
             title: "Quantity",
             dataIndex: "quantity",
             key: 'quantity',
-            render: (qty) => qty ?? 0, // Display 0 if quantity is null/undefined
+            render: (qty) => {
+                const quantity = qty ?? 0;
+                return (
+                    <div className="d-flex align-items-center justify-content-center gap-2">
+                        <Package size={14} className="text-muted" />
+                        <span className="fw-bold" style={{ fontSize: '1.1rem' }}>{quantity}</span>
+                    </div>
+                );
+            },
             sorter: (a, b) => (a.quantity ?? 0) - (b.quantity ?? 0), // Sort numerically, handle null/undefined
             align: 'center', // Center align quantity
-            width: '100px',
+            width: '120px',
         },
         {
             title: "Stock Level",
@@ -606,38 +708,47 @@ const Managestock = () => {
 
 
                  return (
-                    <div className="edit-delete-action d-flex justify-content-end align-items-center gap-1">
+                    <div className="edit-delete-action d-flex justify-content-end align-items-center gap-2">
                         {/* View Product Details Action */}
                         {record.product && (
-                            <Link className="action-icon p-1" to={productDetailsPath} title="View Product Details">
-                                <Eye size={18} />
-                            </Link>
-                        )}
-
-                        {/* --- UPDATED: Edit Product Action --- */}
-                        {record.product && ( // Only show edit icon if product exists
-                             <Link
-                                className="action-icon p-1" // Keep consistent styling
-                                to={editProductPath} // Link to the product edit page
-                                title="Edit Product Details" // Updated title
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={<Tooltip>View Product Details</Tooltip>}
                             >
-                                <Edit size={18} />
-                            </Link>
+                                <Link className="action-icon" to={productDetailsPath}>
+                                    <Eye size={16} />
+                                </Link>
+                            </OverlayTrigger>
                         )}
-                        {/* --- END UPDATED Edit Product Action --- */}
 
-                        {/* Remove Inventory Record Action Button (Remains the same) */}
-                        <Link
-                            className="action-icon text-danger p-1"
-                            to="#"
-                             onClick={(e) => {
-                                e.preventDefault(); // Prevent default link behavior
-                                handleDeleteInventory(record._id, record.product?.name, record.location?.name);
-                             }}
-                            title="Remove Inventory Record"
+                        {/* Edit Product Action */}
+                        {record.product && (
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={<Tooltip>Edit Product</Tooltip>}
+                            >
+                                <Link className="action-icon" to={editProductPath}>
+                                    <Edit size={16} />
+                                </Link>
+                            </OverlayTrigger>
+                        )}
+
+                        {/* Remove Inventory Record Action */}
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>Remove from Inventory</Tooltip>}
                         >
-                            <Trash2 size={18} />
-                        </Link>
+                            <Link
+                                className="action-icon text-danger"
+                                to="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDeleteInventory(record._id, record.product?.name, record.location?.name);
+                                }}
+                            >
+                                <Trash2 size={16} />
+                            </Link>
+                        </OverlayTrigger>
                     </div>
                  );
             },
@@ -666,20 +777,59 @@ const Managestock = () => {
                 {/* Breadcrumbs */}
                 <Breadcrumbs maintitle="Manage Stock" subtitle="View and adjust stock levels across locations" />
 
-                 {/* Page Header with Action Buttons */}
+                 {/* Enhanced Page Header with Action Buttons */}
                  <div className="page-header">
-                     <div className="add-item d-flex"></div>
+                     <div className="add-item d-flex align-items-center">
+                         <h4 className="page-title mb-0 fw-semibold text-dark">Stock Management</h4>
+                         <span className="ms-2 text-muted">|</span>
+                         <span className="ms-2 text-muted small">Monitor inventory levels across all locations</span>
+                     </div>
                      {/* Right-aligned action buttons */}
                      <ul className="table-top-head">
-                         <li><OverlayTrigger placement="top" overlay={renderImportTooltip}><Link to="#" onClick={handleBulkImport}><Upload size={18} /></Link></OverlayTrigger></li>
-                         <li><OverlayTrigger placement="top" overlay={renderExportTooltip}><Link to="#" onClick={handleBulkExport}><Download size={18}/></Link></OverlayTrigger></li>
-                         <li><OverlayTrigger placement="top" overlay={renderRefreshTooltip}><Link to="#" onClick={(e) => {e.preventDefault(); console.log("Refresh button clicked."); fetchInventory(pagination.current, pagination.pageSize);}}><RotateCcw /></Link></OverlayTrigger></li>
+                         <li>
+                             <OverlayTrigger placement="top" overlay={renderImportTooltip}>
+                                 <Link to="#" onClick={handleBulkImport} className="btn-action-header">
+                                     <Upload size={18} />
+                                 </Link>
+                             </OverlayTrigger>
+                         </li>
+                         <li>
+                             <OverlayTrigger placement="top" overlay={renderExportTooltip}>
+                                 <Link to="#" onClick={handleBulkExport} className="btn-action-header">
+                                     <Download size={18}/>
+                                 </Link>
+                             </OverlayTrigger>
+                         </li>
+                         <li>
+                             <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
+                                 <Link 
+                                     to="#" 
+                                     onClick={(e) => {
+                                         e.preventDefault(); 
+                                         console.log("Refresh button clicked."); 
+                                         fetchInventory(pagination.current, pagination.pageSize);
+                                     }}
+                                     className="btn-action-header"
+                                 >
+                                     <RotateCcw size={18} />
+                                 </Link>
+                             </OverlayTrigger>
+                         </li>
                          {/* Optional Redux-based Header Collapse */}
                          {dispatch && (
                              <li>
                                 <OverlayTrigger placement="top" overlay={renderCollapseTooltip}>
-                                    <Link to="#" id="collapse-header" className={toggleData ? "active" : ""} onClick={(e) => { e.preventDefault(); console.log("Collapse header clicked."); dispatch(setToogleHeader(!toggleData)); }}>
-                                        <ChevronUp />
+                                    <Link 
+                                        to="#" 
+                                        id="collapse-header" 
+                                        className={`btn-action-header ${toggleData ? "active" : ""}`} 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            console.log("Collapse header clicked."); 
+                                            dispatch(setToogleHeader(!toggleData)); 
+                                        }}
+                                    >
+                                        <ChevronUp size={18} />
                                     </Link>
                                 </OverlayTrigger>
                              </li>
@@ -692,42 +842,42 @@ const Managestock = () => {
                     <div className="card-body">
                         {/* Top section: Search and Filter Toggle */}
                         <div className="table-top d-flex justify-content-between align-items-center">
-                            {/* Search Input */}
-                            <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
+                            {/* Enhanced Search Input */}
+                            <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                                 <div className="search-input">
                                     <input
                                         type="text"
-                                        placeholder="Search by Product Name, SKU..."
+                                        placeholder="🔍 Search by Product Name, SKU..."
                                         className="form-control form-control-sm formsearch"
                                         value={searchQuery}
                                         onChange={handleSearchChange}
                                     />
                                      <button className="btn btn-searchset" title="Search" onClick={(e) => {e.preventDefault(); console.log("Manual search triggered."); fetchInventory(1, pagination.pageSize)}}>
-                                        <Search className="feather-search" />
+                                        <Search className="feather-search" size={18} />
                                     </button>
                                 </div>
                             </div>
                             <div className="search-path">
                                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                                    <div style={{ minWidth: '130px' }}>
+                                    <div style={{ minWidth: '160px' }}>
                                         <Select
                                             styles={selectStyles}
                                             options={locations}
                                             value={selectedLocationFilter}
                                             onChange={handleFilterChange(setSelectedLocationFilter, 'Location')}
-                                            placeholder="Filter by Location..."
+                                            placeholder="📍 Filter by Location..."
                                             isClearable
                                             isLoading={isFetchingFilters}
                                             classNamePrefix="react-select"
                                         />
                                     </div>
-                                    <div style={{ minWidth: '130px' }}>
+                                    <div style={{ minWidth: '160px' }}>
                                          <Select
                                             styles={selectStyles}
                                             options={products}
                                             value={selectedProductFilter}
                                             onChange={handleFilterChange(setSelectedProductFilter, 'Product')}
-                                            placeholder="Filter by Product..."
+                                            placeholder="📦 Filter by Product..."
                                             isClearable
                                             isLoading={isFetchingFilters}
                                             classNamePrefix="react-select"

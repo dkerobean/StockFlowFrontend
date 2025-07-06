@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import default CSS
 
 const backgroundStyle = {
     // Set the background image URL
-    backgroundImage: "url('assets/img/authentication/verify-img.png')",
+    backgroundImage: "url('/assets/img/authentication/verify-img.png')",
 
     // Add other necessary background properties (often defined in .bg-img)
     // These ensure the image covers the area nicely. Adjust as needed.
@@ -190,10 +190,10 @@ const Register = () => {
               <div className="login-userset">
                 {/* ... Logo ... */}
                  <div className="login-logo logo-normal">
-                  <Image src="assets/img/logo.png" alt="img" />
+                  <Image src="/assets/img/logo.png" alt="img" />
                 </div>
                 <Link to={route.dashboard} className="login-logo logo-white">
-                  <Image src="assets/img/logo-white.png" alt="" />
+                  <Image src="/assets/img/logo-white.png" alt="" />
                 </Link>
 
                 <div className="login-userheading">
@@ -214,7 +214,7 @@ const Register = () => {
                         disabled={loading}
                     />
                     <Image
-                      src="assets/img/icons/user-icon.svg"
+                      src="/assets/img/icons/user-icon.svg"
                       alt="img"
                     />
                   </div>
@@ -233,7 +233,7 @@ const Register = () => {
                         disabled={loading}
                     />
                     <Image
-                      src="assets/img/icons/mail.svg"
+                      src="/assets/img/icons/mail.svg"
                       alt="img"
                     />
                   </div>
@@ -323,9 +323,9 @@ const Register = () => {
                 <div className="form-setlogin or-text"><h4>OR</h4></div>
                  <div className="form-sociallink">
                    <ul className="d-flex">
-                     <li><Link to="#" className="facebook-logo"><Image src="assets/img/icons/facebook-logo.svg" alt="Facebook" /></Link></li>
-                     <li><Link to="#"><Image src="assets/img/icons/google.png" alt="Google" /></Link></li>
-                     <li><Link to="#" className="apple-logo"><Image src="assets/img/icons/apple-logo.svg" alt="Apple" /></Link></li>
+                     <li><Link to="#" className="facebook-logo"><Image src="/assets/img/icons/facebook-logo.svg" alt="Facebook" /></Link></li>
+                     <li><Link to="#"><Image src="/assets/img/icons/google.png" alt="Google" /></Link></li>
+                     <li><Link to="#" className="apple-logo"><Image src="/assets/img/icons/apple-logo.svg" alt="Apple" /></Link></li>
                    </ul>
                  </div>
                  <div className="my-4 d-flex justify-content-center align-items-center copyright-text">

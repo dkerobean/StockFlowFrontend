@@ -8,8 +8,13 @@ import 'react-toastify/dist/ReactToastify.css';
 // Icons
 import {
     Box, ChevronUp, Download, Edit, Eye, Filter, GitMerge, PlusCircle,
-    RotateCcw, Sliders, StopCircle, Trash2, Search, X, FileText, Users
+    RotateCcw, Sliders, StopCircle, Trash2, Search, X, FileText, Users,
+    CheckCircle, XCircle, AlertCircle, Package, Tag, MapPin, DollarSign,
+    TrendingUp, TrendingDown, Clock, Star, Award
 } from "feather-icons-react/build/IconComponents";
+
+// Import CSS
+import './productlist.css';
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
@@ -454,7 +459,12 @@ const ProductList = () => {
         {
             title: "SKU",
             dataIndex: "sku",
-            render: (text) => <span className="fw-medium">{text}</span>
+            render: (text) => (
+                <div className="d-flex align-items-center gap-2">
+                    <Package size={14} className="text-muted" />
+                    <span className="sku-badge">{text || 'N/A'}</span>
+                </div>
+            )
         },
         {
             title: "Product",
@@ -492,45 +502,55 @@ const ProductList = () => {
                     <div className="productimgname" style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '12px',
+                        gap: '16px',
                         ...inactiveStyle
                     }}>
-                        <Link to={route.productdetails ? route.productdetails.replace(':productId', record._id) : '#'} className="product-img">
+                        <Link to={route.productdetails ? route.productdetails.replace(':productId', record._id) : '#'} className="product-img position-relative">
                             <img
                                 alt={text}
                                 src={imageSrc}
-                                style={{ objectFit: 'cover', width: '50px', height: '50px', borderRadius: '6px' }}
+                                style={{ 
+                                    objectFit: 'cover', 
+                                    width: '60px', 
+                                    height: '60px', 
+                                    borderRadius: '12px',
+                                    border: '2px solid #e9ecef'
+                                }}
                                 onError={(e) => {
                                     e.target.src = "/assets/img/placeholder-product.png";
                                 }}
                             />
+                            {/* Product status indicator overlay */}
+                            <div className={`product-status-indicator ${isInactive ? 'product-status-inactive' : 'product-status-active'}`}></div>
                         </Link>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                             <Link 
                                 to={route.productdetails ? route.productdetails.replace(':productId', record._id) : '#'}
                                 style={{ 
                                     textDecoration: 'none', 
-                                    fontSize: '14px', 
-                                    fontWeight: '500', 
-                                    color: isInactive ? '#999' : '#333'
+                                    fontSize: '16px', 
+                                    fontWeight: '600', 
+                                    color: isInactive ? '#999' : '#333',
+                                    lineHeight: '1.3'
                                 }}
+                                className="product-name-link"
                             >
                                 {text}
                             </Link>
-                            {isInactive && (
-                                <span style={{
-                                    fontSize: '11px',
-                                    color: '#dc3545',
-                                    backgroundColor: '#f8d7da',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    display: 'inline-block',
-                                    width: 'fit-content',
-                                    fontWeight: '500'
-                                }}>
-                                    INACTIVE
-                                </span>
-                            )}
+                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                {record.sku && (
+                                    <span className="sku-badge d-inline-flex align-items-center gap-1">
+                                        <Package size={10} />
+                                        {record.sku}
+                                    </span>
+                                )}
+                                {isInactive && (
+                                    <span className="status-badge inactive d-inline-flex align-items-center gap-1">
+                                        <XCircle size={10} />
+                                        INACTIVE
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 );
@@ -539,17 +559,32 @@ const ProductList = () => {
         {
             title: "Category",
             dataIndex: "category",
-            render: (category) => category?.name || "N/A"
+            render: (category) => (
+                <div className="category-brand-display">
+                    <Tag size={14} className="text-muted" />
+                    <span>{category?.name || "N/A"}</span>
+                </div>
+            )
         },
         {
             title: "Brand",
             dataIndex: "brand",
-            render: (brand) => brand?.name || "N/A"
+            render: (brand) => (
+                <div className="category-brand-display">
+                    <Award size={14} className="text-muted" />
+                    <span>{brand?.name || "N/A"}</span>
+                </div>
+            )
         },
         {
             title: "Price",
             dataIndex: "price",
-            render: (price) => `$${(price || 0).toFixed(2)}`
+            render: (price) => (
+                <div className="price-display d-inline-flex align-items-center gap-1">
+                    <DollarSign size={14} />
+                    {(price || 0).toFixed(2)}
+                </div>
+            )
         },
         {
             title: "Unit",
@@ -560,17 +595,21 @@ const ProductList = () => {
             title: "Qty",
             dataIndex: "quantity",
             render: (text, record) => {
+                let totalQty = 0;
                 // Backend now provides totalStock for both location-specific and general queries
                 if (record.totalStock !== undefined) {
-                    return record.totalStock;
+                    totalQty = record.totalStock;
+                } else if (record.inventory && Array.isArray(record.inventory)) {
+                    // Fallback: calculate from inventory array if totalStock not available
+                    totalQty = record.inventory.reduce((sum, inv) => sum + (inv.quantity || 0), 0);
                 }
-                // Fallback: calculate from inventory array if totalStock not available
-                if (record.inventory && Array.isArray(record.inventory)) {
-                    const totalQty = record.inventory.reduce((sum, inv) => sum + (inv.quantity || 0), 0);
-                    return totalQty;
-                }
-                // Fallback to zero if no inventory data
-                return 0;
+                
+                return (
+                    <div className="quantity-display">
+                        <Package size={14} />
+                        <span>{totalQty}</span>
+                    </div>
+                );
             }
         },
         {
@@ -581,13 +620,19 @@ const ProductList = () => {
                 const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
                 
                 return (
-                    <div className="userimgname" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="userimgname">
                         <div className="user-img" style={{ position: 'relative' }}>
                             {createdBy?.profileImage ? (
                                 <img 
                                     src={createdBy.profileImage} 
                                     alt={userName}
-                                    style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                    style={{ 
+                                        width: '40px', 
+                                        height: '40px', 
+                                        borderRadius: '50%', 
+                                        objectFit: 'cover',
+                                        border: '2px solid #e9ecef'
+                                    }}
                                     onError={(e) => {
                                         e.target.style.display = 'none';
                                         e.target.nextSibling.style.display = 'flex';
@@ -597,23 +642,20 @@ const ProductList = () => {
                             <div 
                                 className="user-avatar-initials"
                                 style={{ 
-                                    display: createdBy?.profileImage ? 'none' : 'flex',
-                                    width: '32px', 
-                                    height: '32px', 
-                                    borderRadius: '50%', 
-                                    backgroundColor: '#ff9f40', 
-                                    color: 'white', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center', 
-                                    fontSize: '12px',
-                                    fontWeight: '600'
+                                    display: createdBy?.profileImage ? 'none' : 'flex'
                                 }}
                             >
                                 {userInitials}
                             </div>
                         </div>
                         <div>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>{userName}</span>
+                            <span style={{ 
+                                fontSize: '15px', 
+                                fontWeight: '600', 
+                                color: '#333',
+                                display: 'block'
+                            }}>{userName}</span>
+                            <small className="text-muted">Creator</small>
                         </div>
                     </div>
                 );
@@ -636,15 +678,14 @@ const ProductList = () => {
                         <div className="edit-delete-action">
                             {/* View Details - always available */}
                             <OverlayTrigger placement="top" overlay={<Tooltip>View Details</Tooltip>}>
-                                <Link className="me-1 p-1" to={route.productdetails ? route.productdetails.replace(':productId', record._id) : '#'}>
-                                    <Eye size={14} className="feather-eye" />
+                                <Link to={route.productdetails ? route.productdetails.replace(':productId', record._id) : '#'}>
+                                    <Eye size={16} className="feather-eye" />
                                 </Link>
                             </OverlayTrigger>
                             
                             {/* Edit - always available */}
                             <OverlayTrigger placement="top" overlay={<Tooltip>Edit Product</Tooltip>}>
                                 <Link 
-                                    className="me-1 p-1" 
                                     to={route.editproduct ? route.editproduct.replace(':productId', record._id) : '#'}
                                     onClick={(e) => {
                                         console.log('Edit clicked for product:', record._id);
@@ -655,7 +696,7 @@ const ProductList = () => {
                                         }
                                     }}
                                 >
-                                    <Edit size={14} className="feather-edit" />
+                                    <Edit size={16} className="feather-edit" />
                                 </Link>
                             </OverlayTrigger>
                             
@@ -664,14 +705,14 @@ const ProductList = () => {
                                 /* Active product: Show deactivate button */
                                 <OverlayTrigger placement="top" overlay={<Tooltip>Deactivate Product</Tooltip>}>
                                     <Link 
-                                        className="confirm-text p-1" 
+                                        className="confirm-text" 
                                         to="#"
                                         onClick={(e) => {
                                             e.preventDefault();
                                             handleDeactivateProduct(record._id, record.name);
                                         }}
                                     >
-                                        <StopCircle size={14} className="feather-stop-circle" style={{ color: '#ffc107' }} />
+                                        <StopCircle size={16} className="feather-stop-circle" style={{ color: '#ffc107' }} />
                                     </Link>
                                 </OverlayTrigger>
                             ) : (
@@ -679,28 +720,27 @@ const ProductList = () => {
                                 <>
                                     <OverlayTrigger placement="top" overlay={<Tooltip>Reactivate Product</Tooltip>}>
                                         <Link 
-                                            className="confirm-text p-1" 
+                                            className="confirm-text" 
                                             to="#"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 handleReactivateProduct(record._id, record.name);
                                             }}
                                         >
-                                            <GitMerge size={14} className="feather-git-merge" style={{ color: '#28a745' }} />
+                                            <CheckCircle size={16} className="feather-check-circle" style={{ color: '#28a745' }} />
                                         </Link>
                                     </OverlayTrigger>
                                     
                                     <OverlayTrigger placement="top" overlay={<Tooltip>Permanently Delete</Tooltip>}>
                                         <Link 
-                                            className="confirm-text p-1" 
+                                            className="confirm-text" 
                                             to="#"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 handlePermanentDeleteProduct(record._id, record.name);
                                             }}
-                                            style={{ marginLeft: '4px' }}
                                         >
-                                            <Trash2 size={14} className="feather-trash-2" style={{ color: '#dc3545' }} />
+                                            <Trash2 size={16} className="feather-trash-2" style={{ color: '#dc3545' }} />
                                         </Link>
                                     </OverlayTrigger>
                                 </>
@@ -713,31 +753,38 @@ const ProductList = () => {
     ];
 
     return (
-        <div className="page-wrapper">
+        <div className="page-wrapper product-list-container">
             <div className="content">
-                {/* Page Header */}
-                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div className="add-item d-flex">
+                {/* Enhanced Page Header */}
+                <div className="page-header">
+                    <div className="add-item d-flex align-items-center">
                         <div className="page-title">
-                            <h4>Product List</h4>
-                            <h6>Manage your products</h6>
+                            <h4 className="d-flex align-items-center gap-2">
+                                <Package size={24} className="text-white" />
+                                Product Management
+                            </h4>
+                            <h6>Manage your product inventory and catalog</h6>
                         </div>
                     </div>
                     <ul className="table-top-head">
                         <li>
                             <OverlayTrigger placement="top" overlay={<Tooltip>Export PDF</Tooltip>}>
-                                <Link to="#"><FileText /></Link>
+                                <Link to="#">
+                                    <FileText size={18} />
+                                </Link>
                             </OverlayTrigger>
                         </li>
                         <li>
                             <OverlayTrigger placement="top" overlay={<Tooltip>Export Excel</Tooltip>}>
-                                <Link to="#"><FileText /></Link>
+                                <Link to="#">
+                                    <Download size={18} />
+                                </Link>
                             </OverlayTrigger>
                         </li>
                         <li>
                             <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
                                 <Link to="#" onClick={(e) => {e.preventDefault(); fetchProducts();}}>
-                                    <RotateCcw />
+                                    <RotateCcw size={18} />
                                 </Link>
                             </OverlayTrigger>
                         </li>
@@ -748,17 +795,17 @@ const ProductList = () => {
                                     className={data ? "active" : ""} 
                                     onClick={(e) => { e.preventDefault(); dispatch(setToogleHeader(!data)); }}
                                 >
-                                    <ChevronUp />
+                                    <ChevronUp size={18} />
                                 </Link>
                             </OverlayTrigger>
                         </li>
                     </ul>
-                    <div className="page-btn" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <Link to={route.addproduct} className="btn btn-added" style={{ whiteSpace: 'nowrap' }}>
-                            <PlusCircle className="me-2" />Add New Product
+                    <div className="page-btn">
+                        <Link to={route.addproduct} className="btn btn-added">
+                            <PlusCircle className="me-2" size={18} />Add New Product
                         </Link>
-                        <Link to="#" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-                            <Download className="me-2" />Import Product
+                        <Link to="#" className="btn btn-primary">
+                            <Download className="me-2" size={18} />Import Products
                         </Link>
                     </div>
                 </div>
@@ -766,62 +813,94 @@ const ProductList = () => {
                 {/* Main Card */}
                 <div className="card table-list-card">
                     <div className="card-body">
-                        {/* Search and Filters Bar */}
-                        <div className="table-top d-flex justify-content-between align-items-center">
-                            <div className="search-set flex-grow-1" style={{ maxWidth: '400px' }}>
-                                <div className="search-input">
-                                    <input
-                                        type="text"
-                                        placeholder="Search Products..."
-                                        className="form-control form-control-sm formsearch"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                    />
-                                    <Link to className="btn btn-searchset">
-                                        <Search className="feather-search" />
-                                    </Link>
+                        {/* Enhanced Search and Filters Bar */}
+                        <div className="table-top">
+                            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                {/* Enhanced Search Input */}
+                                <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
+                                    <div className="search-input">
+                                        <input
+                                            type="text"
+                                            placeholder="🔍 Search products by name, SKU, or description..."
+                                            className="form-control formsearch"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                        <button className="btn btn-searchset" onClick={(e) => {e.preventDefault(); fetchProducts();}}>
+                                            <Search className="feather-search" size={18} />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            {/* Filter Controls - Right Side */}
-                            <div className="search-path">
-                                <div className="d-flex align-items-center gap-2 flex-wrap">
-                                    {/* Category Filter */}
-                                    <div style={{ minWidth: '130px' }}>
-                                        <Select
-                                            styles={selectStyles}
-                                            options={categories}
-                                            value={selectedCategoryFilter}
-                                            onChange={setSelectedCategoryFilter}
-                                            placeholder="All Categories"
-                                            isClearable={false}
-                                            isLoading={isFetchingFilters}
-                                        />
-                                    </div>
-                                    
-                                    {/* Location Filter */}
-                                    <div style={{ minWidth: '130px' }}>
-                                        <Select
-                                            styles={selectStyles}
-                                            options={locations}
-                                            value={selectedLocationFilter}
-                                            onChange={setSelectedLocationFilter}
-                                            placeholder="All Locations"
-                                            isClearable={false}
-                                            isLoading={isFetchingFilters}
-                                        />
-                                    </div>
-                                    
-                                    {/* Status Filter */}
-                                    <div style={{ minWidth: '130px' }}>
-                                        <Select
-                                            styles={selectStyles}
-                                            options={statusOptions}
-                                            value={selectedStatusFilter}
-                                            onChange={setSelectedStatusFilter}
-                                            placeholder="All Status"
-                                            isClearable={false}
-                                        />
+                                
+                                {/* Enhanced Filter Controls */}
+                                <div className="search-path">
+                                    <div className="d-flex align-items-center gap-3 flex-wrap">
+                                        {/* Category Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                styles={selectStyles}
+                                                options={categories}
+                                                value={selectedCategoryFilter}
+                                                onChange={setSelectedCategoryFilter}
+                                                placeholder="📂 All Categories"
+                                                isClearable={false}
+                                                isLoading={isFetchingFilters}
+                                                classNamePrefix="react-select"
+                                            />
+                                        </div>
+                                        
+                                        {/* Brand Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                styles={selectStyles}
+                                                options={brands}
+                                                value={selectedBrandFilter}
+                                                onChange={setSelectedBrandFilter}
+                                                placeholder="🏷️ All Brands"
+                                                isClearable={false}
+                                                isLoading={isFetchingFilters}
+                                                classNamePrefix="react-select"
+                                            />
+                                        </div>
+                                        
+                                        {/* Location Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                styles={selectStyles}
+                                                options={locations}
+                                                value={selectedLocationFilter}
+                                                onChange={setSelectedLocationFilter}
+                                                placeholder="📍 All Locations"
+                                                isClearable={false}
+                                                isLoading={isFetchingFilters}
+                                                classNamePrefix="react-select"
+                                            />
+                                        </div>
+                                        
+                                        {/* Status Filter */}
+                                        <div style={{ minWidth: '140px' }}>
+                                            <Select
+                                                styles={selectStyles}
+                                                options={statusOptions}
+                                                value={selectedStatusFilter}
+                                                onChange={setSelectedStatusFilter}
+                                                placeholder="📊 All Status"
+                                                isClearable={false}
+                                                classNamePrefix="react-select"
+                                            />
+                                        </div>
+                                        
+                                        {/* Reset Filters Button */}
+                                        <Button 
+                                            variant="outline-secondary" 
+                                            size="sm" 
+                                            onClick={resetFilters}
+                                            className="d-flex align-items-center gap-1"
+                                            style={{ minWidth: '120px', height: '44px' }}
+                                        >
+                                            <RotateCcw size={14} />
+                                            Reset
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -834,13 +913,18 @@ const ProductList = () => {
                                     <div className="spinner-border" role="status">
                                         <span className="visually-hidden">Loading products...</span>
                                     </div>
+                                    <p className="mt-3 text-muted">Loading your product catalog...</p>
                                 </div>
                             )}
                             
                             {!isLoading && error && (
-                                <div className="alert alert-danger">
-                                    Error: {error}
-                                    <button onClick={fetchProducts} className="btn btn-sm btn-link p-0 ms-2">
+                                <div className="alert alert-danger d-flex align-items-center justify-content-between">
+                                    <div className="d-flex align-items-center gap-2">
+                                        <AlertCircle size={20} />
+                                        <span>Error: {error}</span>
+                                    </div>
+                                    <button onClick={fetchProducts} className="btn btn-sm btn-outline-danger">
+                                        <RotateCcw size={14} className="me-1" />
                                         Retry
                                     </button>
                                 </div>
@@ -855,9 +939,14 @@ const ProductList = () => {
                             )}
                             
                             {!isLoading && !error && products.length === 0 && (
-                                <div className="text-center p-5 text-muted">
-                                    No products found. 
-                                    <Link to={route.addproduct} className="ms-1">Add your first product!</Link>
+                                <div className="empty-state">
+                                    <Package size={48} className="text-muted mb-3" />
+                                    <h5>No Products Found</h5>
+                                    <p>Start building your product catalog today!</p>
+                                    <Link to={route.addproduct} className="btn btn-primary">
+                                        <PlusCircle className="me-2" size={16} />
+                                        Add Your First Product
+                                    </Link>
                                 </div>
                             )}
                         </div>

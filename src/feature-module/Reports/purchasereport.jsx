@@ -72,7 +72,7 @@ const PurchaseReport = () => {
       // Test backend connectivity first
       try {
         console.log('🔍 Testing backend connectivity...');
-        const healthCheck = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/protected`, {
+        const healthCheck = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3005/api'}/protected`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }

@@ -66,13 +66,60 @@ const SalesList = () => {
         setIsFilterVisible((prev) => !prev);
     };
 
+    // Test user permissions before attempting to fetch sales
+    const testUserPermissions = async () => {
+        try {
+            console.log('🔐 Testing user permissions...');
+            const authResponse = await api.get('/auth/me');
+            console.log('👤 User data:', authResponse.data);
+            
+            const userRole = authResponse.data.role;
+            const userLocations = authResponse.data.locations;
+            
+            console.log(`👤 User role: ${userRole}`);
+            console.log(`📍 User locations:`, userLocations);
+            
+            if (!['admin', 'manager'].includes(userRole)) {
+                console.error(`❌ Insufficient permissions: User role '${userRole}' does not have access to sales list`);
+                toast.error(`Access denied: Sales requires Manager or Admin role. Your role: ${userRole}`);
+                return false;
+            }
+            
+            if (userRole === 'manager' && (!userLocations || userLocations.length === 0)) {
+                console.error(`❌ No location access: Manager role requires location assignments`);
+                toast.error('No locations assigned. Please contact administrator to assign locations.');
+                return false;
+            }
+            
+            console.log('✅ User permissions validated successfully');
+            return true;
+        } catch (error) {
+            console.error('❌ Permission check failed:', error);
+            if (error.response?.status === 401) {
+                toast.error('Authentication expired. Please log in again.');
+                return false;
+            }
+            throw error;
+        }
+    };
+
     // Fetch sales from the backend with optional filters
     const fetchSales = async (filterParams = {}) => {
         setLoading(true);
         try {
-            console.log('Fetching sales data...');
+            console.log('🔄 Fetching sales data...');
             const token = localStorage.getItem('token');
-            console.log('Token exists:', !!token);
+            console.log('🔑 Token exists:', !!token);
+            console.log('🌐 API Base URL:', api.defaults.baseURL);
+            console.log('📋 Filter parameters:', filterParams);
+            
+            // First, test user permissions
+            const hasPermissions = await testUserPermissions();
+            if (!hasPermissions) {
+                setSales([]);
+                setFilteredSales([]);
+                return;
+            }
             
             // Build query parameters
             const queryParams = {};
@@ -84,44 +131,77 @@ const SalesList = () => {
             if (filterParams.startDate) queryParams.startDate = filterParams.startDate;
             if (filterParams.endDate) queryParams.endDate = filterParams.endDate;
             
+            console.log('🚀 Making sales API request...');
             const response = await api.get('/sales', { params: queryParams });
-            console.log('Sales API response status:', response.status);
-            console.log('Sales response data:', response.data);
-            console.log('Sales response headers:', response.headers);
+            console.log('✅ Sales API response status:', response.status);
+            console.log('📊 Sales response data:', response.data);
+            console.log('📊 Sales response headers:', response.headers);
             
             if (response.data && Array.isArray(response.data)) {
+                console.log('📊 Sales data received:');
+                console.log('📊 Raw response:', response.data);
+                console.log('📊 Number of sales:', response.data.length);
+                console.log('📊 First sale example:', response.data[0]);
+                
                 setSales(response.data);
                 setFilteredSales(response.data); // Set filtered sales to the same data
+                
                 console.log(`✅ Successfully loaded ${response.data.length} sales`);
+                console.log('💾 Sales state after setting:', response.data);
+                
                 if (response.data.length === 0) {
-                    console.log('ℹ️ No sales found - this could be due to:');
+                    console.log('ℹ️ No sales found - possible reasons:');
                     console.log('  - User role (need Manager+ access)');
                     console.log('  - Location access (user may not have access to any locations)');
                     console.log('  - No sales data in the database');
                     console.log('  - Applied filters returned no results');
+                    console.log('👤 Current user token:', localStorage.getItem('token') ? 'Present' : 'Missing');
                 }
             } else {
                 console.warn('⚠️ Unexpected sales data format:', response.data);
+                console.warn('⚠️ Expected array, got:', typeof response.data);
                 setSales([]);
                 setFilteredSales([]);
             }
         } catch (error) {
             console.error('❌ Error fetching sales:', error);
+            console.error('🔍 API URL being used:', api.defaults.baseURL);
+            console.error('🔑 Token available:', !!localStorage.getItem('token'));
+            
             if (error.response) {
-                console.error('Status:', error.response.status);
-                console.error('Status Text:', error.response.statusText);
-                console.error('Response Data:', error.response.data);
+                console.error('📊 Response Status:', error.response.status);
+                console.error('📊 Response Status Text:', error.response.statusText);
+                console.error('📊 Response Data:', error.response.data);
+                console.error('📊 Response Headers:', error.response.headers);
                 
                 if (error.response.status === 403) {
-                    toast.error('Access denied. You need Manager or Admin role to view sales.');
+                    toast.error('Access denied. You need Manager or Admin role to view sales. Please contact your administrator.');
                 } else if (error.response.status === 401) {
                     toast.error('Authentication failed. Please log in again.');
+                    // Optionally redirect to login
+                    // window.location.href = '/login';
+                } else if (error.response.status === 404) {
+                    toast.error('Sales endpoint not found. Please contact technical support.');
+                } else if (error.response.status >= 500) {
+                    toast.error('Server error. Please try again later or contact technical support.');
                 } else {
                     toast.error(`Failed to load sales: ${error.response.data?.message || error.message}`);
                 }
+            } else if (error.request) {
+                console.error('🌐 Request made but no response received:', error.request);
+                console.error('🌐 Network error details:', {
+                    code: error.code,
+                    message: error.message,
+                    config: {
+                        baseURL: error.config?.baseURL,
+                        url: error.config?.url,
+                        method: error.config?.method
+                    }
+                });
+                toast.error('Network error: Unable to connect to server. Please check if the backend is running on port 3005.');
             } else {
-                console.error('Network or other error:', error.message);
-                toast.error('Network error. Please check your connection.');
+                console.error('🔥 Request setup error:', error.message);
+                toast.error(`Request error: ${error.message}`);
             }
             setSales([]);
         } finally {
@@ -244,6 +324,14 @@ const SalesList = () => {
     
     // Get display sales (always use sales since backend filtering is applied)
     const displaySales = sales;
+    
+    // Debug: Log current state
+    console.log('🔍 Current component state:');
+    console.log('🔍 Sales array:', sales);
+    console.log('🔍 Sales length:', sales.length);
+    console.log('🔍 Loading state:', loading);
+    console.log('🔍 Display sales:', displaySales);
+    console.log('🔍 Display sales length:', displaySales.length);
 
     // Fetch products based on location
     const fetchProducts = async (locationId) => {
@@ -573,9 +661,57 @@ const SalesList = () => {
         setShowSaleDetailModal(true);
     };
 
+    // Test API connectivity and user permissions
+    const testConnectivity = async () => {
+        try {
+            console.log('📞 Testing API connectivity and user permissions...');
+            
+            // First test basic auth endpoint
+            const authResponse = await api.get('/auth/me');
+            console.log('✅ API connectivity test passed:', authResponse.status);
+            console.log('👤 Current user:', authResponse.data);
+            
+            // Check user role for sales access
+            const userRole = authResponse.data.role;
+            console.log('💼 User role:', userRole);
+            
+            if (!['admin', 'manager'].includes(userRole)) {
+                toast.error(`Access denied: Sales requires Manager or Admin role. Your role: ${userRole}`);
+                return false;
+            }
+            
+            console.log('✅ User has sufficient permissions for sales access');
+            return true;
+        } catch (error) {
+            console.error('❌ Connectivity/Permission test failed:', error);
+            
+            if (error.response?.status === 401) {
+                toast.error('Authentication failed. Please log in again.');
+            } else if (error.response?.status === 403) {
+                toast.error('Access denied. You need Manager or Admin role to view sales.');
+            } else if (error.code === 'ECONNREFUSED') {
+                toast.error('Cannot connect to server. Please ensure the backend is running on port 3005.');
+            } else {
+                toast.error(`Connection error: ${error.message}`);
+            }
+            
+            return false;
+        }
+    };
+
+    // Component mounted, test connectivity then fetch initial data
     useEffect(() => {
-        fetchSales();
-        fetchLocations();
+        const initializeData = async () => {
+            const isConnected = await testConnectivity();
+            if (isConnected) {
+                fetchSales();
+                fetchLocations();
+            } else {
+                console.log('🚫 Skipping data fetch due to connectivity issues');
+            }
+        };
+        
+        initializeData();
     }, []);
 
     // Filter options
@@ -943,6 +1079,7 @@ const SalesList = () => {
                                                     <span className="checkmarks" />
                                                 </label>
                                             </th>
+                                            <th>Sale ID</th>
                                             <th>Customer Name</th>
                                             <th>Date</th>
                                             <th>Payment Method</th>
@@ -959,7 +1096,7 @@ const SalesList = () => {
                                     <tbody className="sales-list">
                                         {loading ? (
                                             <tr>
-                                                <td colSpan="10" className="text-center py-4">
+                                                <td colSpan="13" className="text-center py-4">
                                                     <div className="d-flex justify-content-center align-items-center">
                                                         <div className="spinner-border text-primary me-2" role="status">
                                                             <span className="visually-hidden">Loading...</span>
@@ -970,23 +1107,48 @@ const SalesList = () => {
                                             </tr>
                                         ) : displaySales.length === 0 ? (
                                             <tr>
-                                                <td colSpan="10" className="text-center py-4">
+                                                <td colSpan="13" className="text-center py-4">
                                                     <div className="empty-state">
                                                         <FileText size={48} className="text-muted mb-3" />
                                                         <h5 className="text-muted">No Sales Found</h5>
                                                         <p className="text-muted">There are no sales records to display. Start by creating a new sale or check your filter settings.</p>
+                                                        <div className="mt-3">
+                                                            <small className="text-muted d-block mb-2">
+                                                                Debug: Sales array length = {sales.length}, Loading = {loading.toString()}
+                                                            </small>
+                                                            <div className="mt-2">
+                                                                <button 
+                                                                    className="btn btn-outline-primary btn-sm me-2"
+                                                                    onClick={() => window.location.reload()}
+                                                                >
+                                                                    Refresh Page
+                                                                </button>
+                                                                <button 
+                                                                    className="btn btn-outline-secondary btn-sm"
+                                                                    onClick={() => {
+                                                                        console.log('🔄 Manual data fetch triggered');
+                                                                        fetchSales();
+                                                                    }}
+                                                                >
+                                                                    Retry Fetch
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
                                         ) : (
-                                            displaySales.map((sale) => (
-                                            <tr key={sale._id}>
+                                            displaySales.map((sale, index) => {
+                                                console.log(`🎯 Rendering sale ${index + 1}:`, sale);
+                                                return (
+                                                    <tr key={sale._id || index}>
                                                 <td>
                                                     <label className="checkboxs">
                                                         <input type="checkbox" />
                                                         <span className="checkmarks" />
                                                     </label>
                                                 </td>
+                                                <td className="fw-bold">#{sale._id?.slice(-6) || 'N/A'}</td>
                                                 <td>{sale.customer?.name || 'Walk-in Customer'}</td>
                                                 <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
                                                 <td>{sale.paymentMethod}</td>
@@ -1087,8 +1249,9 @@ const SalesList = () => {
                                                         </li>
                                                     </ul>
                                                 </td>
-                                            </tr>
-                                        ))
+                                                    </tr>
+                                                );
+                                            })
                                         )}
                                     </tbody>
                                 </table>
