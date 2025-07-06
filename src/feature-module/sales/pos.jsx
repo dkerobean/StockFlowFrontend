@@ -520,24 +520,6 @@ const Pos = () => {
   const subtotal = calculateSubtotal();
   const total = calculateTotal();
 
-  const handleAddSelectedToCart = () => {
-    if (selectedProductsForCart.size === 0) {
-      toast.info("Please select products to add to the cart.");
-      return;
-    }
-    let countAdded = 0;
-    selectedProductsForCart.forEach(productId => {
-      const productToAdd = products.find(p => p._id === productId);
-      if (productToAdd) {
-        addToCart(productToAdd); // Use existing addToCart logic
-        countAdded++;
-      }
-    });
-    setSelectedProductsForCart(new Set()); // Clear selection after adding
-    if (countAdded > 0) {
-      toast.success(`${countAdded} product(s) added to cart.`);
-    }
-  };
 
   // Helper to get available stock for a product at the selected location
   const getProductStockForLocation = (product) => {
@@ -839,17 +821,8 @@ const Pos = () => {
                       </div>
                       <div>
                         <strong>Products Selected</strong>
-                        <div className="text-muted small">Ready to add to cart</div>
                       </div>
                     </div>
-                    <button 
-                      className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
-                      onClick={handleAddSelectedToCart}
-                      style={{ fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}
-                    >
-                      <ShoppingCart size={16} className="me-2" />
-                      Add to Cart
-                    </button>
                   </div>
                 </div>
               )}
