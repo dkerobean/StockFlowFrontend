@@ -7,8 +7,34 @@
 #sales_charts,
 .chart-set{
     overflow: hidden;
+    max-height: 300px;
+    height: 273px;
 }
 .apexcharts-canvas {
     width: 100% !important;
+    max-width: 100% !important;
+    height: 273px !important;
+    max-height: 273px !important;
+}
+
+/* Fix for oversized chart elements */
+.apexcharts-inner {
+    max-height: 273px !important;
+    overflow: hidden;
+}
+
+/* Ensure chart containers are properly sized */
+.card-body .apexcharts-canvas,
+.card-body div[id*="apexcharts"] {
+    max-height: 273px !important;
+    height: 273px !important;
+    overflow: hidden;
+}
+
+/* Prevent chart overflow */
+.apexcharts-graphical,
+.apexcharts-series {
+    max-height: 273px !important;
+    overflow: hidden;
 }
 

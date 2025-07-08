@@ -59,7 +59,6 @@ const formatOptionLabel = ({ label, sku, imageUrl }) => {
 const StockAdjustment = () => {
     const [adjustments, setAdjustments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDate, setSelectedDate] = useState(null);
     const [locations, setLocations] = useState([]);
@@ -196,7 +195,6 @@ const StockAdjustment = () => {
         setSelectedProduct(null);
         setSelectedAdjustmentType(null);
         setSelectedDate(null);
-        setIsFilterVisible(false); // Optionally close filter section
         setPagination(prev => ({ ...prev, current: 1 })); // Reset page
         // Trigger fetch immediately after resetting
         // fetchAdjustments(1, pagination.pageSize); // Or let the useEffect handle it
@@ -481,14 +479,14 @@ const StockAdjustment = () => {
 
                 <div className="card table-list-card">
                     <div className="card-body">
-                        {/* Table Top Section (Search, Filter Toggle) */}
-                        <div className="table-top">
-                            <div className="search-set">
+                        <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            {/* Enhanced Search Input */}
+                            <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                                 <div className="search-input">
                                     <input
                                         type="text"
-                                        placeholder="Search by Adj#, Ref#, Product..."
-                                        className="form-control form-control-sm formsearch"
+                                        placeholder="🔍 Search by Adj#, Ref#, Product..."
+                                        className="form-control formsearch"
                                         value={searchQuery}
                                         onChange={(e) => {
                                             setSearchQuery(e.target.value);
@@ -500,116 +498,90 @@ const StockAdjustment = () => {
                                     </button>
                                 </div>
                             </div>
+                            
+                            {/* Filter Controls */}
                             <div className="search-path">
-                                <OverlayTrigger overlay={<Tooltip>{isFilterVisible ? 'Hide Filters' : 'Show Filters'}</Tooltip>}>
-                                    <Link
-                                        className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`}
-                                        to="#"
-                                        onClick={() => setIsFilterVisible(!isFilterVisible)}
-                                    >
-                                        <Filter className="filter-icon" />
-                                        <span>
-                                            <X className={`filter-close ${isFilterVisible ? 'd-inline' : 'd-none'}`} />
-                                        </span>
-                                    </Link>
-                                 </OverlayTrigger>
-                            </div>
-                            {/* Optional: Add sort dropdown if needed */}
-                            {/* <div className="form-sort">
-                                <Sliders className="info-img" />
-                                <Select ... />
-                            </div> */}
-                        </div>
-
-                        {/* Filter Section (Conditionally Rendered) */}
-                        {isFilterVisible && (
-                            <div className="card filter-card mb-3"> {/* Added margin */}
-                                <div className="card-body pb-0">
-                                    <div className="row">
-                                        <div className="col-lg-3 col-sm-6 col-12 mb-3">
-                                            <div className="input-blocks">
-                                                <Select
-                                                    options={[{ value: '', label: 'All Locations' }, ...locations]}
-                                                    value={selectedLocation}
-                                                    onChange={handleFilterChange(setSelectedLocation)}
-                                                    placeholder="Filter by Location"
-                                                    className="select"
-                                                    classNamePrefix="react-select"
-                                                    isClearable
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-3 col-sm-6 col-12 mb-3">
-                                            <div className="input-blocks">
-                                                <Select
-                                                     options={[{ value: '', label: 'All Products' }, ...products]}
-                                                     value={selectedProduct}
-                                                     onChange={handleFilterChange(setSelectedProduct)}
-                                                     placeholder="Filter by Product"
-                                                     className="select"
-                                                     classNamePrefix="react-select"
-                                                     formatOptionLabel={formatOptionLabel} // Reuse label formatting
-                                                     isClearable
-                                                     filterOption={(option, rawInput) => { // Basic search
-                                                        const input = rawInput.toLowerCase();
-                                                        const label = option.label?.toLowerCase() || '';
-                                                        const sku = option.data?.sku?.toLowerCase() || option.sku?.toLowerCase() || '';
-                                                        return label.includes(input) || sku.includes(input);
-                                                     }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-2 col-sm-6 col-12 mb-3">
-                                            <div className="input-blocks">
-                                                <Select
-                                                    options={[{ value: '', label: 'All Types' }, ...adjustmentTypeOptions]}
-                                                    value={selectedAdjustmentType}
-                                                    onChange={handleFilterChange(setSelectedAdjustmentType)}
-                                                    placeholder="Filter by Type"
-                                                    className="select"
-                                                    classNamePrefix="react-select"
-                                                    isClearable
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-2 col-sm-6 col-12 mb-3">
-                                             <div className="input-blocks">
-                                                <div className="input-groupicon calender-input">
-                                                    <DatePicker
-                                                        selected={selectedDate}
-                                                        onChange={(date) => {
-                                                            setSelectedDate(date);
-                                                            setPagination(prev => ({ ...prev, current: 1 }));
-                                                        }}
-                                                        dateFormat="dd/MM/yyyy"
-                                                        placeholderText="Filter by Date"
-                                                        className="form-control form-control-sm datetimepicker" // Use sm control
-                                                        isClearable
-                                                        peekNextMonth
-                                                        showMonthDropdown
-                                                        showYearDropdown
-                                                        dropdownMode="select"
-                                                    />
-                                                     <span className="addon-icon">
-                                                         <Calendar size={18} />
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-2 col-12 mb-3 d-flex align-items-center">
-                                            <button
-                                                className="btn btn-cancel btn-sm w-100" // Use cancel style, small size
-                                                onClick={resetFilters}
-                                                title="Reset all filters"
-                                            >
-                                                <RotateCcw className="me-1" size={16} />
-                                                Reset Filters
-                                            </button>
+                                <div className="d-flex align-items-center gap-3 flex-wrap">
+                                    {/* Location Filter */}
+                                    <div style={{ minWidth: '160px' }}>
+                                        <Select
+                                            options={[{ value: '', label: 'All Locations' }, ...locations]}
+                                            value={selectedLocation}
+                                            onChange={handleFilterChange(setSelectedLocation)}
+                                            placeholder="📍 Filter by Location"
+                                            className="select"
+                                            classNamePrefix="react-select"
+                                            isClearable
+                                        />
+                                    </div>
+                                    {/* Product Filter */}
+                                    <div style={{ minWidth: '160px' }}>
+                                        <Select
+                                            options={[{ value: '', label: 'All Products' }, ...products]}
+                                            value={selectedProduct}
+                                            onChange={handleFilterChange(setSelectedProduct)}
+                                            placeholder="📦 Filter by Product"
+                                            className="select"
+                                            classNamePrefix="react-select"
+                                            formatOptionLabel={formatOptionLabel} // Reuse label formatting
+                                            isClearable
+                                            filterOption={(option, rawInput) => { // Basic search
+                                                const input = rawInput.toLowerCase();
+                                                const label = option.label?.toLowerCase() || '';
+                                                const sku = option.data?.sku?.toLowerCase() || option.sku?.toLowerCase() || '';
+                                                return label.includes(input) || sku.includes(input);
+                                            }}
+                                        />
+                                    </div>
+                                    {/* Type Filter */}
+                                    <div style={{ minWidth: '140px' }}>
+                                        <Select
+                                            options={[{ value: '', label: 'All Types' }, ...adjustmentTypeOptions]}
+                                            value={selectedAdjustmentType}
+                                            onChange={handleFilterChange(setSelectedAdjustmentType)}
+                                            placeholder="📊 All Types"
+                                            className="select"
+                                            classNamePrefix="react-select"
+                                            isClearable
+                                        />
+                                    </div>
+                                    {/* Date Filter */}
+                                    <div style={{ minWidth: '140px' }}>
+                                        <div className="input-groupicon calender-input">
+                                            <DatePicker
+                                                selected={selectedDate}
+                                                onChange={(date) => {
+                                                    setSelectedDate(date);
+                                                    setPagination(prev => ({ ...prev, current: 1 }));
+                                                }}
+                                                dateFormat="dd/MM/yyyy"
+                                                placeholderText="📅 Filter by Date"
+                                                className="form-control form-control-sm datetimepicker"
+                                                isClearable
+                                                peekNextMonth
+                                                showMonthDropdown
+                                                showYearDropdown
+                                                dropdownMode="select"
+                                            />
+                                            <span className="addon-icon">
+                                                <Calendar size={18} />
+                                            </span>
                                         </div>
                                     </div>
+                                    {/* Reset Filters Button */}
+                                    <Button 
+                                        variant="outline-secondary" 
+                                        size="sm" 
+                                        onClick={resetFilters}
+                                        className="d-flex align-items-center gap-1"
+                                        style={{ minWidth: '120px', height: '44px' }}
+                                    >
+                                        <RotateCcw size={14} />
+                                        Reset
+                                    </Button>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         {/* Table Section */}
                         <div className="table-responsive">

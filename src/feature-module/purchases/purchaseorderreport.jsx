@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Sliders,
   StopCircle,
+  Search,
 } from "feather-icons-react/build/IconComponents";
 import { setToogleHeader } from "../../core/redux/action";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,7 +23,6 @@ const PurchaseOrderReport = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.toggle_header);
 
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [reportData, setReportData] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,10 +30,6 @@ const PurchaseOrderReport = () => {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
-  const toggleFilterVisibility = () => {
-    setIsFilterVisible((prevVisibility) => !prevVisibility);
-  };
 
   const oldandlatestvalue = [
     { value: "date", label: "Sort by Date" },
@@ -259,112 +255,90 @@ const PurchaseOrderReport = () => {
           {/* /product list */}
           <div className="card">
             <div className="card-body">
-              <div className="table-top">
-                <div className="search-set">
+              <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                   <div className="search-input">
                     <input
                       type="text"
-                      placeholder="Search products..."
-                      className="form-control form-control-sm formsearch"
+                      placeholder="🔍 Search products..."
+                      className="form-control formsearch"
                     />
-                    <Link to className="btn btn-searchset">
-                      <i data-feather="search" className="feather-search" />
-                    </Link>
+                    <button className="btn btn-searchset" type="button">
+                      <Search size={18} />
+                    </button>
                   </div>
                 </div>
                 <div className="search-path">
-                  <Link
-                    className={`btn btn-filter ${
-                      isFilterVisible ? "setclose" : ""
-                    }`}
-                    id="filter_search"
-                  >
-                    <Filter
-                      className="filter-icon"
-                      onClick={toggleFilterVisibility}
-                    />
-                    <span onClick={toggleFilterVisibility}>
-                      <Image
-                        src="assets/img/icons/closes.svg"
-                        alt="img"
+                  <div className="d-flex align-items-center gap-3 flex-wrap">
+                    <div style={{ minWidth: '160px' }}>
+                      <Select
+                        options={supplierOptions}
+                        className="select"
+                        placeholder="👤 All Suppliers"
+                        value={supplierOptions.find(option => option.value === selectedSupplier) || null}
+                        onChange={(option) => setSelectedSupplier(option?.value || '')}
+                        isClearable
+                        classNamePrefix="react-select"
                       />
-                    </span>
-                  </Link>
-                </div>
-                <div className="form-sort">
-                  <Sliders className="info-img" />
-                  <Select
-                    className="select"
-                    options={oldandlatestvalue}
-                    placeholder="Newest"
-                  />
-                </div>
-              </div>
-              {/* /Filter */}
-              <div
-                className={`card${isFilterVisible ? " visible" : ""}`}
-                id="filter_inputs"
-                style={{ display: isFilterVisible ? "block" : "none" }}
-              >
-                <div className="card-body pb-0">
-                  <div className="row">
-                    <div className="col-lg-3 col-sm-6 col-12">
-                      <div className="input-blocks">
-                        <label>Start Date</label>
-                        <div className="input-groupicon">
-                          <DatePicker
-                            value={startDate}
-                            onChange={setStartDate}
-                            className="filterdatepicker"
-                            placeholder="Start Date"
-                            style={{ width: '100%' }}
-                          />
-                        </div>
-                      </div>
                     </div>
-                    <div className="col-lg-3 col-sm-6 col-12">
-                      <div className="input-blocks">
-                        <label>End Date</label>
-                        <div className="input-groupicon">
-                          <DatePicker
-                            value={endDate}
-                            onChange={setEndDate}
-                            className="filterdatepicker"
-                            placeholder="End Date"
-                            style={{ width: '100%' }}
-                          />
-                        </div>
-                      </div>
+                    <div style={{ minWidth: '160px' }}>
+                      <Select
+                        options={statusOptions}
+                        className="select"
+                        placeholder="📊 All Status"
+                        value={statusOptions.find(option => option.value === selectedStatus) || null}
+                        onChange={(option) => setSelectedStatus(option?.value || '')}
+                        isClearable
+                        classNamePrefix="react-select"
+                      />
                     </div>
-                    <div className="col-lg-3 col-sm-6 col-12">
-                      <div className="input-blocks">
-                        <label>Supplier</label>
-                        <StopCircle className="info-img" />
-                        <Select
-                          options={supplierOptions}
-                          className="select"
-                          placeholder="Choose Supplier"
-                          value={supplierOptions.find(option => option.value === selectedSupplier) || null}
-                          onChange={(option) => setSelectedSupplier(option?.value || '')}
-                          isClearable
-                        />
-                      </div>
+                    <div style={{ minWidth: '140px' }}>
+                      <DatePicker
+                        value={startDate}
+                        onChange={setStartDate}
+                        className="form-control form-control-sm datetimepicker"
+                        placeholder="📅 Start Date"
+                        dateFormat="dd/MM/yyyy"
+                        isClearable
+                      />
                     </div>
-                    <div className="col-lg-3 col-sm-6 col-12 ms-auto">
-                      <div className="input-blocks" style={{ marginTop: '24px' }}>
-                        <button 
-                          className="btn btn-filters ms-auto"
-                          onClick={handleFilterSearch}
-                          disabled={loading}
-                        >
-                          <i
-                            data-feather="search"
-                            className="feather-search"
-                          />
-                          Search
-                        </button>
-                      </div>
+                    <div style={{ minWidth: '140px' }}>
+                      <DatePicker
+                        value={endDate}
+                        onChange={setEndDate}
+                        className="form-control form-control-sm datetimepicker"
+                        placeholder="📅 End Date"
+                        dateFormat="dd/MM/yyyy"
+                        isClearable
+                      />
                     </div>
+                    <button 
+                      variant="outline-secondary" 
+                      size="sm" 
+                      onClick={handleFilterSearch}
+                      className="btn btn-primary d-flex align-items-center gap-1"
+                      style={{ minWidth: '100px', height: '44px' }}
+                    >
+                      <Search size={14} />
+                      Search
+                    </button>
+                    <button 
+                      variant="outline-secondary" 
+                      size="sm" 
+                      onClick={() => {
+                          setSelectedSupplier(null);
+                          setSelectedStatus(null);
+                          setStartDate(null);
+                          setEndDate(null);
+                          fetchReportData();
+                          toast.info("Filters reset");
+                      }}
+                      className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                      style={{ minWidth: '100px', height: '44px' }}
+                    >
+                      <RotateCcw size={14} />
+                      Reset
+                    </button>
                   </div>
                 </div>
               </div>

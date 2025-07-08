@@ -3,6 +3,7 @@ import { Route, Navigate } from "react-router-dom";
 import ProductList from "../feature-module/inventory/productlist";
 import Dashboard from "../feature-module/dashboard/Dashboard";
 import EnhancedAdminDashboard from "../feature-module/dashboard/EnhancedAdminDashboard";
+import ModernAdminDashboard from "../feature-module/dashboard/ModernAdminDashboard";
 import AddProduct from "../feature-module/inventory/addproduct";
 import SalesDashbaord from "../feature-module/dashboard/salesdashbaord";
 import EnhancedSalesDashboard from "../feature-module/dashboard/EnhancedSalesDashboard";
@@ -225,6 +226,13 @@ export const publicRoutes = [
     path: routes.salesdashboard,
     name: "salesdashboard",
     element: <EnhancedSalesDashboard />,
+    route: Route,
+  },
+  {
+    id: 4.1,
+    path: routes.moderndashboard,
+    name: "moderndashboard",
+    element: <ModernAdminDashboard />,
     route: Route,
   },
   {

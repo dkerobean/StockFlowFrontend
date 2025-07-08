@@ -1,0 +1,333 @@
+// Modern Header Styles
+.header {
+  background: $white;
+  border-bottom: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+
+
+  // Modern navigation menu
+  .modern-nav-menu {
+    .nav-action-buttons {
+      margin-right: 16px;
+      
+      .action-buttons {
+        .action-btn-primary {
+          background: $primary;
+          border: none;
+          color: $white;
+          border-radius: 8px;
+          font-weight: 500;
+          font-size: 14px;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba($primary, 0.2);
+
+          &:hover {
+            background: darken($primary, 8%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba($primary, 0.3);
+          }
+
+          &:focus {
+            box-shadow: 0 0 0 3px rgba($primary, 0.2);
+          }
+        }
+
+        .action-btn-secondary {
+          background: $secondary;
+          border: none;
+          color: $white;
+          border-radius: 8px;
+          font-weight: 500;
+          font-size: 14px;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba($secondary, 0.2);
+
+          &:hover {
+            background: darken($secondary, 8%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba($secondary, 0.3);
+            color: $white;
+            text-decoration: none;
+          }
+
+          &:focus {
+            box-shadow: 0 0 0 3px rgba($secondary, 0.2);
+          }
+        }
+      }
+    }
+
+    .nav-item-box {
+      margin: 0 4px;
+
+      .modern-icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        color: $gray-600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $gray-100;
+          color: $dark;
+          transform: translateY(-1px);
+        }
+      }
+
+      // Flag selector styling
+      .flag-selector {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+
+        &:hover {
+          background-color: $gray-100;
+          transform: translateY(-1px);
+        }
+
+        .flag-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      // Mail badge styling
+      .badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    // User profile dropdown
+    .main-drop {
+      .userset {
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $gray-100;
+        }
+
+        .user-info {
+          .user-letter {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .user-detail {
+            .user-name {
+              font-weight: 500;
+              color: $dark;
+              font-size: 14px;
+            }
+
+            .user-role {
+              font-size: 12px;
+              color: $gray-600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Modern dropdowns
+  .modern-dropdown {
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    padding: 8px;
+    margin-top: 8px;
+
+    .dropdown-item {
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 2px 0;
+      font-size: 14px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $gray-100;
+        transform: translateX(2px);
+      }
+
+      &:active {
+        background-color: $primary;
+        color: $white;
+      }
+    }
+  }
+
+  // Responsive design
+  @include respond-below(lg) {
+    .modern-header-content {
+      .action-buttons {
+        .action-btn-primary,
+        .action-btn-secondary {
+          padding: 6px 12px;
+          font-size: 13px;
+
+          svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-below(md) {
+    padding: 0 16px;
+
+    .modern-header-content {
+      .store-selector {
+        margin-right: 16px;
+
+        .store-name {
+          font-size: 15px;
+        }
+      }
+
+      .action-buttons {
+        gap: 8px;
+
+        .action-btn-primary,
+        .action-btn-secondary {
+          padding: 6px 10px;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .modern-nav-menu {
+      .nav-item-box {
+        margin: 0 2px;
+
+        .modern-icon-btn {
+          width: 36px;
+          height: 36px;
+
+          svg {
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-below(sm) {
+    .modern-header-content {
+      .action-buttons {
+        .action-btn-primary span,
+        .action-btn-secondary span {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+[data-layout-mode="dark_mode"] {
+  .header {
+    background: $dark;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    .modern-header-content {
+      .store-selector {
+        .modern-store-dropdown {
+          color: $white;
+
+          &:hover {
+            background-color: rgba($white, 0.1);
+          }
+
+          .store-name {
+            color: $white;
+          }
+        }
+      }
+    }
+
+    .modern-nav-menu {
+      .nav-item-box {
+        .modern-icon-btn {
+          color: $gray-300;
+
+          &:hover {
+            background-color: rgba($white, 0.1);
+            color: $white;
+          }
+        }
+
+        .flag-selector {
+          &:hover {
+            background-color: rgba($white, 0.1);
+          }
+        }
+      }
+
+      .main-drop {
+        .userset {
+          &:hover {
+            background-color: rgba($white, 0.1);
+          }
+
+          .user-info {
+            .user-detail {
+              .user-name {
+                color: $white;
+              }
+
+              .user-role {
+                color: $gray-300;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .modern-dropdown {
+      background: $dark;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+      .dropdown-item {
+        color: $white;
+
+        &:hover {
+          background-color: rgba($white, 0.1);
+        }
+      }
+    }
+  }
+}

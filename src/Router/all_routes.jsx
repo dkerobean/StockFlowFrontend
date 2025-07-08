@@ -1,5 +1,6 @@
 export const all_routes = {
   dashboard: "/",
+  moderndashboard: "/modern-dashboard",
   productlist: "/product-list",
   addproduct: "/add-product",
   salesdashboard: "/sales-dashboard",

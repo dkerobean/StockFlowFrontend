@@ -33,9 +33,14 @@ class DashboardService {
   }
 
   // Get sales dashboard statistics
-  async getSalesDashboardStats() {
+  async getSalesDashboardStats(startDate = null, endDate = null) {
     try {
-      const response = await this.api.get('/analytics/dashboard/sales');
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate.toISOString());
+      if (endDate) params.append('endDate', endDate.toISOString());
+      
+      const url = params.toString() ? `/analytics/dashboard/sales?${params.toString()}` : '/analytics/dashboard/sales';
+      const response = await this.api.get(url);
       return response.data;
     } catch (error) {
       console.error('Error fetching sales dashboard stats:', error);

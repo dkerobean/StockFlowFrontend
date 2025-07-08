@@ -753,7 +753,8 @@ const ProductList = () => {
     ];
 
     return (
-        <div className="page-wrapper product-list-container">
+        <>
+            <div className="page-wrapper product-list-container">
             <div className="content">
                 {/* Enhanced Page Header */}
                 <div className="page-header">
@@ -800,7 +801,7 @@ const ProductList = () => {
                             </OverlayTrigger>
                         </li>
                     </ul>
-                    <div className="page-btn">
+                    <div className="page-btn d-flex gap-2">
                         <Link to={route.addproduct} className="btn btn-added">
                             <PlusCircle className="me-2" size={18} />Add New Product
                         </Link>
@@ -814,8 +815,7 @@ const ProductList = () => {
                 <div className="card table-list-card">
                     <div className="card-body">
                         {/* Enhanced Search and Filters Bar */}
-                        <div className="table-top">
-                            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
                                 {/* Enhanced Search Input */}
                                 <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                                     <div className="search-input">
@@ -954,7 +954,7 @@ const ProductList = () => {
                 </div>
             </div>
             <ToastContainer />
-        </div>
+        </>
     );
 };
 

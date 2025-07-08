@@ -774,9 +774,6 @@ const Managestock = () => {
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
 
             <div className="content">
-                {/* Breadcrumbs */}
-                <Breadcrumbs maintitle="Manage Stock" subtitle="View and adjust stock levels across locations" />
-
                  {/* Enhanced Page Header with Action Buttons */}
                  <div className="page-header">
                      <div className="add-item d-flex align-items-center">

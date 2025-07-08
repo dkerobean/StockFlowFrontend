@@ -23,6 +23,8 @@ import { all_routes } from "../../Router/all_routes";
 import dashboardService from "../../services/dashboardService";
 import RealTimeNotifications from "./RealTimeNotifications";
 
+const FILE_BASE_URL = process.env.REACT_APP_FILE_BASE_URL;
+
 const EnhancedSalesDashboard = () => {
   const route = all_routes;
   const dispatch = useDispatch();
@@ -31,6 +33,11 @@ const EnhancedSalesDashboard = () => {
   const [salesData, setSalesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    endDate: new Date()
+  });
+  const [currentUser, setCurrentUser] = useState(null);
   const [chartOptions, setChartOptions] = useState({
     series: [
       {
@@ -44,13 +51,33 @@ const EnhancedSalesDashboard = () => {
       zoom: {
         enabled: false,
       },
+      toolbar: {
+        show: false,
+      },
     },
     colors: ["#FF9F43"],
     dataLabels: {
       enabled: false,
     },
     stroke: {
-      curve: "straight",
+      curve: "smooth",
+      width: 3,
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.7,
+        opacityTo: 0.2,
+        stops: [0, 90, 100]
+      }
+    },
+    grid: {
+      borderColor: '#e7e7e7',
+      row: {
+        colors: ['#f3f3f3', 'transparent'],
+        opacity: 0.5
+      },
     },
     title: {
       text: "",
@@ -58,24 +85,65 @@ const EnhancedSalesDashboard = () => {
     },
     xaxis: {
       categories: [],
+      labels: {
+        style: {
+          fontSize: '12px'
+        }
+      }
     },
     yaxis: {
       min: 0,
       tickAmount: 5,
       labels: {
         formatter: (val) => {
-          return val > 1000 ? (val / 1000).toFixed(1) + "K" : val;
+          return val > 1000 ? '$' + (val / 1000).toFixed(1) + "K" : '$' + val;
         },
+        style: {
+          fontSize: '12px'
+        }
       },
     },
     legend: {
       position: "top",
       horizontalAlign: "left",
     },
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return '$' + val.toLocaleString();
+        }
+      }
+    },
+    responsive: [{
+      breakpoint: 768,
+      options: {
+        chart: {
+          height: 200
+        }
+      }
+    }]
   });
+
+  // Get current user from localStorage or token
+  const getCurrentUser = () => {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+        setCurrentUser(user.name || 'User');
+      } else {
+        // Fallback to token parsing or default
+        setCurrentUser('Admin');
+      }
+    } catch (error) {
+      console.error('Error getting user info:', error);
+      setCurrentUser('User');
+    }
+  };
 
   // Fetch sales dashboard data on component mount
   useEffect(() => {
+    getCurrentUser();
     fetchSalesData();
     
     // Set up auto-refresh every 5 minutes
@@ -83,30 +151,60 @@ const EnhancedSalesDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchSalesData = async () => {
+  // Handle date range changes
+  const handleDateRangeChange = (start, end) => {
+    setDateRange({ startDate: start, endDate: end });
+    fetchSalesData(start, end);
+  };
+
+  const fetchSalesData = async (startDate = null, endDate = null) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await dashboardService.getSalesDashboardStats();
       
-      if (response.success) {
+      // Use provided dates or current state dates
+      const start = startDate || dateRange.startDate;
+      const end = endDate || dateRange.endDate;
+      
+      const response = await dashboardService.getSalesDashboardStats(start, end);
+      
+      if (response.success && response.data) {
         setSalesData(response.data);
         
         // Update chart data with sales trends
-        const trendsData = response.data.salesTrends || [];
+        const chartData = response.data.chartData || {};
+        const salesDataArray = chartData.salesData || [];
+        const categories = chartData.dates || [];
+        
+        // Always update chart data, even if empty
         setChartOptions(prev => ({
           ...prev,
           series: [
             {
               name: "Sales Analysis",
-              data: trendsData.map(trend => trend.sales),
+              data: salesDataArray.length > 0 ? salesDataArray : [0],
             },
           ],
           xaxis: {
             ...prev.xaxis,
-            categories: trendsData.map(trend => new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+            categories: categories.length > 0 ? categories : ['No Data'],
+          },
+          yaxis: {
+            ...prev.yaxis,
+            labels: {
+              formatter: (val) => {
+                return val > 1000 ? '$' + (val / 1000).toFixed(1) + "K" : '$' + val;
+              },
+            },
           },
         }));
+        
+        if (salesDataArray.length === 0) {
+          console.warn('No chart data available for selected date range');
+        }
+      } else {
+        console.error('Invalid API response:', response);
+        setError(response.message || 'Failed to load sales data');
       }
     } catch (err) {
       console.error('Failed to fetch sales data:', err);
@@ -129,32 +227,33 @@ const EnhancedSalesDashboard = () => {
   );
 
   const initialSettings = {
-    endDate: new Date(),
+    endDate: dateRange.endDate,
+    startDate: dateRange.startDate,
     ranges: {
+      "Today": [new Date(), new Date()],
+      "Yesterday": [
+        new Date(Date.now() - 24 * 60 * 60 * 1000),
+        new Date(Date.now() - 24 * 60 * 60 * 1000),
+      ],
+      "Last 7 Days": [
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        new Date(),
+      ],
       "Last 30 Days": [
         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         new Date(),
       ],
-      "Last 7 Days": [
-        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      "This Month": [
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
         new Date(),
       ],
       "Last Month": [
         new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
         new Date(new Date().getFullYear(), new Date().getMonth(), 0),
       ],
-      "This Month": [
-        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        new Date(),
-      ],
-      Today: [new Date(), new Date()],
-      Yesterday: [
-        new Date(Date.now() - 24 * 60 * 60 * 1000),
-        new Date(Date.now() - 24 * 60 * 60 * 1000),
-      ],
     },
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     timePicker: false,
+    autoApply: true,
   };
 
   // Error display
@@ -188,7 +287,7 @@ const EnhancedSalesDashboard = () => {
             <div className="d-flex align-items-center welcome-text">
               <h3 className="d-flex align-items-center">
                 <Image src="assets/img/icons/hi.svg" alt="img" />
-                &nbsp;Hi John Smilga,
+                &nbsp;Hi {currentUser || 'User'},
               </h3>
               &nbsp;
               <h6>here&apos;s what&apos;s happening with your store today.</h6>
@@ -196,10 +295,17 @@ const EnhancedSalesDashboard = () => {
             <div className="d-flex align-items-center">
               <div className="position-relative daterange-wraper me-2">
                 <div className="input-groupicon calender-input">
-                  <DateRangePicker initialSettings={initialSettings}>
+                  <DateRangePicker 
+                    initialSettings={initialSettings}
+                    onApply={(event, picker) => {
+                      handleDateRangeChange(picker.startDate.toDate(), picker.endDate.toDate());
+                    }}
+                  >
                     <input
                       className="form-control col-4 input-range"
                       type="text"
+                      value={`${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`}
+                      readOnly
                     />
                   </DateRangePicker>
                 </div>
@@ -258,26 +364,26 @@ const EnhancedSalesDashboard = () => {
             </div>
           </div>
 
-          {/* Sales Cards */}
+          {/* Sales Cards - Updated with meaningful KPIs */}
           <div className="row sales-cards">
             <div className="col-xl-6 col-sm-12 col-12">
               <div className="card d-flex align-items-center justify-content-between default-cover mb-4">
                 <div>
-                  <h6>Weekly Earning</h6>
+                  <h6>Total Revenue</h6>
                   <h3>
                     $
                     <CountUp 
-                      end={salesData?.kpis?.weeklyEarnings || 95000.45} 
+                      end={salesData?.kpis?.totalRevenue || 0} 
                       duration={3}
-                      decimals={2}
+                      separator=","
                     />
                   </h3>
                   <p className="sales-range">
-                    <span className="text-success">
+                    <span className={salesData?.kpis?.revenueGrowth >= 0 ? "text-success" : "text-danger"}>
                       <ChevronUp className="feather-16" />
-                      48%&nbsp;
+                      {salesData?.kpis?.revenueGrowth || 0}%&nbsp;
                     </span>
-                    increase compare to last week
+                    vs previous period
                   </p>
                 </div>
                 <Image
@@ -294,14 +400,13 @@ const EnhancedSalesDashboard = () => {
                   alt="img"
                 />
                 <h3>
-                  <CountUp end={salesData?.kpis?.totalSales || 10000} duration={4} />
-                  +
+                  $<CountUp end={salesData?.kpis?.averageOrderValue || 0} duration={4} separator="," />
                 </h3>
-                <p>No of Total Sales</p>
+                <p>Average Order Value</p>
                 <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
                   <Link 
                     data-bs-toggle="tooltip"
-                    onClick={fetchSalesData}
+                    onClick={() => fetchSalesData()}
                     style={{ cursor: 'pointer' }}
                   >
                     <RefreshCw className={`feather-16 ${loading ? 'fa-spin' : ''}`} />
@@ -317,15 +422,15 @@ const EnhancedSalesDashboard = () => {
                   alt="img"
                 />
                 <h3>
-                  <CountUp end={salesData?.kpis?.totalOrders || 800} duration={4} />
-                  +
+                  <CountUp end={salesData?.kpis?.totalOrders || 0} duration={4} />
+                  <span className="small"> orders</span>
                 </h3>
-                <p>No of Total Orders</p>
+                <p>Total Orders</p>
                 <OverlayTrigger placement="top" overlay={renderRefreshTooltip}>
                   <Link 
                     data-bs-toggle="tooltip" 
                     data-bs-placement="top"
-                    onClick={fetchSalesData}
+                    onClick={() => fetchSalesData()}
                     style={{ cursor: 'pointer' }}
                   >
                     <RefreshCw className={`feather-16 ${loading ? 'fa-spin' : ''}`} />
@@ -334,6 +439,7 @@ const EnhancedSalesDashboard = () => {
               </div>
             </div>
           </div>
+
 
           <div className="row">
             {/* Best Sellers Section */}
@@ -368,7 +474,7 @@ const EnhancedSalesDashboard = () => {
                                     className="product-img"
                                   >
                                     <Image
-                                      src={product.imageUrl || "assets/img/products/default.png"}
+                                      src={product.imageUrl ? `${FILE_BASE_URL}${product.imageUrl.startsWith('/') ? product.imageUrl : `/${product.imageUrl}`}` : "assets/img/products/default.png"}
                                       alt="product"
                                     />
                                   </Link>
@@ -512,45 +618,60 @@ const EnhancedSalesDashboard = () => {
                   </div>
                 </div>
                 <div className="card-body">
-                  <div id="sales-analysis" className="chart-set" />
-                  <Chart
-                    options={chartOptions}
-                    series={chartOptions.series}
-                    type="area"
-                    height={273}
-                  />
+                  {loading ? (
+                    <div className="d-flex justify-content-center align-items-center" style={{ height: '273px' }}>
+                      <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading chart...</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="chart-wrapper" style={{ height: '273px', maxHeight: '273px', overflow: 'hidden', width: '100%' }}>
+                      <Chart
+                        options={chartOptions}
+                        series={chartOptions.series}
+                        type="area"
+                        height={273}
+                        width="100%"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="col-md-12 col-lg-5 col-sm-12 col-12">
-              {/* Sales by Countries */}
+              {/* Sales by Categories */}
               <div className="card default-cover">
                 <div className="card-header d-flex justify-content-between align-items-center">
-                  <h5 className="card-title mb-0">Sales by Countries</h5>
+                  <h5 className="card-title mb-0">Sales by Categories</h5>
                   <div className="graph-sets">
                     <div className="dropdown dropdown-wraper">
                       <button
                         className="btn btn-white btn-sm dropdown-toggle d-flex align-items-center"
                         type="button"
-                        id="dropdown-country-sales"
+                        id="dropdown-category-sales"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        This Week
+                        Last 30 Days
                       </button>
                       <ul
                         className="dropdown-menu"
-                        aria-labelledby="dropdown-country-sales"
+                        aria-labelledby="dropdown-category-sales"
                       >
                         <li>
                           <Link to="#" className="dropdown-item">
-                            This Month
+                            Last 30 Days
                           </Link>
                         </li>
                         <li>
                           <Link to="#" className="dropdown-item">
-                            This Year
+                            Last 7 Days
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="#" className="dropdown-item">
+                            This Month
                           </Link>
                         </li>
                       </ul>
@@ -558,38 +679,46 @@ const EnhancedSalesDashboard = () => {
                   </div>
                 </div>
                 <div className="card-body">
-                  {/* Country Sales Data */}
+                  {/* Category Sales Data */}
                   {loading ? (
                     <div className="text-center">
                       <div className="spinner-border text-primary" role="status"></div>
                     </div>
-                  ) : salesData?.salesByCountry?.length > 0 ? (
-                    <div className="country-sales-list">
-                      {salesData.salesByCountry.map((country, index) => (
-                        <div key={index} className="d-flex justify-content-between align-items-center mb-3">
-                          <div>
-                            <h6 className="mb-1">{country.country}</h6>
-                            <p className="text-muted mb-0">{country.orders} orders</p>
+                  ) : salesData?.salesByCategory?.length > 0 ? (
+                    <div className="category-sales-list">
+                      {salesData.salesByCategory.map((category, index) => {
+                        const totalRevenue = salesData.salesByCategory.reduce((sum, cat) => sum + cat.revenue, 0);
+                        const percentage = totalRevenue > 0 ? ((category.revenue / totalRevenue) * 100).toFixed(1) : 0;
+                        
+                        return (
+                          <div key={index} className="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                              <h6 className="mb-1">{category.category}</h6>
+                              <p className="text-muted mb-0">{category.orders} orders • {category.quantity} items</p>
+                            </div>
+                            <div className="text-end">
+                              <h6 className="mb-0">{percentage}%</h6>
+                              <p className="text-muted mb-0">${category.revenue.toLocaleString()}</p>
+                            </div>
                           </div>
-                          <div className="text-end">
-                            <h6 className="mb-0">{country.sales}%</h6>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-center">
-                      <p>No country sales data available</p>
+                      <p>No category sales data available</p>
                     </div>
                   )}
 
-                  <p className="sales-range mt-3">
-                    <span className="text-success">
-                      <ChevronUp className="feather-16" />
-                      48%&nbsp;
-                    </span>
-                    increase compare to last week
-                  </p>
+                  {salesData?.salesByCategory?.length > 0 && (
+                    <p className="sales-range mt-3">
+                      <span className="text-success">
+                        <TrendingUp className="feather-16" />
+                        Top category: {salesData.salesByCategory[0]?.category}
+                      </span>
+                      {" "}with ${salesData.salesByCategory[0]?.revenue?.toLocaleString()} revenue
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

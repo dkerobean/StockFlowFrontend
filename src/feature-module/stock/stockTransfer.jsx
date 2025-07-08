@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../core/breadcrumbs";
-import { Filter, Sliders } from "react-feather";
+import {
+    Filter, Edit, Trash2, Search, RotateCcw, Upload, Download,
+    Eye, ChevronUp, PlusCircle, X, Calendar, MapPin, Package, Tag,
+    Archive, User
+} from "react-feather";
 import Image from "../../core/img/image";
 import Select from "react-select";
 import { Link } from "react-router-dom";
-import { Archive, Calendar, User, Trash2, Edit } from "react-feather";
+import { Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import StockTransferModal from "../../core/modals/stocks/stocktransferModal";
@@ -21,25 +25,45 @@ const StockTransfer = () => {
   const [transfers, setTransfers] = useState([]);
   const [locations, setLocations] = useState([]);
   const [products, setProducts] = useState([]);
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFromLocation, setSelectedFromLocation] = useState(null);
+  const [selectedToLocation, setSelectedToLocation] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    fetchTransfers();
     fetchLocations();
     fetchProducts();
     const user = JSON.parse(localStorage.getItem("user"));
     setUserRole(user?.role);
   }, []);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchTransfers();
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery, selectedFromLocation, selectedToLocation, selectedProduct, selectedDate]);
+
   const fetchTransfers = async () => {
     try {
+      const token = localStorage.getItem("token");
+      const params = {
+        search: searchQuery || undefined,
+        fromLocation: selectedFromLocation?.value || undefined,
+        toLocation: selectedToLocation?.value || undefined,
+        product: selectedProduct?.value || undefined,
+        date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
+      };
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
       const response = await axios.get(`${API_URL}/transfers`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
+        params,
       });
       setTransfers(response.data);
     } catch (error) {
@@ -50,6 +74,23 @@ const StockTransfer = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleFilterChange = (setter) => (option) => {
+    setter(option);
+  };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSelectedFromLocation(null);
+    setSelectedToLocation(null);
+    setSelectedProduct(null);
+    setSelectedDate(null);
+    toast.info("Filters reset");
+  };
+
   const fetchLocations = async () => {
     try {
       const response = await axios.get(`${API_URL}/locations`, {
@@ -57,7 +98,7 @@ const StockTransfer = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const locationOptions = response.data.locations.map((location) => ({
+      const locationOptions = (response.data.locations || []).map((location) => ({
         value: location._id,
         label: location.name,
       }));
@@ -255,37 +296,86 @@ const StockTransfer = () => {
         />
         <div className="card table-list-card">
           <div className="card-body">
-            <div className="table-top">
-              <div className="search-set">
+            <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                 <div className="search-input">
                   <input
                     type="text"
-                    placeholder="Search"
-                    className="form-control form-control-sm formsearch"
+                    placeholder="🔍 Search transfers..."
+                    className="form-control formsearch"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                   />
-                  <Link to className="btn btn-searchset">
-                    <i data-feather="search" className="feather-search" />
-                  </Link>
+                  <button className="btn btn-searchset" type="button">
+                    <Search size={18} />
+                  </button>
                 </div>
               </div>
               <div className="search-path">
-                <Link
-                  className={`btn btn-filter ${
-                    isFilterVisible ? "setclose" : ""
-                  }`}
-                  id="filter_search"
-                >
-                  <Filter
-                    className="filter-icon"
-                    onClick={() => setIsFilterVisible(!isFilterVisible)}
-                  />
-                  <span onClick={() => setIsFilterVisible(!isFilterVisible)}>
-                    <Image
-                      src="assets/img/icons/closes.svg"
-                      alt="img"
+                <div className="d-flex align-items-center gap-3 flex-wrap">
+                  <div style={{ minWidth: '160px' }}>
+                    <Select
+                      options={[{ value: '', label: 'From Location' }, ...locations]}
+                      value={selectedFromLocation}
+                      onChange={handleFilterChange(setSelectedFromLocation)}
+                      placeholder="📍 From Location"
+                      className="select"
+                      classNamePrefix="react-select"
+                      isClearable
                     />
-                  </span>
-                </Link>
+                  </div>
+                  <div style={{ minWidth: '160px' }}>
+                    <Select
+                      options={[{ value: '', label: 'To Location' }, ...locations]}
+                      value={selectedToLocation}
+                      onChange={handleFilterChange(setSelectedToLocation)}
+                      placeholder="📍 To Location"
+                      className="select"
+                      classNamePrefix="react-select"
+                      isClearable
+                    />
+                  </div>
+                  <div style={{ minWidth: '160px' }}>
+                    <Select
+                      options={[{ value: '', label: 'All Products' }, ...(products || []).map(p => ({ value: p._id, label: p.name }))]}
+                      value={selectedProduct}
+                      onChange={handleFilterChange(setSelectedProduct)}
+                      placeholder="📦 All Products"
+                      className="select"
+                      classNamePrefix="react-select"
+                      isClearable
+                    />
+                  </div>
+                  <div style={{ minWidth: '140px' }}>
+                    <div className="input-groupicon calender-input">
+                      <DatePicker
+                        selected={selectedDate}
+                        onChange={(date) => setSelectedDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="📅 Filter by Date"
+                        className="form-control form-control-sm datetimepicker"
+                        isClearable
+                        peekNextMonth
+                        showMonthDropdown
+                        showYearDropdown
+                        dropdownMode="select"
+                      />
+                      <span className="addon-icon">
+                        <Calendar size={18} />
+                      </span>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline-secondary" 
+                    size="sm" 
+                    onClick={resetFilters}
+                    className="d-flex align-items-center gap-1"
+                    style={{ minWidth: '120px', height: '44px' }}
+                  >
+                    <RotateCcw size={14} />
+                    Reset
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="table-responsive">

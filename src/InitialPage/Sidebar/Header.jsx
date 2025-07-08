@@ -3,10 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FeatherIcon from "feather-icons-react";
 import Image from "../../core/img/image";
-import { Search, XCircle, ChevronDown } from "react-feather";
+import { Search, XCircle } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
 import { toast } from "react-toastify";
 import { Dropdown } from "react-bootstrap";
+import { getProfileImageUrl, getDefaultAvatar } from "../../services/userService";
+import ModernNotifications from "../../feature-module/dashboard/ModernNotifications";
+import { Plus } from "react-feather";
 
 const Header = () => {
   const route = all_routes;
@@ -15,6 +18,7 @@ const Header = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const isElementVisible = (element) => {
     return element.offsetWidth > 0 || element.offsetHeight > 0;
@@ -118,6 +122,20 @@ const Header = () => {
     loadUserData();
   }, []);
 
+  // Load theme preference from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('colorschema');
+    setIsDarkMode(savedTheme === 'dark_mode');
+  }, []);
+
+  // Get profile image URL with fallback
+  const getProfileImage = () => {
+    if (user?.profileImage) {
+      return getProfileImageUrl(user.profileImage);
+    }
+    return getDefaultAvatar();
+  };
+
   // Logout handler with proper cleanup
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
@@ -145,6 +163,14 @@ const Header = () => {
     } finally {
       setIsLoggingOut(false);
     }
+  };
+
+  // Theme switching functions
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? 'light_mode' : 'dark_mode';
+    localStorage.setItem('colorschema', newTheme);
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.setAttribute('data-layout-mode', newTheme);
   };
 
   const handlesidebar = () => {
@@ -224,20 +250,6 @@ const Header = () => {
           <Link to="/dashboard" className="logo-small">
             <Image src="assets/img/logo-small.png" alt="img" />
           </Link>
-          <Link
-            id="toggle_btn"
-            to="#"
-            style={{
-              display: pathname.includes("tasks")
-                ? "none"
-                : pathname.includes("compose")
-                ? "none"
-                : "",
-            }}
-            onClick={handlesidebar}
-          >
-            <FeatherIcon icon="chevrons-left" className="feather-16" />
-          </Link>
         </div>
         {/* /Logo */}
         <Link
@@ -253,362 +265,48 @@ const Header = () => {
           </span>
         </Link>
         {/* Header Menu */}
-        <ul className="nav user-menu">
-          {/* Search */}
-          <li className="nav-item nav-searchinputs">
-            <div className="top-nav-search">
-              <Link to="#" className="responsive-search">
-                <Search />
+        <ul className="nav user-menu modern-nav-menu">
+          {/* Action Buttons */}
+          <li className="nav-item nav-action-buttons">
+            <div className="action-buttons d-flex align-items-center gap-3">
+              {/* Add New Button */}
+              <button className="btn action-btn-primary d-flex align-items-center px-4 py-2">
+                <Plus size={16} className="me-2" />
+                Add New
+              </button>
+
+              {/* POS Button */}
+              <Link to="/pos" className="btn action-btn-secondary d-flex align-items-center px-4 py-2 text-decoration-none">
+                <FeatherIcon icon="credit-card" size={16} className="me-2" />
+                POS
               </Link>
-              <form action="#" className="dropdown">
-                <div
-                  className="searchinputs dropdown-toggle"
-                  id="dropdownMenuClickable"
-                  data-bs-toggle="dropdown"
-                  data-bs-auto-close="false"
-                >
-                  <input type="text" placeholder="Search" />
-                  <div className="search-addon">
-                    <span>
-                      <XCircle className="feather-14" />
-                    </span>
-                  </div>
-                </div>
-                <div
-                  className="dropdown-menu search-dropdown"
-                  aria-labelledby="dropdownMenuClickable"
-                >
-                  <div className="search-info">
-                    <h6>
-                      <span>
-                        <i data-feather="search" className="feather-16" />
-                      </span>
-                      Recent Searches
-                    </h6>
-                    <ul className="search-tags">
-                      <li>
-                        <Link to="#">Products</Link>
-                      </li>
-                      <li>
-                        <Link to="#">Sales</Link>
-                      </li>
-                      <li>
-                        <Link to="#">Applications</Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="search-info">
-                    <h6>
-                      <span>
-                        <i data-feather="help-circle" className="feather-16" />
-                      </span>
-                      Help
-                    </h6>
-                    <p>
-                      How to Change Product Volume from 0 to 200 on Inventory
-                      management
-                    </p>
-                    <p>Change Product Name</p>
-                  </div>
-                  <div className="search-info">
-                    <h6>
-                      <span>
-                        <i data-feather="user" className="feather-16" />
-                      </span>
-                      Customers
-                    </h6>
-                    <ul className="customers">
-                      <li>
-                        <Link to="#">
-                          Aron Varu
-                          <Image
-                            src="assets/img/profiles/avator1.jpg"
-                            alt
-                            className="img-fluid"
-                          />
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="#">
-                          Jonita
-                          <Image
-                            src="assets/img/profiles/avatar-01.jpg"
-                            alt
-                            className="img-fluid"
-                          />
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="#">
-                          Aaron
-                          <Image
-                            src="assets/img/profiles/avatar-10.jpg"
-                            alt
-                            className="img-fluid"
-                          />
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </form>
             </div>
           </li>
-          {/* /Search */}
-
-          {/* Select Store */}
-          <li className="nav-item dropdown has-arrow main-drop select-store-dropdown">
-            <Dropdown>
-              <Dropdown.Toggle
-                variant="link"
-                className="nav-link select-store dropdown-toggle-no-arrow"
-                id="dropdown-store"
-              >
-                <span className="user-info">
-                  <span className="user-letter">
-                    <Image
-                      src="assets/img/store/store-01.png"
-                      alt="Store Logo"
-                      className="img-fluid"
-                    />
-                  </span>
-                  <span className="user-detail">
-                    <span className="user-name">Select Store</span>
-                  </span>
-                  <ChevronDown size={16} className="ms-1" />
-                </span>
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu align="end">
-                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <Image
-                    src="assets/img/store/store-01.png"
-                    alt="Store Logo"
-                    className="img-fluid me-2"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  Grocery Alpha
-                </Dropdown.Item>
-                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <Image
-                    src="assets/img/store/store-02.png"
-                    alt="Store Logo"
-                    className="img-fluid me-2"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  Grocery Apex
-                </Dropdown.Item>
-                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <Image
-                    src="assets/img/store/store-03.png"
-                    alt="Store Logo"
-                    className="img-fluid me-2"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  Grocery Bevy
-                </Dropdown.Item>
-                <Dropdown.Item href="#" onClick={(e) => e.preventDefault()}>
-                  <Image
-                    src="assets/img/store/store-04.png"
-                    alt="Store Logo"
-                    className="img-fluid me-2"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  Grocery Eden
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </li>
-          {/* /Select Store */}
-
+          {/* Fullscreen */}
           <li className="nav-item nav-item-box">
             <Link
               to="#"
               id="btnFullscreen"
               onClick={() => toggleFullscreen()}
-              className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
+              className="modern-icon-btn"
+              title={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
             >
-              {/* <i data-feather="maximize" /> */}
-              <FeatherIcon icon="maximize" />
+              <FeatherIcon icon="maximize" size={20} />
             </Link>
           </li>
-          <li className="nav-item nav-item-box">
-            <Link to="/email">
-              {/* <i data-feather="mail" /> */}
-              <FeatherIcon icon="mail" />
-              <span className="badge rounded-pill">1</span>
-            </Link>
-          </li>
+
           {/* Notifications */}
-          <li className="nav-item dropdown nav-item-box">
-            <Dropdown>
-              <Dropdown.Toggle
-                variant="link"
-                className="nav-link dropdown-toggle-no-arrow"
-                id="dropdown-notifications"
-              >
-                <FeatherIcon icon="bell" />
-                <span className="badge rounded-pill">2</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end" className="notifications">
-              <div className="topnav-dropdown-header">
-                <span className="notification-title">Notifications</span>
-                <Link to="#" className="clear-noti">
-                  {" "}
-                  Clear All{" "}
-                </Link>
-              </div>
-              <div className="noti-content">
-                <ul className="notification-list">
-                  <li className="notification-message active">
-                    <Link to="/activities">
-                      <div className="media d-flex">
-                        <span className="avatar flex-shrink-0">
-                          <Image
-                            alt="img"
-                            src="assets/img/profiles/avatar-02.jpg"
-                          />
-                        </span>
-                        <div className="media-body flex-grow-1">
-                          <p className="noti-details">
-                            <span className="noti-title">John Doe</span> added
-                            new task{" "}
-                            <span className="noti-title">
-                              Patient appointment booking
-                            </span>
-                          </p>
-                          <p className="noti-time">
-                            <span className="notification-time">
-                              4 mins ago
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className="notification-message">
-                    <Link to="/activities">
-                      <div className="media d-flex">
-                        <span className="avatar flex-shrink-0">
-                          <Image
-                            alt="img"
-                            src="assets/img/profiles/avatar-03.jpg"
-                          />
-                        </span>
-                        <div className="media-body flex-grow-1">
-                          <p className="noti-details">
-                            <span className="noti-title">Tarah Shropshire</span>{" "}
-                            changed the task name{" "}
-                            <span className="noti-title">
-                              Appointment booking with payment gateway
-                            </span>
-                          </p>
-                          <p className="noti-time">
-                            <span className="notification-time">
-                              6 mins ago
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className="notification-message">
-                    <Link to="/activities">
-                      <div className="media d-flex">
-                        <span className="avatar flex-shrink-0">
-                          <Image
-                            alt="img"
-                            src="assets/img/profiles/avatar-06.jpg"
-                          />
-                        </span>
-                        <div className="media-body flex-grow-1">
-                          <p className="noti-details">
-                            <span className="noti-title">Misty Tison</span>{" "}
-                            added{" "}
-                            <span className="noti-title">Domenic Houston</span>{" "}
-                            and <span className="noti-title">Claire Mapes</span>{" "}
-                            to project{" "}
-                            <span className="noti-title">
-                              Doctor available module
-                            </span>
-                          </p>
-                          <p className="noti-time">
-                            <span className="notification-time">
-                              8 mins ago
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className="notification-message">
-                    <Link to="/activities">
-                      <div className="media d-flex">
-                        <span className="avatar flex-shrink-0">
-                          <Image
-                            alt="img"
-                            src="assets/img/profiles/avatar-17.jpg"
-                          />
-                        </span>
-                        <div className="media-body flex-grow-1">
-                          <p className="noti-details">
-                            <span className="noti-title">Rolland Webber</span>{" "}
-                            completed task{" "}
-                            <span className="noti-title">
-                              Patient and Doctor video conferencing
-                            </span>
-                          </p>
-                          <p className="noti-time">
-                            <span className="notification-time">
-                              12 mins ago
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                  <li className="notification-message">
-                    <Link to="/activities">
-                      <div className="media d-flex">
-                        <span className="avatar flex-shrink-0">
-                          <Image
-                            alt="img"
-                            src="assets/img/profiles/avatar-13.jpg"
-                          />
-                        </span>
-                        <div className="media-body flex-grow-1">
-                          <p className="noti-details">
-                            <span className="noti-title">Bernardo Galaviz</span>{" "}
-                            added new task{" "}
-                            <span className="noti-title">
-                              Private chat module
-                            </span>
-                          </p>
-                          <p className="noti-time">
-                            <span className="notification-time">
-                              2 days ago
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="topnav-dropdown-footer">
-                <Link to="/activities">View all Notifications</Link>
-              </div>
-              </Dropdown.Menu>
-            </Dropdown>
-          </li>
-          {/* /Notifications */}
           <li className="nav-item nav-item-box">
-            <Link to="/general-settings">
-              {/* <i data-feather="settings" /> */}
-              <FeatherIcon icon="settings" />
+            <ModernNotifications />
+          </li>
+
+          {/* Settings */}
+          <li className="nav-item nav-item-box">
+            <Link to="/general-settings" className="modern-icon-btn">
+              <FeatherIcon icon="settings" size={20} />
             </Link>
           </li>
-          <li className="nav-item dropdown has-arrow main-drop">
+          <li className="nav-item dropdown main-drop">
             <Dropdown>
               <Dropdown.Toggle
                 variant="link"
@@ -618,8 +316,8 @@ const Header = () => {
                 <span className="user-info">
                   <span className="user-letter">
                     <Image
-                      src="assets/img/profiles/avator1.jpg"
-                      alt="img"
+                      src={getProfileImage()}
+                      alt="Profile"
                       className="img-fluid"
                     />
                   </span>
@@ -627,7 +325,6 @@ const Header = () => {
                     <span className="user-name">{user?.name || 'User'}</span>
                     <span className="user-role">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
                   </span>
-                  <ChevronDown size={16} className="ms-1" />
                 </span>
               </Dropdown.Toggle>
               <Dropdown.Menu align="end" className="menu-drop-user">
@@ -635,8 +332,8 @@ const Header = () => {
                 <div className="profileset">
                   <span className="user-img">
                     <Image
-                      src="assets/img/profiles/avator1.jpg"
-                      alt="img"
+                      src={getProfileImage()}
+                      alt="Profile"
                     />
                     <span className="status online" />
                   </span>

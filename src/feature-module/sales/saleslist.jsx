@@ -16,7 +16,6 @@ import 'react-toastify/dist/ReactToastify.css';
 const SalesList = () => {
     const dispatch = useDispatch();
     const data = useSelector((state) => state.toggle_header);
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [sales, setSales] = useState([]); // State to store sales data
     const [products, setProducts] = useState([]); // State for available products
     const [locations, setLocations] = useState([]); // State for available locations
@@ -60,11 +59,6 @@ const SalesList = () => {
     });
     const [filteredSales, setFilteredSales] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState({});
-
-    // Define the toggleFilterVisibility function
-    const toggleFilterVisibility = () => {
-        setIsFilterVisible((prev) => !prev);
-    };
 
     // Test user permissions before attempting to fetch sales
     const testUserPermissions = async () => {
@@ -361,16 +355,26 @@ const SalesList = () => {
     const fetchLocations = async () => {
         try {
             const response = await api.get('/locations');
-            const locationData = Array.isArray(response.data) ? response.data : [];
+            console.log('🔍 Locations API response:', response.data);
+            
+            // Handle both direct array and paginated response formats
+            const locationData = Array.isArray(response.data) 
+                ? response.data 
+                : (response.data.locations || []);
+            
+            console.log('📍 Processing locations:', locationData);
+            
             const mappedLocations = locationData
                 .filter(loc => loc.isActive)
                 .map(loc => ({
                     value: loc._id,
                     label: `${loc.name} (${loc.type || 'Store'})`
                 }));
+            
+            console.log('✅ Mapped locations for dropdown:', mappedLocations);
             setLocations(mappedLocations);
         } catch (error) {
-            console.error('Error fetching locations:', error);
+            console.error('❌ Error fetching locations:', error);
             setLocations([]);
         }
     };
@@ -904,167 +908,123 @@ const SalesList = () => {
                     {/* /product list */}
                     <div className="card table-list-card">
                         <div className="card-body">
-                            <div className="table-top">
-                                <div className="search-set">
+                            <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                {/* Enhanced Search Input */}
+                                <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                                     <div className="search-input">
                                         <input
                                             type="text"
-                                            placeholder="Search"
-                                            className="form-control form-control-sm"
+                                            placeholder="🔍 Search sales by customer, reference..."
+                                            className="form-control formsearch"
+                                            value={filters.customer} // Assuming customer name is the primary search
+                                            onChange={(e) => handleFilterChange('customer', e.target.value)}
                                         />
-                                        <button type="button" className="btn btn-light border">
+                                        <button className="btn btn-searchset" onClick={applyFilters}>
                                             <Search size={18} />
                                         </button>
                                     </div>
                                 </div>
+                                
+                                {/* Filter Controls */}
                                 <div className="search-path">
-                                    <div className="d-flex align-items-center">
-                                        <div className="search-path">
-                                            <button type="button" className={`btn btn-info ${isFilterVisible ? "setclose" : ""}`} id="filter_search" onClick={toggleFilterVisibility}>
-                                                <Filter className="feather-16" />
-                                                <span>
-                                                    <Image src="assets/img/icons/closes.svg" alt="img" />
-                                                </span>
-                                            </button>
+                                    <div className="d-flex align-items-center gap-3 flex-wrap">
+                                        {/* Customer Filter (if different from search) */}
+                                        {/* <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                options={customerOptions}
+                                                value={customerOptions.find(opt => opt.value === filters.customer) || null}
+                                                onChange={(option) => handleFilterChange('customer', option?.value || '')}
+                                                placeholder="👤 All Customers"
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
+                                        </div> */}
+                                        
+                                        {/* Status Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                options={statusOptions}
+                                                value={statusOptions.find(opt => opt.value === filters.status) || null}
+                                                onChange={(option) => handleFilterChange('status', option?.value || '')}
+                                                placeholder="📊 All Status"
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                    </div>
-                                </div>
-                                <div className="form-sort">
-                                    <Sliders className="info-img" />
-                                    <Select
-                                        className="select"
-                                        options={oldandlatestvalue}
-                                        placeholder="Newest"
-                                    />
-                                </div>
-                            </div>
-                            {/* /Filter */}
-                            <div
-                                className={`card${isFilterVisible ? ' visible' : ''}`}
-                                id="filter_inputs"
-                                style={{ display: isFilterVisible ? 'block' : 'none' }}
-                            >
-                                <div className="card-body pb-0">
-                                    <div className="row">
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Customer Name</label>
-                                                <Select
-                                                    className="select"
-                                                    options={customerOptions}
-                                                    placeholder="Choose Customer Name"
-                                                    value={customerOptions.find(opt => opt.value === filters.customer) || null}
-                                                    onChange={(option) => handleFilterChange('customer', option?.value || '')}
-                                                    isClearable
-                                                />
-                                            </div>
+                                        
+                                        {/* Payment Method Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                options={paymentStatusOptions}
+                                                value={paymentStatusOptions.find(opt => opt.value === filters.paymentMethod) || null}
+                                                onChange={(option) => handleFilterChange('paymentMethod', option?.value || '')}
+                                                placeholder="💳 All Payments"
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Status</label>
-                                                <Select
-                                                    className="select"
-                                                    options={statusOptions}
-                                                    placeholder="Choose Status"
-                                                    value={statusOptions.find(opt => opt.value === filters.status) || null}
-                                                    onChange={(option) => handleFilterChange('status', option?.value || '')}
-                                                    isClearable
-                                                />
-                                            </div>
+                                        
+                                        {/* Location Filter */}
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select
+                                                options={locations}
+                                                value={locations.find(opt => opt.value === filters.location) || null}
+                                                onChange={(option) => handleFilterChange('location', option?.value || '')}
+                                                placeholder="📍 All Locations"
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Reference</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Enter Reference"
-                                                    className="form-control"
-                                                    value={filters.reference}
-                                                    onChange={(e) => handleFilterChange('reference', e.target.value)}
-                                                />
-                                            </div>
+                                        
+                                        {/* Date Range Filter (Start Date) */}
+                                        <div style={{ minWidth: '140px' }}>
+                                            <DatePicker
+                                                selected={filters.startDate}
+                                                onChange={(date) => handleFilterChange('startDate', date)}
+                                                placeholderText="📅 Start Date"
+                                                className="form-control form-control-sm datetimepicker"
+                                                dateFormat="dd/MM/yyyy"
+                                                isClearable
+                                            />
                                         </div>
-                                        <div className="col-lg-3 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Payment Method</label>
-                                                <Select
-                                                    className="select"
-                                                    options={paymentStatusOptions}
-                                                    placeholder="Choose Payment Method"
-                                                    value={paymentStatusOptions.find(opt => opt.value === filters.paymentMethod) || null}
-                                                    onChange={(option) => handleFilterChange('paymentMethod', option?.value || '')}
-                                                    isClearable
-                                                />
-                                            </div>
+                                        
+                                        {/* Date Range Filter (End Date) */}
+                                        <div style={{ minWidth: '140px' }}>
+                                            <DatePicker
+                                                selected={filters.endDate}
+                                                onChange={(date) => handleFilterChange('endDate', date)}
+                                                placeholderText="📅 End Date"
+                                                className="form-control form-control-sm datetimepicker"
+                                                dateFormat="dd/MM/yyyy"
+                                                isClearable
+                                            />
                                         </div>
-                                        <div className="col-lg-3 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Location</label>
-                                                <Select
-                                                    className="select"
-                                                    options={locations}
-                                                    placeholder="Choose Location"
-                                                    value={locations.find(opt => opt.value === filters.location) || null}
-                                                    onChange={(option) => handleFilterChange('location', option?.value || '')}
-                                                    isClearable
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-lg-3 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>Start Date</label>
-                                                <DatePicker
-                                                    selected={filters.startDate}
-                                                    onChange={(date) => handleFilterChange('startDate', date)}
-                                                    placeholderText="Select start date"
-                                                    className="form-control"
-                                                    dateFormat="yyyy-MM-dd"
-                                                    isClearable
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-3 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <label>End Date</label>
-                                                <DatePicker
-                                                    selected={filters.endDate}
-                                                    onChange={(date) => handleFilterChange('endDate', date)}
-                                                    placeholderText="Select end date"
-                                                    className="form-control"
-                                                    dateFormat="yyyy-MM-dd"
-                                                    isClearable
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-sm-12 col-12">
-                                            <div className="input-blocks d-flex gap-2 align-items-end">
-                                                <button 
-                                                    type="button" 
-                                                    className="btn btn-primary"
-                                                    onClick={applyFilters}
-                                                    disabled={loading}
-                                                >
-                                                    <Search size={18} className="me-1" />
-                                                    {loading ? 'Searching...' : 'Search'}
-                                                </button>
-                                                <button 
-                                                    type="button" 
-                                                    className="btn btn-outline-secondary"
-                                                    onClick={clearFilters}
-                                                    disabled={loading}
-                                                >
-                                                    <RotateCcw size={18} className="me-1" />
-                                                    Clear
-                                                </button>
-                                                {Object.keys(appliedFilters).length > 0 && (
-                                                    <div className="badge bg-info text-dark">
-                                                        {Object.keys(appliedFilters).length} filter(s) active
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                        
+                                        {/* Apply Filters Button */}
+                                        <Button 
+                                            variant="primary" 
+                                            size="sm" 
+                                            onClick={applyFilters}
+                                            disabled={loading}
+                                            className="d-flex align-items-center gap-1"
+                                            style={{ minWidth: '100px', height: '44px' }}
+                                        >
+                                            <Search size={14} />
+                                            Search
+                                        </Button>
+                                        
+                                        {/* Clear Filters Button */}
+                                        <Button 
+                                            variant="outline-secondary" 
+                                            size="sm" 
+                                            onClick={clearFilters}
+                                            disabled={loading}
+                                            className="d-flex align-items-center gap-1"
+                                            style={{ minWidth: '100px', height: '44px' }}
+                                        >
+                                            <RotateCcw size={14} />
+                                            Reset
+                                        </Button>
                                     </div>
                                 </div>
                             </div>

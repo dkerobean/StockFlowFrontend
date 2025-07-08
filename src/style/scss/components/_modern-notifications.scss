@@ -1,0 +1,389 @@
+// Modern Notifications Component
+.modern-notifications-wrapper {
+  display: inline-block;
+
+  .modern-notifications-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 380px;
+    background: $white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    z-index: 1050;
+    overflow: hidden;
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid $gray-200;
+
+      h6 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $dark;
+        margin: 0;
+      }
+
+      .mark-all-read-btn {
+        background: none;
+        border: none;
+        color: $primary;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba($primary, 0.1);
+          color: darken($primary, 10%);
+        }
+      }
+    }
+
+    .notifications-list {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 8px 0;
+
+      .no-notifications {
+        text-align: center;
+        padding: 40px 24px;
+
+        .no-notifications-icon {
+          width: 48px;
+          height: 48px;
+          color: $gray-400;
+          margin-bottom: 16px;
+        }
+
+        .no-notifications-text {
+          font-size: 16px;
+          color: $gray-600;
+          margin-bottom: 4px;
+        }
+
+        .no-notifications-subtext {
+          font-size: 14px;
+          color: $gray-500;
+        }
+      }
+
+      .notification-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 16px 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        border-left: 3px solid transparent;
+
+        &:hover {
+          background-color: $gray-100;
+        }
+
+        &.unread {
+          background-color: rgba($primary, 0.02);
+          border-left-color: $primary;
+
+          .notification-content {
+            .user-name {
+              font-weight: 600;
+            }
+          }
+        }
+
+        &.read {
+          opacity: 0.8;
+
+          .notification-content {
+            .user-name {
+              font-weight: 500;
+            }
+          }
+        }
+
+        .notification-avatar {
+          margin-right: 12px;
+          flex-shrink: 0;
+
+          .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid $white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+        }
+
+        .notification-content {
+          flex-grow: 1;
+          min-width: 0;
+
+          .notification-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+
+            .user-name {
+              color: $dark;
+              font-weight: 500;
+            }
+
+            .action-text {
+              color: $gray-700;
+            }
+          }
+
+          .notification-details {
+            font-size: 13px;
+            color: $gray-600;
+            line-height: 1.3;
+            margin-bottom: 6px;
+          }
+
+          .notification-time {
+            font-size: 12px;
+            color: $gray-500;
+          }
+        }
+
+        .unread-indicator {
+          width: 8px;
+          height: 8px;
+          background-color: $danger;
+          border-radius: 50%;
+          margin-left: 8px;
+          margin-top: 6px;
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    .notification-footer {
+      display: flex;
+      gap: 12px;
+      padding: 16px 24px 20px;
+      border-top: 1px solid $gray-200;
+
+      .cancel-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 14px;
+        border: 1px solid $gray-300;
+        color: $gray-700;
+        background: $white;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $gray-100;
+          border-color: $gray-400;
+        }
+      }
+
+      .view-all-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 14px;
+        background: $primary;
+        border: 1px solid $primary;
+        color: $white;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: darken($primary, 8%);
+          border-color: darken($primary, 8%);
+          transform: translateY(-1px);
+        }
+      }
+    }
+
+    // Custom scrollbar
+    .notifications-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .notifications-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .notifications-list::-webkit-scrollbar-thumb {
+      background: $gray-300;
+      border-radius: 2px;
+    }
+
+    .notifications-list::-webkit-scrollbar-thumb:hover {
+      background: $gray-400;
+    }
+  }
+
+  .notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1040;
+    background: transparent;
+  }
+
+  // Badge styling
+  .badge {
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  // Responsive design
+  @include respond-below(md) {
+    .modern-notifications-dropdown {
+      width: 340px;
+      right: -20px;
+
+      .notification-header {
+        padding: 16px 20px 12px;
+
+        h6 {
+          font-size: 16px;
+        }
+      }
+
+      .notifications-list {
+        .notification-item {
+          padding: 12px 20px;
+
+          .notification-avatar .avatar-img {
+            width: 36px;
+            height: 36px;
+          }
+
+          .notification-content {
+            .notification-text {
+              font-size: 13px;
+            }
+
+            .notification-details {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+
+      .notification-footer {
+        padding: 12px 20px 16px;
+        gap: 10px;
+
+        .cancel-btn,
+        .view-all-btn {
+          padding: 8px 12px;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  @include respond-below(sm) {
+    .modern-notifications-dropdown {
+      width: 300px;
+      right: -30px;
+    }
+  }
+}
+
+// Dark mode support
+[data-layout-mode="dark_mode"] {
+  .modern-notifications-wrapper {
+    .modern-notifications-dropdown {
+      background: $dark;
+      border-color: rgba($white, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+      .notification-header {
+        border-bottom-color: rgba($white, 0.1);
+
+        h6 {
+          color: $white;
+        }
+
+        .mark-all-read-btn {
+          color: $primary;
+
+          &:hover {
+            background-color: rgba($primary, 0.2);
+          }
+        }
+      }
+
+      .notifications-list {
+        .no-notifications {
+          .no-notifications-text {
+            color: $gray-300;
+          }
+
+          .no-notifications-subtext {
+            color: $gray-400;
+          }
+        }
+
+        .notification-item {
+          &:hover {
+            background-color: rgba($white, 0.05);
+          }
+
+          &.unread {
+            background-color: rgba($primary, 0.1);
+          }
+
+          .notification-content {
+            .notification-text {
+              .user-name {
+                color: $white;
+              }
+
+              .action-text {
+                color: $gray-300;
+              }
+            }
+
+            .notification-details {
+              color: $gray-400;
+            }
+
+            .notification-time {
+              color: $gray-500;
+            }
+          }
+        }
+      }
+
+      .notification-footer {
+        border-top-color: rgba($white, 0.1);
+
+        .cancel-btn {
+          background: transparent;
+          border-color: rgba($white, 0.2);
+          color: $gray-300;
+
+          &:hover {
+            background-color: rgba($white, 0.05);
+            border-color: rgba($white, 0.3);
+          }
+        }
+      }
+    }
+  }
+}

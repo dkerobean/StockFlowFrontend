@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Image from '../../core/img/image';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { ChevronUp, Download, Eye, File, Filter, PlusCircle, RotateCcw, Sliders, StopCircle, User, Edit, Trash2 } from 'feather-icons-react/build/IconComponents';
+import { ChevronUp, Download, Eye, File, Filter, PlusCircle, RotateCcw, Sliders, StopCircle, User, Edit, Trash2, Search } from 'feather-icons-react/build/IconComponents';
 import { setToogleHeader } from '../../core/redux/action';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
@@ -21,7 +21,6 @@ const PurchasesList = () => {
     const dispatch = useDispatch();
     const data = useSelector((state) => state.toggle_header);
 
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [purchases, setPurchases] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -36,10 +35,6 @@ const PurchasesList = () => {
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     const [loadingPurchase, setLoadingPurchase] = useState(false);
     
-    const toggleFilterVisibility = () => {
-        setIsFilterVisible((prevVisibility) => !prevVisibility);
-    };
-
     const oldandlatestvalue = [
         { value: 'date', label: 'Sort by Date' },
         { value: 'newest', label: 'Newest' },
@@ -406,114 +401,83 @@ const PurchasesList = () => {
                     {/* /product list */}
                     <div className="card table-list-card">
                         <div className="card-body">
-                            <div className="table-top">
-                                <div className="search-set">
+                            <div className="table-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div className="search-set flex-grow-1" style={{ maxWidth: '450px' }}>
                                     <div className="search-input">
                                         <input
                                             type="text"
-                                            placeholder="Search purchases..."
-                                            className="form-control form-control-sm formsearch"
+                                            placeholder="🔍 Search purchases..."
+                                            className="form-control formsearch"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
-                                        <Link to className="btn btn-searchset">
-                                            <i data-feather="search" className="feather-search" />
-                                        </Link>
+                                        <button className="btn btn-searchset" type="button">
+                                            <Search size={18} />
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="search-path">
-                                    <Link className={`btn btn-filter ${isFilterVisible ? "setclose" : ""}`} id="filter_search">
-                                        <Filter
-                                            className="filter-icon"
-                                            onClick={toggleFilterVisibility}
-                                        />
-                                        <span onClick={toggleFilterVisibility}>
-                                            <Image src="assets/img/icons/closes.svg" alt="img" />
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="form-sort">
-                                <Sliders className="info-img" />
-                                <Select
-                                    className="select"
-                                    options={oldandlatestvalue}
-                                    placeholder="Newest"
-                                />
-                                </div>
-                            </div>
-                            {/* /Filter */}
-                            <div
-                                className={`card${isFilterVisible ? " visible" : ""}`}
-                                id="filter_inputs"
-                                style={{ display: isFilterVisible ? "block" : "none" }}
-                            >
-                                <div className="card-body pb-0">
-                                    <div className="row">
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <User className="info-img"/>
-                                                <Select 
-                                                    options={supplierOptions} 
-                                                    className="select" 
-                                                    placeholder="Choose Supplier Name"
-                                                    value={supplierOptions.find(option => option.value === selectedSupplier) || null}
-                                                    onChange={(option) => setSelectedSupplier(option?.value || '')}
-                                                    isClearable
-                                                />
-
-                                            </div>
+                                    <div className="d-flex align-items-center gap-3 flex-wrap">
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select 
+                                                options={supplierOptions} 
+                                                className="select" 
+                                                placeholder="👤 Choose Supplier Name"
+                                                value={supplierOptions.find(option => option.value === selectedSupplier) || null}
+                                                onChange={(option) => setSelectedSupplier(option?.value || '')}
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <StopCircle  className="info-img"/>
-                                                <Select 
-                                                    options={statusOptions} 
-                                                    className="select" 
-                                                    placeholder="Choose Status"
-                                                    value={statusOptions.find(option => option.value === selectedStatus) || null}
-                                                    onChange={(option) => setSelectedStatus(option?.value || '')}
-                                                    isClearable
-                                                />
-
-                                            </div>
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select 
+                                                options={statusOptions} 
+                                                className="select" 
+                                                placeholder="📊 Choose Status"
+                                                value={statusOptions.find(option => option.value === selectedStatus) || null}
+                                                onChange={(option) => setSelectedStatus(option?.value || '')}
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <File className="info-img"/>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Enter Reference Number"
-                                                />
-
-                                            </div>
+                                        <div style={{ minWidth: '160px' }}>
+                                            <Select 
+                                                options={paymentStatusOptions} 
+                                                className="select" 
+                                                placeholder="💳 Choose Payment Status"
+                                                value={paymentStatusOptions.find(option => option.value === selectedPaymentStatus) || null}
+                                                onChange={(option) => setSelectedPaymentStatus(option?.value || '')}
+                                                isClearable
+                                                classNamePrefix="react-select"
+                                            />
                                         </div>
-                                        <div className="col-lg-2 col-sm-6 col-12">
-                                            <div className="input-blocks">
-                                                <i className="fas fa-money-bill info-img" />
-                                                <Select 
-                                                    options={paymentStatusOptions} 
-                                                    className="select" 
-                                                    placeholder="Choose Payment Status"
-                                                    value={paymentStatusOptions.find(option => option.value === selectedPaymentStatus) || null}
-                                                    onChange={(option) => setSelectedPaymentStatus(option?.value || '')}
-                                                    isClearable
-                                                />
-
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-4 col-sm-6 col-12 ms-auto">
-                                            <div className="input-blocks">
-                                                <button 
-                                                    className="btn btn-filters ms-auto"
-                                                    onClick={fetchPurchases}
-                                                    disabled={loading}
-                                                >
-                                                    <i data-feather="search" className="feather-search" />
-                                                    Search
-                                                </button>
-                                            </div>
-                                        </div>
+                                        <button 
+                                            variant="outline-secondary" 
+                                            size="sm" 
+                                            onClick={fetchPurchases}
+                                            className="btn btn-primary d-flex align-items-center gap-1"
+                                            style={{ minWidth: '100px', height: '44px' }}
+                                        >
+                                            <Search size={14} />
+                                            Search
+                                        </button>
+                                        <button 
+                                            variant="outline-secondary" 
+                                            size="sm" 
+                                            onClick={() => {
+                                                setSearchTerm('');
+                                                setSelectedSupplier(null);
+                                                setSelectedStatus(null);
+                                                setSelectedPaymentStatus(null);
+                                                fetchPurchases();
+                                                toast.info("Filters reset");
+                                            }}
+                                            className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                                            style={{ minWidth: '100px', height: '44px' }}
+                                        >
+                                            <RotateCcw size={14} />
+                                            Reset
+                                        </button>
                                     </div>
                                 </div>
                             </div>
