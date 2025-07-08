@@ -358,11 +358,6 @@ const EnhancedSalesDashboard = () => {
           )}
 
           {/* Real-time Notifications */}
-          <div className="row mb-3">
-            <div className="col-12 d-flex justify-content-end">
-              <RealTimeNotifications />
-            </div>
-          </div>
 
           {/* Sales Cards - Updated with meaningful KPIs */}
           <div className="row sales-cards">

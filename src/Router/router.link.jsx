@@ -158,6 +158,7 @@ import QuotationList from "../feature-module/sales/quotationlist";
 import Notes from "../feature-module/Application/notes";
 import FileManager from "../feature-module/Application/filemanager";
 import Profile from "../feature-module/pages/profile";
+import EnhancedProfile from "../feature-module/pages/EnhancedProfile";
 import Signin from "../feature-module/pages/login/signin";
 import SigninTwo from "../feature-module/pages/login/signinTwo";
 import SigninThree from "../feature-module/pages/login/signinThree";
@@ -1304,7 +1305,7 @@ export const publicRoutes = [
     id: 106,
     path: routes.profile,
     name: "profile",
-    element: <Profile />,
+    element: <EnhancedProfile />,
     route: Route,
   },
   {

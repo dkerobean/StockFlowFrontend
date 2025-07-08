@@ -210,7 +210,7 @@ const EnhancedAdminDashboard = () => {
                 <div className="dash-widgetimg">
                   <span>
                     <Image
-                      src="assets/img/icons/dash1.svg"
+                      src="/assets/img/icons/dash1.svg"
                       alt="img"
                     />
                   </span>
@@ -219,7 +219,7 @@ const EnhancedAdminDashboard = () => {
                   <h5>
                     <CountUp 
                       start={0} 
-                      end={dashboardData?.kpis?.totalPurchaseDue || 307144} 
+                      end={dashboardData?.kpis?.totalPurchaseDue || 0} 
                       duration={3} 
                       prefix="$" 
                     />
@@ -234,7 +234,7 @@ const EnhancedAdminDashboard = () => {
                 <div className="dash-widgetimg">
                   <span>
                     <Image
-                      src="assets/img/icons/dash2.svg"
+                      src="/assets/img/icons/dash2.svg"
                       alt="img"
                     />
                   </span>
@@ -244,7 +244,7 @@ const EnhancedAdminDashboard = () => {
                     $
                     <CountUp
                       start={0}
-                      end={dashboardData?.kpis?.totalSalesDue || 4385}
+                      end={dashboardData?.kpis?.totalSalesDue || 0}
                       duration={3}
                     />
                   </h5>
@@ -258,7 +258,7 @@ const EnhancedAdminDashboard = () => {
                 <div className="dash-widgetimg">
                   <span>
                     <Image
-                      src="assets/img/icons/dash3.svg"
+                      src="/assets/img/icons/dash3.svg"
                       alt="img"
                     />
                   </span>
@@ -268,7 +268,7 @@ const EnhancedAdminDashboard = () => {
                     $
                     <CountUp
                       start={0}
-                      end={dashboardData?.kpis?.totalSaleAmount || 385656.5}
+                      end={dashboardData?.kpis?.totalSaleAmount || 0}
                       duration={3}
                       decimals={1}
                     />
@@ -283,7 +283,7 @@ const EnhancedAdminDashboard = () => {
                 <div className="dash-widgetimg">
                   <span>
                     <Image
-                      src="assets/img/icons/dash4.svg"
+                      src="/assets/img/icons/dash4.svg"
                       alt="img"
                     />
                   </span>
@@ -293,7 +293,7 @@ const EnhancedAdminDashboard = () => {
                     $
                     <CountUp
                       start={0}
-                      end={dashboardData?.kpis?.totalExpenseAmount || 40000}
+                      end={dashboardData?.kpis?.totalExpenseAmount || 0}
                       duration={3}
                     />
                   </h5>
@@ -302,11 +302,36 @@ const EnhancedAdminDashboard = () => {
               </div>
             </div>
 
-            {/* Count Cards */}
+            {/* New KPI Cards */}
             <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count">
+              <div className="dash-count das4 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.customersCount || 100}</h4>
+                  <h4>{dashboardData?.kpis?.totalProducts || 0}</h4>
+                  <h5>Total Products</h5>
+                </div>
+                <div className="dash-imgs">
+                  <File />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-xl-3 col-sm-6 col-12 d-flex">
+              <div className="dash-count das5 w-100">
+                <div className="dash-counts">
+                  <h4>{dashboardData?.kpis?.lowStockProducts || 0}</h4>
+                  <h5>Low Stock Products</h5>
+                </div>
+                <div className="dash-imgs">
+                  <AlertCircle />
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Count Cards */}
+            <div className="col-xl-3 col-sm-6 col-12 d-flex">
+              <div className="dash-count w-100">
+                <div className="dash-counts">
+                  <h4>{dashboardData?.kpis?.customersCount || 0}</h4>
                   <h5>Customers</h5>
                 </div>
                 <div className="dash-imgs">
@@ -316,9 +341,9 @@ const EnhancedAdminDashboard = () => {
             </div>
 
             <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das1">
+              <div className="dash-count das1 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.suppliersCount || 110}</h4>
+                  <h4>{dashboardData?.kpis?.suppliersCount || 0}</h4>
                   <h5>Suppliers</h5>
                 </div>
                 <div className="dash-imgs">
@@ -328,14 +353,14 @@ const EnhancedAdminDashboard = () => {
             </div>
 
             <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das2">
+              <div className="dash-count das2 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.purchaseInvoicesCount || 150}</h4>
+                  <h4>{dashboardData?.kpis?.purchaseInvoicesCount || 0}</h4>
                   <h5>Purchase Invoice</h5>
                 </div>
                 <div className="dash-imgs">
                   <Image
-                    src="assets/img/icons/file-text-icon-01.svg"
+                    src="/assets/img/icons/file-text-icon-01.svg"
                     className="img-fluid"
                     alt="icon"
                   />
@@ -344,9 +369,9 @@ const EnhancedAdminDashboard = () => {
             </div>
 
             <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das3">
+              <div className="dash-count das3 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.salesInvoicesCount || 170}</h4>
+                  <h4>{dashboardData?.kpis?.salesInvoicesCount || 0}</h4>
                   <h5>Sales Invoice</h5>
                 </div>
                 <div className="dash-imgs">
@@ -401,7 +426,7 @@ const EnhancedAdminDashboard = () => {
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h4 className="card-title mb-0">Recent Products</h4>
                   <div className="view-all-link">
-                    <Link to="#" className="view-all d-flex align-items-center">
+                    <Link to={route.productlist} className="view-all d-flex align-items-center">
                       View All
                       <span className="ps-2 d-flex align-items-center">
                         <ArrowRight className="feather-16" />
@@ -417,37 +442,39 @@ const EnhancedAdminDashboard = () => {
                           <th>#</th>
                           <th>Products</th>
                           <th>Price</th>
+                          <th>Stock</th>
                         </tr>
                       </thead>
                       <tbody>
                         {loading ? (
                           <tr>
-                            <td colSpan="3" className="text-center">Loading...</td>
+                            <td colSpan="4" className="text-center">Loading...</td>
                           </tr>
                         ) : dashboardData?.recentProducts?.length > 0 ? (
                           dashboardData.recentProducts.map((product, index) => (
-                            <tr key={product.id}>
+                            <tr key={product._id}>
                               <td>{index + 1}</td>
                               <td className="productimgname">
                                 <Link
-                                  to={route.productlist}
+                                  to={route.productdetails.replace(':productId', product._id)}
                                   className="product-img"
                                 >
                                   <Image
-                                    src={product.imageUrl || "assets/img/products/default.png"}
+                                    src={product.imageUrl || "/assets/img/products/default.png"}
                                     alt="product"
                                   />
                                 </Link>
-                                <Link to={route.productlist}>
+                                <Link to={route.productdetails.replace(':productId', product._id)}>
                                   {product.name}
                                 </Link>
                               </td>
-                              <td>${product.price}</td>
+                              <td>${product.price?.toFixed(2)}</td>
+                              <td>{product.currentStock}</td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="3" className="text-center">No recent products found</td>
+                            <td colSpan="4" className="text-center">No recent products found</td>
                           </tr>
                         )}
                       </tbody>
@@ -458,20 +485,20 @@ const EnhancedAdminDashboard = () => {
             </div>
           </div>
 
-          {/* Expired Products Section */}
+          {/* Low Stock Products Section */}
           <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h4 className="card-title">Expired Products</h4>
-              {dashboardData?.alerts?.expired > 0 && (
+              <h4 className="card-title">Low Stock Products</h4>
+              {dashboardData?.kpis?.lowStockProducts > 0 && (
                 <span className="badge bg-warning">
                   <AlertCircle className="feather-12 me-1" />
-                  {dashboardData.alerts.expired} expired
+                  {dashboardData.kpis.lowStockProducts} low stock
                 </span>
               )}
             </div>
             <div className="card-body">
               <div className="table-responsive dataview">
-                <table className="table dashboard-expired-products">
+                <table className="table dashboard-low-stock-products">
                   <thead>
                     <tr>
                       <th className="no-sort">
@@ -482,19 +509,19 @@ const EnhancedAdminDashboard = () => {
                       </th>
                       <th>Product</th>
                       <th>SKU</th>
-                      <th>Manufactured Date</th>
-                      <th>Expired Date</th>
+                      <th>Current Stock</th>
+                      <th>Min Stock</th>
                       <th className="no-sort">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="6" className="text-center">Loading expired products...</td>
+                        <td colSpan="6" className="text-center">Loading low stock products...</td>
                       </tr>
-                    ) : dashboardData?.expiredProducts?.length > 0 ? (
-                      dashboardData.expiredProducts.map((product, index) => (
-                        <tr key={product.id}>
+                    ) : dashboardData?.lowStockProducts?.length > 0 ? (
+                      dashboardData.lowStockProducts.map((product, index) => (
+                        <tr key={product._id}>
                           <td>
                             <label className="checkboxs">
                               <input type="checkbox" />
@@ -503,23 +530,23 @@ const EnhancedAdminDashboard = () => {
                           </td>
                           <td>
                             <div className="productimgname">
-                              <Link to="#" className="product-img stock-img">
+                              <Link to={route.productdetails.replace(':productId', product._id)} className="product-img stock-img">
                                 <Image
-                                  src={product.imageUrl || "assets/img/products/default.png"}
+                                  src={product.imageUrl || "/assets/img/products/default.png"}
                                   alt="product"
                                 />
                               </Link>
-                              <Link to="#">{product.name}</Link>
+                              <Link to={route.productdetails.replace(':productId', product._id)}>{product.name}</Link>
                             </div>
                           </td>
                           <td>
-                            <Link to="#">{product.sku}</Link>
+                            <Link to={route.productdetails.replace(':productId', product._id)}>{product.sku}</Link>
                           </td>
-                          <td>{new Date(product.manufacturedDate).toLocaleDateString()}</td>
-                          <td>{new Date(product.expiredDate).toLocaleDateString()}</td>
+                          <td>{product.currentStock}</td>
+                          <td>{product.minStock}</td>
                           <td className="action-table-data">
                             <div className="edit-delete-action">
-                              <Link className="me-2 p-2" to="#">
+                              <Link className="me-2 p-2" to={route.stockadjustment}>
                                 <i data-feather="edit" className="feather-edit" />
                               </Link>
                               <Link
@@ -538,7 +565,7 @@ const EnhancedAdminDashboard = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="text-center">No expired products found</td>
+                        <td colSpan="6" className="text-center">No low stock products found</td>
                       </tr>
                     )}
                   </tbody>

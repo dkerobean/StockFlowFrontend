@@ -19,6 +19,7 @@ const ExpensesList = () => {
   const route = all_routes;
   const [expenses, setExpenses] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]); // New state for suppliers
   const [loading, setLoading] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
@@ -31,8 +32,7 @@ const ExpensesList = () => {
     amount: '',
     date: new Date(),
     paymentMethod: '',
-    supplier: { name: '', contact: '' },
-    receiptUrl: '',
+    supplier: '', // Store supplier ID
     notes: ''
   });
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
@@ -52,10 +52,25 @@ const ExpensesList = () => {
     isMounted.current = true;
     fetchExpenses();
     fetchExpenseCategories();
+    fetchSuppliers(); // Fetch suppliers
     return () => {
       isMounted.current = false;
     };
   }, []);
+
+  const fetchSuppliers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/suppliers`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (isMounted.current) {
+        setSuppliers(response.data || []);
+      }
+    } catch (err) {
+      console.error('Fetch suppliers error:', err);
+    }
+  };
 
   const fetchExpenses = async (showErrorToast = true) => {
     setLoading(true);
@@ -97,11 +112,10 @@ const ExpensesList = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "supplierName" || name === "supplierContact") {
-      const supplierField = name === "supplierName" ? "name" : "contact";
+    if (name === "supplierName") {
       setCurrentExpenseData(prev => ({
         ...prev,
-        supplier: { ...prev.supplier, [supplierField]: value }
+        supplier: { ...prev.supplier, name: value }
       }));
     } else {
       setCurrentExpenseData(prev => ({ ...prev, [name]: value }));
@@ -123,8 +137,7 @@ const ExpensesList = () => {
       amount: '',
       date: new Date(),
       paymentMethod: '',
-      supplier: { name: '', contact: '' },
-      receiptUrl: '',
+      supplier: '',
       notes: ''
     });
     setSelectedExpenseId(null);
@@ -145,11 +158,7 @@ const ExpensesList = () => {
       amount: expense.amount,
       date: expense.date ? new Date(expense.date) : new Date(),
       paymentMethod: expense.paymentMethod || '',
-      supplier: {
-        name: expense.supplier?.name || '',
-        contact: expense.supplier?.contact || ''
-      },
-      receiptUrl: expense.receiptUrl || '',
+      supplier: expense.supplier?._id || '',
       notes: expense.notes || ''
     });
     setShowAddEditModal(true);
@@ -171,6 +180,10 @@ const ExpensesList = () => {
         toast.error("Amount must be a positive number.");
         setLoading(false);
         return;
+    }
+    // Ensure supplier is an ID or null
+    if (payload.supplier === '') {
+      payload.supplier = null; // Send null if no supplier selected
     }
 
 
@@ -395,7 +408,7 @@ const ExpensesList = () => {
                       <th>Amount</th>
                       <th>Date</th>
                       <th>Payment Method</th>
-                      {/* <th>Supplier</th> */}
+                      <th>Supplier</th>
                       <th className="no-sort">Action</th>
                     </tr>
                   </thead>
@@ -414,7 +427,7 @@ const ExpensesList = () => {
                       <td>${typeof expense.amount === 'number' ? expense.amount.toFixed(2) : 'N/A'}</td>
                       <td>{new Date(expense.date).toLocaleDateString()}</td>
                       <td>{expense.paymentMethod || '-'}</td>
-                      {/* <td>{expense.supplier?.name || '-'}</td> */}
+                      <td>{expense.supplier?.supplierName || '-'}</td>
                       <td className="action-table-data">
                         <div className="edit-delete-action">
                           {/* <Link className="me-2 p-2 mb-0" to="#">
@@ -525,40 +538,16 @@ const ExpensesList = () => {
               <div className="col-lg-6">
                 <Form.Group className="mb-3">
                   <Form.Label>Supplier Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="supplierName"
-                    value={currentExpenseData.supplier.name}
-                    onChange={handleInputChange}
-                    placeholder="Supplier name"
+                  <Select
+                    options={suppliers.map(s => ({ value: s._id, label: s.supplierName }))}
+                    value={suppliers.map(s => ({ value: s._id, label: s.supplierName })).find(opt => opt.value === currentExpenseData.supplier) || null}
+                    onChange={(selectedOption) => setCurrentExpenseData(prev => ({ ...prev, supplier: selectedOption ? selectedOption.value : '' }))}
+                    placeholder="Select Supplier"
+                    isClearable
                   />
                 </Form.Group>
               </div>
               <div className="col-lg-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Supplier Contact</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="supplierContact"
-                    value={currentExpenseData.supplier.contact}
-                    onChange={handleInputChange}
-                    placeholder="Supplier contact (phone/email)"
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-lg-12">
-                <Form.Group className="mb-3">
-                  <Form.Label>Receipt URL</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="receiptUrl"
-                    value={currentExpenseData.receiptUrl}
-                    onChange={handleInputChange}
-                    placeholder="http://example.com/receipt.jpg"
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-lg-12">
                 <Form.Group className="mb-3">
                   <Form.Label>Notes</Form.Label>
                   <Form.Control

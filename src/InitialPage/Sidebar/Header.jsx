@@ -6,7 +6,7 @@ import Image from "../../core/img/image";
 import { Search, XCircle } from "react-feather";
 import { all_routes } from "../../Router/all_routes";
 import { toast } from "react-toastify";
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, Modal, Button } from "react-bootstrap";
 import { getProfileImageUrl, getDefaultAvatar } from "../../services/userService";
 import ModernNotifications from "../../feature-module/dashboard/ModernNotifications";
 import { Plus } from "react-feather";
@@ -19,6 +19,7 @@ const Header = () => {
   const [user, setUser] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showAddOptionsModal, setShowAddOptionsModal] = useState(false);
 
   const isElementVisible = (element) => {
     return element.offsetWidth > 0 || element.offsetHeight > 0;
@@ -120,6 +121,31 @@ const Header = () => {
       }
     };
     loadUserData();
+
+    // Listen for custom profile update events
+    const handleProfileUpdate = (event) => {
+      if (event.detail && event.detail.user) {
+        setUser(event.detail.user);
+      } else {
+        // Fallback to re-reading from localStorage
+        loadUserData();
+      }
+    };
+
+    // Listen for storage changes (from other tabs)
+    const handleStorageChange = (event) => {
+      if (event.key === 'user') {
+        loadUserData();
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Load theme preference from localStorage
@@ -265,12 +291,15 @@ const Header = () => {
           </span>
         </Link>
         {/* Header Menu */}
-        <ul className="nav user-menu modern-nav-menu">
+        <ul className="nav user-menu modern-nav-menu ms-auto">
           {/* Action Buttons */}
           <li className="nav-item nav-action-buttons">
             <div className="action-buttons d-flex align-items-center gap-3">
               {/* Add New Button */}
-              <button className="btn action-btn-primary d-flex align-items-center px-4 py-2">
+              <button 
+                className="btn action-btn-primary d-flex align-items-center px-4 py-2"
+                onClick={() => setShowAddOptionsModal(true)}
+              >
                 <Plus size={16} className="me-2" />
                 Add New
               </button>
@@ -301,11 +330,6 @@ const Header = () => {
           </li>
 
           {/* Settings */}
-          <li className="nav-item nav-item-box">
-            <Link to="/general-settings" className="modern-icon-btn">
-              <FeatherIcon icon="settings" size={20} />
-            </Link>
-          </li>
           <li className="nav-item dropdown main-drop">
             <Dropdown>
               <Dropdown.Toggle
@@ -334,6 +358,15 @@ const Header = () => {
                     <Image
                       src={getProfileImage()}
                       alt="Profile"
+                      style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover',
+                        display: 'block',
+                        border: 'none',
+                        outline: 'none'
+                      }}
                     />
                     <span className="status online" />
                   </span>
@@ -343,12 +376,8 @@ const Header = () => {
                   </div>
                 </div>
                 <hr className="m-0" />
-                <Link className="dropdown-item" to={route.route}>
+                <Link className="dropdown-item" to={route.profile}>
                   <i className="me-2" data-feather="user" /> My Profile
-                </Link>
-                <Link className="dropdown-item" to={route.generalsettings}>
-                  <i className="me-2" data-feather="settings" />
-                  Settings
                 </Link>
                 <hr className="m-0" />
                 <button 
@@ -384,9 +413,6 @@ const Header = () => {
             <Link className="dropdown-item" to="profile">
               My Profile
             </Link>
-            <Link className="dropdown-item" to="generalsettings">
-              Settings
-            </Link>
             <button 
               className="dropdown-item border-0 bg-transparent w-100 text-start" 
               onClick={handleLogout}
@@ -399,7 +425,137 @@ const Header = () => {
         </div>
         {/* /Mobile Menu */}
       </div>
+      <AddOptionsModal 
+        show={showAddOptionsModal} 
+        handleClose={() => setShowAddOptionsModal(false)} 
+        navigate={navigate} 
+        route={route} 
+      />
     </>
+  );
+};
+
+const AddOptionsModal = ({ show, handleClose, navigate, route }) => {
+  const addOptions = [
+    {
+      name: 'Product',
+      icon: 'package',
+      route: route.addproduct,
+      color: '#00b894'
+    },
+    {
+      name: 'Purchase',
+      icon: 'shopping-cart',
+      route: route.purchaselist,
+      color: '#0984e3'
+    },
+    {
+      name: 'Sale',
+      icon: 'shopping-bag',
+      route: route.saleslist,
+      color: '#00cec9'
+    },
+    {
+      name: 'Customer',
+      icon: 'users',
+      route: route.customers,
+      color: '#ffeaa7'
+    },
+    {
+      name: 'Supplier',
+      icon: 'truck',
+      route: route.suppliers,
+      color: '#fd79a8'
+    },
+    {
+      name: 'Category',
+      icon: 'layers',
+      route: route.categorylist,
+      color: '#6c5ce7'
+    }
+  ];
+
+  const handleOptionClick = (optionRoute) => {
+    handleClose();
+    navigate(optionRoute);
+  };
+
+  return (
+    <Modal show={show} onHide={handleClose} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>Add New</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ padding: '2rem' }}>
+        <div 
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '1.5rem',
+            maxWidth: '100%'
+          }}
+        >
+          {addOptions.map((option, index) => (
+            <div
+              key={index}
+              onClick={() => handleOptionClick(option.route)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1.5rem 1rem',
+                borderRadius: '12px',
+                border: '1px solid #e9ecef',
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textAlign: 'center',
+                minHeight: '120px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              className="add-option-card"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '8px',
+                  backgroundColor: `${option.color}20`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '0.75rem'
+                }}
+              >
+                <FeatherIcon 
+                  icon={option.icon} 
+                  size={24} 
+                  color={option.color}
+                />
+              </div>
+              <span
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: '#2d3748',
+                  lineHeight: '1.2'
+                }}
+              >
+                {option.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Modal.Body>
+    </Modal>
   );
 };
 

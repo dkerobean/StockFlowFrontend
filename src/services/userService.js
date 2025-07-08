@@ -22,6 +22,12 @@ export const updateProfile = async (profileData) => {
     }
 };
 
+// Validate phone number (basic validation)
+export const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+    return phoneRegex.test(phone);
+};
+
 // Upload profile image
 export const uploadProfileImage = async (imageFile) => {
     try {
@@ -50,8 +56,8 @@ export const getProfileImageUrl = (imagePath) => {
         return imagePath;
     }
     
-    // If it's a relative path, construct full URL
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+    // If it's a relative path, construct full URL using file base URL
+    const baseUrl = process.env.REACT_APP_FILE_BASE_URL || 'http://localhost:3005';
     return `${baseUrl}${imagePath}`;
 };
 
