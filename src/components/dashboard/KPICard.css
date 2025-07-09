@@ -1,0 +1,229 @@
+/* Enhanced KPI Card Styles */
+.dash-widget {
+  background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+  border: 1px solid #e3e6f0;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dash-widget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #d1d3e2;
+}
+
+.dash-widget.dash1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.dash-widget.dash2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.dash-widget.dash3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.dash-widget.dash4 {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+/* Background decoration */
+.dash-widget-bg {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* Content styling */
+.dash-widget-content {
+  position: relative;
+  z-index: 1;
+}
+
+.dash-widget-value h3 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dash-widget-title h6 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.dash-widget-trend {
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* Icon styling */
+.dash-widget-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover effect overlay */
+.dash-widget-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.dash-widget:hover .dash-widget-hover {
+  opacity: 1;
+}
+
+/* Loading skeleton */
+.dash-widget-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  margin-bottom: 8px;
+}
+
+.skeleton-text-lg {
+  height: 24px;
+  width: 80%;
+}
+
+.skeleton-text-sm {
+  height: 14px;
+  width: 60%;
+  margin-bottom: 0;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .dash-widget {
+    padding: 20px;
+    min-height: 120px;
+  }
+  
+  .dash-widget-value h3 {
+    font-size: 1.8rem;
+  }
+  
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dash-widget {
+    padding: 16px;
+    min-height: 100px;
+  }
+  
+  .dash-widget-value h3 {
+    font-size: 1.5rem;
+  }
+  
+  .dash-widget-title h6 {
+    font-size: 0.8rem;
+  }
+}
+
+/* Specific color variants */
+.dash-widget.variant-orange {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+  color: white;
+}
+
+.dash-widget.variant-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.dash-widget.variant-green {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+  color: white;
+}
+
+.dash-widget.variant-purple {
+  background: linear-gradient(135deg, #b24592 0%, #f15f79 100%);
+  color: white;
+}
+
+/* Animation for count up */
+.dash-widget-value {
+  overflow: hidden;
+}
+
+.dash-widget-value h3 {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

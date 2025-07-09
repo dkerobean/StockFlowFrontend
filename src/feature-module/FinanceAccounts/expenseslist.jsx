@@ -14,6 +14,7 @@ import { all_routes } from "../../Router/all_routes";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/expense`; // Backend API URL for expenses
 const CATEGORIES_API_URL = `${process.env.REACT_APP_API_URL}/categories`; // Backend API URL for categories
+const SUPPLIERS_API_URL = `${process.env.REACT_APP_API_URL}/suppliers`; // Backend API URL for suppliers
 
 const ExpensesList = () => {
   const route = all_routes;
@@ -61,7 +62,7 @@ const ExpensesList = () => {
   const fetchSuppliers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/suppliers`, {
+      const response = await axios.get(SUPPLIERS_API_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (isMounted.current) {

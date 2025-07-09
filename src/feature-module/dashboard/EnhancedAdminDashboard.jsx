@@ -6,7 +6,11 @@ import {
   UserCheck,
   AlertCircle,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  DollarSign,
+  Package,
+  ShoppingCart,
+  Users
 } from "feather-icons-react/build/IconComponents";
 import Chart from "react-apexcharts";
 import { Link } from "react-router-dom";
@@ -16,110 +20,75 @@ import { all_routes } from "../../Router/all_routes";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import dashboardService from "../../services/dashboardService";
+import enhancedMongoDBDashboardService from "../../services/enhancedMongoDBDashboardService";
 import RealTimeNotifications from "./RealTimeNotifications";
 import useRealTimeDashboard from "../../hooks/useRealTimeDashboard";
+
+// Import the new enhanced dashboard components
+import KPICard from "../../components/dashboard/KPICard";
+import SalesChart from "../../components/dashboard/SalesChart";
+import ProductManagement from "../../components/dashboard/ProductManagement";
+import CustomerOverview from "../../components/dashboard/CustomerOverview";
+import TransactionTable from "../../components/dashboard/TransactionTable";
+
+// Import CSS for enhanced dashboard
+import "./EnhancedAdminDashboard.css";
+import "../../components/dashboard/KPICard.css";
+import "../../components/dashboard/SalesChart.css";
+import "../../components/dashboard/ProductManagement.css";
+import "../../components/dashboard/CustomerOverview.css";
+import "../../components/dashboard/TransactionTable.css";
 
 const EnhancedAdminDashboard = () => {
   const route = all_routes;
   const [dashboardData, setDashboardData] = useState(null);
+  const [enhancedData, setEnhancedData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [chartOptions, setChartOptions] = useState({
-    series: [
-      {
-        name: "Sales",
-        data: [],
-      },
-      {
-        name: "Purchase",
-        data: [],
-      },
-    ],
-    colors: ["#28C76F", "#EA5455"],
-    chart: {
-      type: "bar",
-      height: 320,
-      stacked: true,
-      zoom: {
-        enabled: true,
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 280,
-        options: {
-          legend: {
-            position: "bottom",
-            offsetY: 0,
-          },
-        },
-      },
-    ],
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        borderRadius: 4,
-        borderRadiusApplication: "end",
-        borderRadiusWhenStacked: "all",
-        columnWidth: "20%",
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    yaxis: {
-      min: -50000,
-      max: 50000,
-      tickAmount: 5,
-    },
-    xaxis: {
-      categories: [],
-    },
-    legend: { show: false },
-    fill: {
-      opacity: 1,
-    },
-  });
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  
+  // Use the existing real-time dashboard hook
+  const {
+    isConnected: socketConnected,
+    notifications,
+    realTimeAlerts,
+    triggerRefresh
+  } = useRealTimeDashboard();
 
-  // Fetch dashboard data on component mount
+  // Fetch enhanced dashboard data using MongoDB MCP
   useEffect(() => {
-    fetchDashboardData();
+    fetchEnhancedDashboardData();
     
     // Set up auto-refresh every 5 minutes
-    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
+    const interval = setInterval(fetchEnhancedDashboardData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchEnhancedDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await dashboardService.getAdminDashboardStats();
       
-      if (response.success) {
-        setDashboardData(response.data);
-        
-        // Update chart data
-        setChartOptions(prev => ({
-          ...prev,
-          series: [
-            {
-              name: "Sales",
-              data: response.data.chartData?.salesData || [],
-            },
-            {
-              name: "Purchase",
-              data: response.data.chartData?.purchaseData || [],
-            },
-          ],
-          xaxis: {
-            ...prev.xaxis,
-            categories: response.data.chartData?.labels || [],
-          },
-        }));
+      // Fetch enhanced dashboard data using MCP tools
+      const enhancedResponse = await enhancedMongoDBDashboardService.getDashboardData('1M');
+      
+      if (enhancedResponse) {
+        setEnhancedData(enhancedResponse);
+        setLastRefresh(new Date());
       }
+
+      // Also fetch legacy dashboard data for compatibility
+      try {
+        const legacyResponse = await dashboardService.getAdminDashboardStats();
+        if (legacyResponse.success) {
+          setDashboardData(legacyResponse.data);
+        }
+      } catch (legacyErr) {
+        console.warn('Legacy dashboard data not available:', legacyErr);
+      }
+      
     } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
+      console.error('Failed to fetch enhanced dashboard data:', err);
       setError('Failed to load dashboard data. Please try again.');
     } finally {
       setLoading(false);
@@ -179,135 +148,164 @@ const EnhancedAdminDashboard = () => {
     <div>
       <div className="page-wrapper">
         <div className="content">
+          {/* Header Section with Refresh and Notifications */}
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h1 className="page-title mb-1">Admin Dashboard</h1>
+                  <p className="text-muted mb-0">
+                    Welcome back! Here's what's happening with your business today.
+                  </p>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                  {/* Connection Status Indicator */}
+                  <div className="d-flex align-items-center">
+                    <div 
+                      className={`status-dot me-2 ${socketConnected ? 'connected' : 'disconnected'}`}
+                      title={socketConnected ? 'Real-time updates active' : 'Real-time updates disconnected'}
+                    />
+                    <small className="text-muted">
+                      {socketConnected ? 'Live' : 'Offline'}
+                    </small>
+                  </div>
+                  
+                  <button 
+                    className="btn btn-outline-primary"
+                    onClick={() => {
+                      fetchEnhancedDashboardData();
+                      triggerRefresh();
+                    }}
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`feather-16 me-2 ${loading ? 'fa-spin' : ''}`} />
+                    Refresh
+                  </button>
+                  <RealTimeNotifications />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Loading State */}
           {loading && (
-            <div className="text-center mb-3">
+            <div className="text-center mb-4">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
+              <p className="text-muted mt-2">Loading dashboard data...</p>
             </div>
           )}
 
           {/* Success Message */}
-          {dashboardData && !loading && (
-            <div className="alert alert-success alert-dismissible fade show" role="alert">
+          {enhancedData && !loading && (
+            <div className="alert alert-success alert-dismissible fade show mb-4" role="alert">
               <TrendingUp className="feather-16 me-2" />
-              Dashboard updated successfully! Last refresh: {new Date().toLocaleTimeString()}
+              Dashboard updated successfully! Last refresh: {lastRefresh.toLocaleTimeString()}
               <button type="button" className="btn-close" data-bs-dismiss="alert"></button>
             </div>
           )}
 
-          {/* Real-time Notifications */}
-          <div className="row mb-3">
-            <div className="col-12 d-flex justify-content-end">
-              <RealTimeNotifications />
+          {/* Enhanced KPI Cards Section */}
+          <div className="row g-4 mb-4">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <KPICard
+                title="Total Sales"
+                value={enhancedData?.kpis?.totalSales || dashboardData?.kpis?.totalSaleAmount || 0}
+                prefix="$"
+                icon={<DollarSign />}
+                iconBg="success"
+                trend="up"
+                trendValue="12.5"
+                trendText="from last month"
+                className="variant-green"
+                isLoading={loading}
+              />
+            </div>
+            
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <KPICard
+                title="Total Products"
+                value={enhancedData?.kpis?.totalProducts || dashboardData?.kpis?.totalProducts || 0}
+                icon={<Package />}
+                iconBg="primary"
+                trend="up"
+                trendValue="8.2"
+                trendText="new this week"
+                className="variant-blue"
+                isLoading={loading}
+              />
+            </div>
+            
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <KPICard
+                title="Total Customers"
+                value={enhancedData?.kpis?.totalCustomers || dashboardData?.kpis?.customersCount || 0}
+                icon={<Users />}
+                iconBg="info"
+                trend="up"
+                trendValue="15.7"
+                trendText="growth rate"
+                className="variant-purple"
+                isLoading={loading}
+              />
+            </div>
+            
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <KPICard
+                title="Revenue"
+                value={enhancedData?.kpis?.revenue || (enhancedData?.kpis?.totalSales - enhancedData?.kpis?.totalPurchases) || 0}
+                prefix="$"
+                icon={<TrendingUp />}
+                iconBg="warning"
+                trend="up"
+                trendValue="23.1"
+                trendText="profit margin"
+                className="variant-orange"
+                isLoading={loading}
+              />
             </div>
           </div>
 
-          <div className="row">
-            {/* KPI Cards */}
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-widget w-100">
-                <div className="dash-widgetimg">
-                  <span>
-                    <Image
-                      src="/assets/img/icons/dash1.svg"
-                      alt="img"
-                    />
-                  </span>
-                </div>
-                <div className="dash-widgetcontent">
-                  <h5>
-                    <CountUp 
-                      start={0} 
-                      end={dashboardData?.kpis?.totalPurchaseDue || 0} 
-                      duration={3} 
-                      prefix="$" 
-                    />
-                  </h5>
-                  <h6>Total Purchase Due</h6>
-                </div>
-              </div>
+          {/* Charts and Analytics Section */}
+          <div className="row g-4 mb-4">
+            {/* Sales Chart - Takes up most of the width */}
+            <div className="col-xl-8 col-lg-7">
+              <SalesChart className="h-100" />
             </div>
-
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-widget dash1 w-100">
-                <div className="dash-widgetimg">
-                  <span>
-                    <Image
-                      src="/assets/img/icons/dash2.svg"
-                      alt="img"
-                    />
-                  </span>
-                </div>
-                <div className="dash-widgetcontent">
-                  <h5>
-                    $
-                    <CountUp
-                      start={0}
-                      end={dashboardData?.kpis?.totalSalesDue || 0}
-                      duration={3}
-                    />
-                  </h5>
-                  <h6>Total Sales Due</h6>
-                </div>
-              </div>
+            
+            {/* Customer Overview */}
+            <div className="col-xl-4 col-lg-5">
+              <CustomerOverview className="h-100" />
             </div>
+          </div>
 
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-widget dash2 w-100">
-                <div className="dash-widgetimg">
-                  <span>
-                    <Image
-                      src="/assets/img/icons/dash3.svg"
-                      alt="img"
-                    />
-                  </span>
-                </div>
-                <div className="dash-widgetcontent">
-                  <h5>
-                    $
-                    <CountUp
-                      start={0}
-                      end={dashboardData?.kpis?.totalSaleAmount || 0}
-                      duration={3}
-                      decimals={1}
-                    />
-                  </h5>
-                  <h6>Total Sale Amount</h6>
-                </div>
-              </div>
+          {/* Product Management and Transactions Section */}
+          <div className="row g-4 mb-4">
+            {/* Product Management */}
+            <div className="col-xl-7 col-lg-6">
+              <ProductManagement className="h-100" />
             </div>
-
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-widget dash3 w-100">
-                <div className="dash-widgetimg">
-                  <span>
-                    <Image
-                      src="/assets/img/icons/dash4.svg"
-                      alt="img"
-                    />
-                  </span>
-                </div>
-                <div className="dash-widgetcontent">
-                  <h5>
-                    $
-                    <CountUp
-                      start={0}
-                      end={dashboardData?.kpis?.totalExpenseAmount || 0}
-                      duration={3}
-                    />
-                  </h5>
-                  <h6>Total Expense Amount</h6>
-                </div>
-              </div>
+            
+            {/* Transaction Table */}
+            <div className="col-xl-5 col-lg-6">
+              <TransactionTable className="h-100" />
             </div>
+          </div>
 
-            {/* New KPI Cards */}
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das4 w-100">
+          {/* Additional KPI Cards for Legacy Support */}
+          <div className="row g-4">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="dash-count w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.totalProducts || 0}</h4>
-                  <h5>Total Products</h5>
+                  <h4>
+                    <CountUp
+                      start={0}
+                      end={dashboardData?.kpis?.purchaseInvoicesCount || 0}
+                      duration={3}
+                    />
+                  </h4>
+                  <h5>Purchase Invoices</h5>
                 </div>
                 <div className="dash-imgs">
                   <File />
@@ -315,35 +313,34 @@ const EnhancedAdminDashboard = () => {
               </div>
             </div>
 
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das5 w-100">
-                <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.lowStockProducts || 0}</h4>
-                  <h5>Low Stock Products</h5>
-                </div>
-                <div className="dash-imgs">
-                  <AlertCircle />
-                </div>
-              </div>
-            </div>
-
-            {/* Existing Count Cards */}
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count w-100">
-                <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.customersCount || 0}</h4>
-                  <h5>Customers</h5>
-                </div>
-                <div className="dash-imgs">
-                  <User />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
+            <div className="col-xl-3 col-lg-6 col-md-6">
               <div className="dash-count das1 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.suppliersCount || 0}</h4>
+                  <h4>
+                    <CountUp
+                      start={0}
+                      end={dashboardData?.kpis?.salesInvoicesCount || 0}
+                      duration={3}
+                    />
+                  </h4>
+                  <h5>Sales Invoices</h5>
+                </div>
+                <div className="dash-imgs">
+                  <ShoppingCart />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="dash-count das2 w-100">
+                <div className="dash-counts">
+                  <h4>
+                    <CountUp
+                      start={0}
+                      end={dashboardData?.kpis?.suppliersCount || 0}
+                      duration={3}
+                    />
+                  </h4>
                   <h5>Suppliers</h5>
                 </div>
                 <div className="dash-imgs">
@@ -352,224 +349,36 @@ const EnhancedAdminDashboard = () => {
               </div>
             </div>
 
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
-              <div className="dash-count das2 w-100">
-                <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.purchaseInvoicesCount || 0}</h4>
-                  <h5>Purchase Invoice</h5>
-                </div>
-                <div className="dash-imgs">
-                  <Image
-                    src="/assets/img/icons/file-text-icon-01.svg"
-                    className="img-fluid"
-                    alt="icon"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-xl-3 col-sm-6 col-12 d-flex">
+            <div className="col-xl-3 col-lg-6 col-md-6">
               <div className="dash-count das3 w-100">
                 <div className="dash-counts">
-                  <h4>{dashboardData?.kpis?.salesInvoicesCount || 0}</h4>
-                  <h5>Sales Invoice</h5>
+                  <h4>
+                    <CountUp
+                      start={0}
+                      end={enhancedData?.lowStockProducts?.length || dashboardData?.kpis?.lowStockProducts || 0}
+                      duration={3}
+                    />
+                  </h4>
+                  <h5>Low Stock Alert</h5>
                 </div>
                 <div className="dash-imgs">
-                  <File />
+                  <AlertCircle />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="row">
-            {/* Charts Section */}
-            <div className="col-xl-7 col-sm-12 col-12 d-flex">
-              <div className="card flex-fill">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h5 className="card-title mb-0">Purchase &amp; Sales</h5>
-                  <div className="d-flex align-items-center">
-                    <div className="graph-sets me-3">
-                      <ul className="mb-0">
-                        <li>
-                          <span>Sales</span>
-                        </li>
-                        <li>
-                          <span>Purchase</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <button 
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={fetchDashboardData}
-                      disabled={loading}
-                    >
-                      <RefreshCw className={`feather-16 ${loading ? 'fa-spin' : ''}`} />
-                      Refresh
-                    </button>
-                  </div>
-                </div>
-                <div className="card-body">
-                  <div id="sales_charts" />
-                  <Chart
-                    options={chartOptions}
-                    series={chartOptions.series}
-                    type="bar"
-                    height={320}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Products */}
-            <div className="col-xl-5 col-sm-12 col-12 d-flex">
-              <div className="card flex-fill default-cover mb-4">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h4 className="card-title mb-0">Recent Products</h4>
-                  <div className="view-all-link">
-                    <Link to={route.productlist} className="view-all d-flex align-items-center">
-                      View All
-                      <span className="ps-2 d-flex align-items-center">
-                        <ArrowRight className="feather-16" />
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-                <div className="card-body">
-                  <div className="table-responsive dataview">
-                    <table className="table dashboard-recent-products">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Products</th>
-                          <th>Price</th>
-                          <th>Stock</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {loading ? (
-                          <tr>
-                            <td colSpan="4" className="text-center">Loading...</td>
-                          </tr>
-                        ) : dashboardData?.recentProducts?.length > 0 ? (
-                          dashboardData.recentProducts.map((product, index) => (
-                            <tr key={product._id}>
-                              <td>{index + 1}</td>
-                              <td className="productimgname">
-                                <Link
-                                  to={route.productdetails.replace(':productId', product._id)}
-                                  className="product-img"
-                                >
-                                  <Image
-                                    src={product.imageUrl || "/assets/img/products/default.png"}
-                                    alt="product"
-                                  />
-                                </Link>
-                                <Link to={route.productdetails.replace(':productId', product._id)}>
-                                  {product.name}
-                                </Link>
-                              </td>
-                              <td>${product.price?.toFixed(2)}</td>
-                              <td>{product.currentStock}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="4" className="text-center">No recent products found</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Low Stock Products Section */}
-          <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h4 className="card-title">Low Stock Products</h4>
-              {dashboardData?.kpis?.lowStockProducts > 0 && (
-                <span className="badge bg-warning">
-                  <AlertCircle className="feather-12 me-1" />
-                  {dashboardData.kpis.lowStockProducts} low stock
-                </span>
-              )}
-            </div>
-            <div className="card-body">
-              <div className="table-responsive dataview">
-                <table className="table dashboard-low-stock-products">
-                  <thead>
-                    <tr>
-                      <th className="no-sort">
-                        <label className="checkboxs">
-                          <input type="checkbox" id="select-all" />
-                          <span className="checkmarks" />
-                        </label>
-                      </th>
-                      <th>Product</th>
-                      <th>SKU</th>
-                      <th>Current Stock</th>
-                      <th>Min Stock</th>
-                      <th className="no-sort">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading ? (
-                      <tr>
-                        <td colSpan="6" className="text-center">Loading low stock products...</td>
-                      </tr>
-                    ) : dashboardData?.lowStockProducts?.length > 0 ? (
-                      dashboardData.lowStockProducts.map((product, index) => (
-                        <tr key={product._id}>
-                          <td>
-                            <label className="checkboxs">
-                              <input type="checkbox" />
-                              <span className="checkmarks" />
-                            </label>
-                          </td>
-                          <td>
-                            <div className="productimgname">
-                              <Link to={route.productdetails.replace(':productId', product._id)} className="product-img stock-img">
-                                <Image
-                                  src={product.imageUrl || "/assets/img/products/default.png"}
-                                  alt="product"
-                                />
-                              </Link>
-                              <Link to={route.productdetails.replace(':productId', product._id)}>{product.name}</Link>
-                            </div>
-                          </td>
-                          <td>
-                            <Link to={route.productdetails.replace(':productId', product._id)}>{product.sku}</Link>
-                          </td>
-                          <td>{product.currentStock}</td>
-                          <td>{product.minStock}</td>
-                          <td className="action-table-data">
-                            <div className="edit-delete-action">
-                              <Link className="me-2 p-2" to={route.stockadjustment}>
-                                <i data-feather="edit" className="feather-edit" />
-                              </Link>
-                              <Link
-                                className="confirm-text p-2"
-                                to="#"
-                                onClick={showConfirmationAlert}
-                              >
-                                <i
-                                  data-feather="trash-2"
-                                  className="feather-trash-2"
-                                />
-                              </Link>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="6" className="text-center">No low stock products found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+          {/* Footer with Last Update Info */}
+          <div className="row mt-4">
+            <div className="col-12">
+              <div className="text-center text-muted">
+                <small>
+                  Last updated: {lastRefresh.toLocaleString()} | 
+                  Data refreshed every 5 minutes | 
+                  {enhancedData ? 'Enhanced MongoDB data active' : 'Legacy data mode'} |
+                  Real-time: {socketConnected ? 'Connected' : 'Disconnected'} |
+                  {notifications.length > 0 && `${notifications.filter(n => !n.read).length} unread notifications`}
+                </small>
               </div>
             </div>
           </div>

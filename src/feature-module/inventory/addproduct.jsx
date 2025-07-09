@@ -12,6 +12,10 @@ import 'react-toastify/dist/ReactToastify.css'; // Toast styles
 import AddCategory from "../../core/modals/inventory/addcategory";
 import AddBrand from "../../core/modals/addbrand";
 
+// Import Barcode Components
+import BarcodeGenerator from "../../components/barcode/BarcodeGenerator";
+import BarcodeDisplay from "../../components/barcode/BarcodeDisplay";
+
 // Import Icons
 import {
     ArrowLeft, Calendar, ChevronUp, Info, LifeBuoy, Image as ImageIcon,
@@ -68,6 +72,11 @@ const AddProduct = () => {
     // --- UI & Loading State ---
     const [isLoading, setIsLoading] = useState(false); // For fetching initial data
     const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
+    
+    // --- Barcode State ---
+    const [showBarcodeGenerator, setShowBarcodeGenerator] = useState(false);
+    const [barcodeFormat, setBarcodeFormat] = useState('CODE128');
+    const [barcodeImageInfo, setBarcodeImageInfo] = useState(null);
 
     // --- Fetch Initial Data (Categories, Brands, Locations) ---
     const fetchData = async () => {
@@ -167,9 +176,41 @@ const AddProduct = () => {
         setSku(uuidv4().substring(0, 12).toUpperCase()); // Example: Generate a shorter UUID
     };
 
-    const handleGenerateBarcode = () => {
-        // You might want a different format or source for barcodes
-        setBarcode(uuidv4());
+    const handleGenerateBarcode = async () => {
+        try {
+            // Create a temporary product ID for barcode generation
+            const tempProductId = uuidv4();
+            const tempSku = sku || `SKU${Date.now()}`;
+            
+            // Generate auto barcode
+            const response = await axios.post(`${API_URL}/barcodes/auto-generate`, {
+                productId: tempProductId,
+                sku: tempSku,
+                prefix: 'PRD'
+            }, {
+                headers: getAuthHeader()
+            });
+            
+            if (response.data.success) {
+                const newBarcode = response.data.data.barcode;
+                setBarcode(newBarcode);
+                setBarcodeImageInfo(response.data.data);
+                toast.success('Barcode generated successfully!');
+            }
+        } catch (error) {
+            console.error('Error generating barcode:', error);
+            // Fallback to UUID if API fails
+            setBarcode(uuidv4().substring(0, 12).toUpperCase());
+            toast.warn('Using fallback barcode generation');
+        }
+    };
+
+    // Handle barcode generation from component
+    const handleBarcodeGenerated = (barcodeValue, imageInfo) => {
+        setBarcode(barcodeValue);
+        setBarcodeImageInfo(imageInfo);
+        setShowBarcodeGenerator(false);
+        toast.success('Barcode generated and ready to use!');
     };
 
     // Handle file selection for image upload
@@ -298,6 +339,10 @@ const AddProduct = () => {
             brand: selectedBrand ? selectedBrand.value : null,
             imageUrl: finalImageUrl || '',
             // isActive: true, // Backend defaults to true
+            
+            // Barcode generation fields
+            generateBarcode: !barcode, // Auto-generate if no barcode provided
+            barcodeFormat: barcodeFormat,
 
             // Initial Inventory fields (only if location is selected)
             locationId: selectedLocation ? selectedLocation.value : null,
@@ -507,8 +552,28 @@ const AddProduct = () => {
                                         <div className="col-lg-6 mb-3">
                                             <label htmlFor="productBarcode" className="form-label">Barcode (Optional)</label>
                                             <div className="input-group">
-                                                <input type="text" id="productBarcode" className="form-control" placeholder="Enter or Generate Barcode" value={barcode} onChange={(e) => setBarcode(e.target.value)} />
-                                                <button type="button" className="btn btn-warning text-dark fw-bold" onClick={handleGenerateBarcode}> Generate </button>
+                                                <input 
+                                                    type="text" 
+                                                    id="productBarcode" 
+                                                    className="form-control" 
+                                                    placeholder="Enter or Generate Barcode" 
+                                                    value={barcode} 
+                                                    onChange={(e) => setBarcode(e.target.value)} 
+                                                />
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-warning text-dark fw-bold" 
+                                                    onClick={handleGenerateBarcode}
+                                                > 
+                                                    Generate 
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-outline-primary" 
+                                                    onClick={() => setShowBarcodeGenerator(!showBarcodeGenerator)}
+                                                >
+                                                    {showBarcodeGenerator ? 'Hide' : 'Show'} Generator
+                                                </button>
                                             </div>
                                         </div>
 
@@ -517,6 +582,19 @@ const AddProduct = () => {
                                             <label htmlFor="productDescription" className="form-label">Description</label>
                                             <textarea id="productDescription" className="form-control" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter product description..." />
                                         </div>
+                                        
+                                        {/* Barcode Generator */}
+                                        {showBarcodeGenerator && (
+                                            <div className="col-lg-12 mb-3">
+                                                <BarcodeGenerator
+                                                    productSku={sku}
+                                                    initialBarcode={barcode}
+                                                    onBarcodeGenerated={handleBarcodeGenerated}
+                                                    showControls={true}
+                                                    style={{ marginTop: '1rem' }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

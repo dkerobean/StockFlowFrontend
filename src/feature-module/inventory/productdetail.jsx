@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Image from '../../core/img/image';
 import { all_routes } from '../../Router/all_routes';
 import { ArrowLeft, Printer } from 'feather-icons-react/build/IconComponents'; // Added ArrowLeft
+import BarcodeDisplay from '../../components/barcode/BarcodeDisplay';
 
 // Config and Helper
 const API_URL = process.env.REACT_APP_API_URL;
@@ -97,6 +98,96 @@ const ProductDetail = () => {
         return `$${Number(price).toFixed(2)}`;
     };
 
+    // --- Print Barcode Function ---
+    const printBarcode = () => {
+        if (!product.barcode) {
+            toast.warning('No barcode available to print');
+            return;
+        }
+
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Print Barcode - ${product.name}</title>
+                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 0; 
+                        padding: 20px; 
+                        background: white;
+                        text-align: center;
+                    }
+                    .barcode-container {
+                        border: 2px solid #000;
+                        padding: 20px;
+                        margin: 20px auto;
+                        width: fit-content;
+                        max-width: 400px;
+                    }
+                    .product-info {
+                        margin-bottom: 15px;
+                    }
+                    .product-name {
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                    .product-sku {
+                        font-size: 14px;
+                        color: #666;
+                        margin-bottom: 10px;
+                    }
+                    .barcode-canvas {
+                        margin: 15px 0;
+                    }
+                    .barcode-text {
+                        font-size: 14px;
+                        font-weight: bold;
+                        margin-top: 10px;
+                    }
+                    @media print {
+                        body { margin: 0; padding: 10px; }
+                        .barcode-container { border: 2px solid #000; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="barcode-container">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-sku">SKU: ${product.sku}</div>
+                    </div>
+                    <canvas class="barcode-canvas" id="barcodeCanvas"></canvas>
+                    <div class="barcode-text">${product.barcode}</div>
+                </div>
+                <script>
+                    window.onload = function() {
+                        const canvas = document.getElementById('barcodeCanvas');
+                        JsBarcode(canvas, '${product.barcode}', {
+                            format: 'CODE128',
+                            width: 2,
+                            height: 100,
+                            displayValue: false,
+                            margin: 10
+                        });
+                        
+                        // Auto-print after barcode is generated
+                        setTimeout(() => {
+                            window.print();
+                        }, 500);
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+    };
+
     // --- Construct Image URL ---
     const getImageUrl = (relativePath) => {
         if (!relativePath) return "/assets/img/placeholder-product.png"; // Default placeholder
@@ -176,16 +267,33 @@ const ProductDetail = () => {
                         <div className="col-lg-8 col-sm-12">
                             <div className="card">
                                 <div className="card-body">
-                                    {/* Barcode Area (Keep placeholder, implement later if needed) */}
+                                    {/* Barcode Area */}
                                     {product.barcode && ( // Only show if barcode exists
-                                        <div className="bar-code-view mb-4">
-                                            {/* Placeholder for barcode image generation */}
-                                            <span className="text-muted small">Barcode: {product.barcode}</span>
-                                            {/* <Image src="assets/img/barcode/barcode1.png" alt="barcode" /> */}
-                                            {/* Print function needs implementation */}
-                                            {/* <a className="printimg" href="#">
-                                                <Image src="assets/img/icons/printer.svg" alt="print" />
-                                            </a> */}
+                                        <div className="bar-code-view mb-4 p-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                                <h6 className="mb-0">Product Barcode</h6>
+                                                <button 
+                                                    className="btn btn-outline-primary btn-sm"
+                                                    onClick={printBarcode}
+                                                    title="Print Barcode"
+                                                >
+                                                    <Printer size={16} className="me-1" />
+                                                    Print
+                                                </button>
+                                            </div>
+                                            <div className="text-center">
+                                                <BarcodeDisplay
+                                                    value={product.barcode}
+                                                    format="CODE128"
+                                                    height={80}
+                                                    width={2}
+                                                    displayValue={true}
+                                                    style={{ margin: '10px 0' }}
+                                                />
+                                            </div>
+                                            <div className="text-center">
+                                                <small className="text-muted">Barcode: {product.barcode}</small>
+                                            </div>
                                         </div>
                                     )}
 

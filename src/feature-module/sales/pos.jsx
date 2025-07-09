@@ -55,6 +55,10 @@ const Pos = () => {
   const [taxRate, setTaxRate] = useState(0); // Assuming tax is a percentage
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const barcodeInputRef = useRef(null);
+  const [barcode, setBarcode] = useState('');
+  const [scannedProductHighlightId, setScannedProductHighlightId] = useState(null);
+  const [scanMode, setScanMode] = useState(false);
   
   // Recent Sales State
   const [recentSales, setRecentSales] = useState([]);
@@ -96,7 +100,19 @@ const Pos = () => {
       }
     };
     fetchLocations();
+
+    // Auto-focus barcode input on mount if scan mode is active
+    if (barcodeInputRef.current && scanMode) {
+      barcodeInputRef.current.focus();
+    }
   }, []);
+
+  // Auto-focus barcode input when scan mode changes
+  useEffect(() => {
+    if (scanMode && barcodeInputRef.current) {
+      barcodeInputRef.current.focus();
+    }
+  }, [scanMode]);
 
   // Fetch products and categories when selectedLocation changes
   useEffect(() => {
@@ -164,11 +180,83 @@ const Pos = () => {
     setFilteredProducts(tempProducts);
   }, [searchTerm, products, selectedCategory]);
 
+  // Handle location change for react-select
+  const handleLocationChange = (option) => {
+    if (option) {
+      const locationId = option.value;
+      const location = locations.find(loc => loc._id === locationId);
+      setSelectedLocation(location);
+    } else {
+      setSelectedLocation(null);
+    }
+  };
 
-  const handleLocationChange = (selectedOption) => {
-    const locationObj = locations.find(loc => loc._id === selectedOption.value);
-    setSelectedLocation(locationObj);
-    setCart([]); // Clear cart when location changes
+  // Toggle scan mode
+  const toggleScanMode = () => {
+    setScanMode(!scanMode);
+    if (!scanMode) {
+      // When enabling scan mode, focus on barcode input
+      setTimeout(() => {
+        if (barcodeInputRef.current) {
+          barcodeInputRef.current.focus();
+        }
+      }, 100);
+      toast.info("Barcode scan mode activated. Ready to scan!");
+    } else {
+      // When disabling scan mode, clear barcode input
+      setBarcode('');
+      toast.info("Barcode scan mode deactivated.");
+    }
+  };
+
+  const handleBarcodeScan = async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent form submission
+      
+      if (!scanMode) {
+        toast.warn("Please activate scan mode first by clicking the Scan button.");
+        return;
+      }
+      
+      const scannedBarcode = e.target.value.trim();
+      setBarcode(''); // Clear input immediately
+
+      if (!scannedBarcode) {
+        toast.warn("Please scan a barcode.");
+        return;
+      }
+      if (!selectedLocation || !selectedLocation._id) {
+        toast.error("Please select a location before scanning.");
+        return;
+      }
+
+      setLoading(true);
+      setScannedProductHighlightId(null); // Clear previous highlight
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_BASE_URL}/products/barcode/${scannedBarcode}?locationId=${selectedLocation._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const product = response.data;
+        if (product) {
+          addToCart(product); // Add to cart using existing logic
+          setScannedProductHighlightId(product._id); // Set product to highlight
+          toast.success(`Added: ${product.name}`);
+        } else {
+          toast.error("Product not found for this barcode.");
+        }
+      } catch (error) {
+        console.error("Barcode scan error:", error.response?.data || error.message);
+        toast.error(error.response?.data?.message || "Error scanning barcode.");
+      } finally {
+        setLoading(false);
+        if (barcodeInputRef.current) {
+          barcodeInputRef.current.focus(); // Re-focus for next scan
+        }
+      }
+    }
   };
 
   const handleOpenEditProductModal = (cartItem) => {
@@ -635,6 +723,26 @@ const Pos = () => {
           animation: bounceIn 0.4s ease-out;
         }
         
+        @keyframes scannedHighlightPulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+            transform: scale(1);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+            transform: scale(1.02);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+            transform: scale(1);
+          }
+        }
+
+        .scanned-highlight {
+          animation: scannedHighlightPulse 1s ease-out;
+          border: 3px solid #007bff !important; /* Ensure it's visible */
+        }
+        
         @keyframes bounceIn {
           0% {
             transform: scale(0.3);
@@ -780,6 +888,35 @@ const Pos = () => {
                       style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d' }}
                     />
                   </div>
+                  <div className="barcode-scan-input position-relative">
+                    <input 
+                      type="text" 
+                      ref={barcodeInputRef}
+                      className={`form-control ps-5 ${scanMode ? 'border-success' : ''}`}
+                      placeholder={scanMode ? "Scan Barcode..." : "Click Scan button to activate"}
+                      value={barcode}
+                      onChange={(e) => setBarcode(e.target.value)}
+                      onKeyDown={handleBarcodeScan}
+                      disabled={!scanMode}
+                      style={{ 
+                        width: '200px', 
+                        borderRadius: '25px', 
+                        backgroundColor: scanMode ? '#e8f5e8' : '#f8f9fa', 
+                        border: scanMode ? '2px solid #28a745' : '1px solid #e0e0e0',
+                        transition: 'all 0.3s ease',
+                        cursor: scanMode ? 'text' : 'not-allowed'
+                      }}
+                    />
+                    <i className="fas fa-barcode position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', color: scanMode ? '#28a745' : '#6c757d' }}></i>
+                  </div>
+                  <button 
+                    className={`btn ${scanMode ? 'btn-success' : 'btn-outline-primary'} d-flex align-items-center gap-1`}
+                    onClick={toggleScanMode}
+                    style={{ borderRadius: '25px', padding: '8px 16px' }}
+                  >
+                    <i className={`fas ${scanMode ? 'fa-stop' : 'fa-qrcode'}`}></i>
+                    {scanMode ? 'Stop Scan' : 'Scan'}
+                  </button>
                   <div className="location-select-pos">
                     <Select
                         className="select"
@@ -884,7 +1021,7 @@ const Pos = () => {
                         return (
                           <div className="col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-3" key={product._id}>
                             <div
-                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : 'product-unselected'}`}
+                              className={`product-info default-cover card h-100 ${isSelected ? 'product-selected' : 'product-unselected'} ${scannedProductHighlightId === product._id ? 'scanned-highlight' : ''}`}
                               onClick={() => handleProductSelection(product)}
                               style={{
                                 cursor: 'pointer', 
