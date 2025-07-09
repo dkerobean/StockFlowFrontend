@@ -37,8 +37,7 @@ export const SidebarData = [
           { label: "Low Stocks", link: "/low-stocks", icon: <Icon.TrendingDown  />,showSubRoute: false,submenu: false },
           { label: "Category", link: "/category-list", icon:  <Icon.Codepen />,showSubRoute: false,submenu: false },
           { label: "Brands", link: "/brand-list", icon:  <Icon.Tag />,showSubRoute: false,submenu: false },
-          { label: "Print Barcode", link: "/barcode", icon: <Icon.AlignJustify />, showSubRoute: false,submenu: false },
-          { label: "Print QR Code", link: "/qrcode", icon:  <Icon.Maximize  />,showSubRoute: false,submenu: false }
+          { label: "Print Barcode", link: "/barcode", icon: <Icon.AlignJustify />, showSubRoute: false,submenu: false }
         ]
       },
       {

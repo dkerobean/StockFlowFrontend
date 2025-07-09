@@ -19,13 +19,11 @@ const BarcodeDisplay = ({
   ...props 
 }) => {
   const canvasRef = useRef(null);
-  const svgRef = useRef(null);
 
   useEffect(() => {
     if (!value) return;
 
     const canvas = canvasRef.current;
-    const svg = svgRef.current;
 
     try {
       if (type === 'qr') {
@@ -57,13 +55,21 @@ const BarcodeDisplay = ({
           lineColor: lineColor
         };
 
-        if (canvas) {
-          JsBarcode(canvas, value, options);
-        }
-        
-        if (svg) {
-          JsBarcode(svg, value, options);
-        }
+        // Add slight delay to ensure canvas is ready
+        setTimeout(() => {
+          try {
+            if (canvas) {
+              JsBarcode(canvas, value, options);
+            }
+          } catch (innerError) {
+            console.error('Barcode generation error:', innerError);
+            // Clear canvas on error
+            if (canvas) {
+              const ctx = canvas.getContext('2d');
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+          }
+        }, 100);
       }
     } catch (error) {
       console.error('Barcode generation error:', error);
@@ -93,12 +99,6 @@ const BarcodeDisplay = ({
           display: 'block', 
           maxWidth: '100%', 
           height: 'auto' 
-        }}
-      />
-      <svg
-        ref={svgRef}
-        style={{ 
-          display: 'none' 
         }}
       />
     </div>

@@ -405,7 +405,6 @@
   z-index: 9999;
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
   .dashboard-title {
     font-size: 2rem;
@@ -581,3 +580,30 @@
 .data-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+.activity-feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feed-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.feed-item:last-child {
+  border-bottom: none;
+}
+
+.feed-item-icon {
+  margin-right: 15px;
+}
+
+.feed-item-body p {
+  margin: 0;
+}
+
+

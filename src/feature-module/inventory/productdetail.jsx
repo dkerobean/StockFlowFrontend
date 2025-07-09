@@ -99,93 +99,122 @@ const ProductDetail = () => {
     };
 
     // --- Print Barcode Function ---
-    const printBarcode = () => {
+    const printBarcode = async () => {
         if (!product.barcode) {
             toast.warning('No barcode available to print');
             return;
         }
 
-        const printContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Print Barcode - ${product.name}</title>
-                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
-                <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        margin: 0; 
-                        padding: 20px; 
-                        background: white;
-                        text-align: center;
-                    }
-                    .barcode-container {
-                        border: 2px solid #000;
-                        padding: 20px;
-                        margin: 20px auto;
-                        width: fit-content;
-                        max-width: 400px;
-                    }
-                    .product-info {
-                        margin-bottom: 15px;
-                    }
-                    .product-name {
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin-bottom: 5px;
-                    }
-                    .product-sku {
-                        font-size: 14px;
-                        color: #666;
-                        margin-bottom: 10px;
-                    }
-                    .barcode-canvas {
-                        margin: 15px 0;
-                    }
-                    .barcode-text {
-                        font-size: 14px;
-                        font-weight: bold;
-                        margin-top: 10px;
-                    }
-                    @media print {
-                        body { margin: 0; padding: 10px; }
-                        .barcode-container { border: 2px solid #000; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="barcode-container">
-                    <div class="product-info">
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-sku">SKU: ${product.sku}</div>
+        try {
+            // Create a temporary canvas to generate barcode image
+            const canvas = document.createElement('canvas');
+            
+            // Use JsBarcode to render the barcode to the canvas
+            const JsBarcode = await import('jsbarcode');
+            JsBarcode.default(canvas, product.barcode, {
+                format: 'CODE128',
+                width: 2,
+                height: 100,
+                displayValue: false,
+                fontSize: 14,
+                margin: 10,
+                background: '#ffffff',
+                lineColor: '#000000'
+            });
+            
+            // Convert canvas to base64 image
+            const barcodeImage = canvas.toDataURL('image/png');
+            
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Barcode - ${product.name}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 0; 
+                            padding: 20px; 
+                            background: white;
+                            text-align: center;
+                        }
+                        .barcode-container {
+                            border: 2px solid #000;
+                            padding: 20px;
+                            margin: 20px auto;
+                            width: fit-content;
+                            max-width: 400px;
+                        }
+                        .product-info {
+                            margin-bottom: 15px;
+                        }
+                        .product-name {
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                            color: #000;
+                        }
+                        .product-sku {
+                            font-size: 14px;
+                            color: #666;
+                            margin-bottom: 10px;
+                        }
+                        .barcode-image {
+                            margin: 15px 0;
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        .barcode-text {
+                            font-size: 14px;
+                            font-weight: bold;
+                            margin-top: 10px;
+                            color: #000;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 10px; }
+                            .barcode-container { border: 2px solid #000; }
+                            .barcode-image {
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                                color-adjust: exact;
+                            }
+                            .product-name, .barcode-text {
+                                color: #000 !important;
+                            }
+                            .product-sku {
+                                color: #666 !important;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="barcode-container">
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-sku">SKU: ${product.sku}</div>
+                        </div>
+                        <img src="${barcodeImage}" alt="Barcode" class="barcode-image" />
+                        <div class="barcode-text">${product.barcode}</div>
                     </div>
-                    <canvas class="barcode-canvas" id="barcodeCanvas"></canvas>
-                    <div class="barcode-text">${product.barcode}</div>
-                </div>
-                <script>
-                    window.onload = function() {
-                        const canvas = document.getElementById('barcodeCanvas');
-                        JsBarcode(canvas, '${product.barcode}', {
-                            format: 'CODE128',
-                            width: 2,
-                            height: 100,
-                            displayValue: false,
-                            margin: 10
-                        });
-                        
-                        // Auto-print after barcode is generated
-                        setTimeout(() => {
-                            window.print();
-                        }, 500);
-                    };
-                </script>
-            </body>
-            </html>
-        `;
+                    <script>
+                        window.onload = function() {
+                            // Auto-print after content is loaded
+                            setTimeout(() => {
+                                window.print();
+                            }, 500);
+                        };
+                    </script>
+                </body>
+                </html>
+            `;
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(printContent);
-        printWindow.document.close();
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+        } catch (error) {
+            console.error('Error generating barcode for print:', error);
+            toast.error('Failed to generate barcode for printing');
+        }
     };
 
     // --- Construct Image URL ---
@@ -246,6 +275,57 @@ const ProductDetail = () => {
     return (
         <div>
             <ToastContainer position="top-right" autoClose={3000} />
+            <style jsx>{`
+                .detail-item {
+                    border-bottom: 1px solid #e9ecef;
+                    padding-bottom: 10px;
+                }
+                .detail-item:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+                .detail-label {
+                    font-weight: 600;
+                    color: #495057;
+                    font-size: 0.875rem;
+                    margin-bottom: 5px;
+                    display: block;
+                }
+                .detail-value {
+                    color: #212529;
+                    font-size: 1rem;
+                    line-height: 1.4;
+                }
+                .description-text {
+                    max-height: 100px;
+                    overflow-y: auto;
+                    padding: 10px;
+                    background-color: #f8f9fa;
+                    border-radius: 4px;
+                    border: 1px solid #e9ecef;
+                }
+                .barcode-display-container {
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    border: 1px solid #e9ecef;
+                    display: inline-block;
+                }
+                .barcode-section .card {
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                .barcode-section .card-header {
+                    border-bottom: 2px solid #dee2e6;
+                }
+                .product-details-section .card {
+                    border-radius: 10px;
+                    transition: box-shadow 0.3s ease;
+                }
+                .product-details-section .card:hover {
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+                }
+            `}</style>
             <div className="page-wrapper">
                 <div className="content">
                     <div className="page-header">
@@ -269,91 +349,128 @@ const ProductDetail = () => {
                                 <div className="card-body">
                                     {/* Barcode Area */}
                                     {product.barcode && ( // Only show if barcode exists
-                                        <div className="bar-code-view mb-4 p-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
-                                            <div className="d-flex align-items-center justify-content-between mb-2">
-                                                <h6 className="mb-0">Product Barcode</h6>
-                                                <button 
-                                                    className="btn btn-outline-primary btn-sm"
-                                                    onClick={printBarcode}
-                                                    title="Print Barcode"
-                                                >
-                                                    <Printer size={16} className="me-1" />
-                                                    Print
-                                                </button>
-                                            </div>
-                                            <div className="text-center">
-                                                <BarcodeDisplay
-                                                    value={product.barcode}
-                                                    format="CODE128"
-                                                    height={80}
-                                                    width={2}
-                                                    displayValue={true}
-                                                    style={{ margin: '10px 0' }}
-                                                />
-                                            </div>
-                                            <div className="text-center">
-                                                <small className="text-muted">Barcode: {product.barcode}</small>
+                                        <div className="barcode-section mb-4">
+                                            <div className="card border-0 shadow-sm">
+                                                <div className="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+                                                    <h6 className="mb-0 text-white">
+                                                        <i className="fas fa-barcode me-2"></i>
+                                                        Product Barcode
+                                                    </h6>
+                                                    <button 
+                                                        className="btn btn-light btn-sm"
+                                                        onClick={printBarcode}
+                                                        title="Print Barcode"
+                                                    >
+                                                        <Printer size={16} className="me-1" />
+                                                        Print
+                                                    </button>
+                                                </div>
+                                                <div className="card-body text-center p-4">
+                                                    <div className="barcode-display-container mb-3">
+                                                        <BarcodeDisplay
+                                                            value={product.barcode}
+                                                            format="CODE128"
+                                                            height={80}
+                                                            width={2}
+                                                            displayValue={true}
+                                                            style={{ margin: '10px 0' }}
+                                                        />
+                                                    </div>
+                                                    <div className="barcode-info">
+                                                        <span className="badge bg-secondary px-3 py-2">
+                                                            {product.barcode}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
 
-                                    <div className="productdetails">
-                                        <ul className="product-bar">
-                                            <li>
-                                                <h4>Product Name</h4>
-                                                <h6>{product.name || 'N/A'}</h6>
-                                            </li>
-                                            <li>
-                                                <h4>Category</h4>
-                                                {/* Use optional chaining ?. */}
-                                                <h6>{product.category?.name || <span className="text-muted">None</span>}</h6>
-                                            </li>
-                                            {/* Remove Sub Category if not in your model */}
-                                            {/* <li> <h4>Sub Category</h4> <h6>None</h6> </li> */}
-                                            <li>
-                                                <h4>Brand</h4>
-                                                <h6>{product.brand?.name || <span className="text-muted">None</span>}</h6>
-                                            </li>
-                                            {/* Remove Unit if not in your model */}
-                                            {/* <li> <h4>Unit</h4> <h6>Piece</h6> </li> */}
-                                            <li>
-                                                <h4>SKU</h4>
-                                                <h6>{product.sku || 'N/A'}</h6>
-                                            </li>
-                                             {/* Remove Min Qty/Qty if not directly on product (likely in Inventory) */}
-                                            {/* <li> <h4>Minimum Qty</h4> <h6>5</h6> </li> */}
-                                            {/* <li> <h4>Quantity</h4> <h6>50</h6> </li> */}
-                                             {/* Remove Tax/Discount if not on product */}
-                                            {/* <li> <h4>Tax</h4> <h6>0.00 %</h6> </li> */}
-                                            {/* <li> <h4>Discount Type</h4> <h6>Percentage</h6> </li> */}
-                                            <li>
-                                                <h4>Price</h4>
-                                                <h6>{formatPrice(product.price)}</h6>
-                                            </li>
-                                            <li>
-                                                <h4>Status</h4>
-                                                <h6>{product.isActive ? 'Active' : 'Inactive'}</h6>
-                                            </li>
-                                            <li>
-                                                <h4>Description</h4>
-                                                {/* Use dangerouslySetInnerHTML ONLY if description contains safe HTML, otherwise just display text */}
-                                                <h6>{product.description || <span className="text-muted">No description provided.</span>}</h6>
-                                            </li>
-                                             <li>
-                                                <h4>Created By</h4>
-                                                <h6>{product.createdBy?.name || <span className="text-muted">Unknown</span>}</h6>
-                                            </li>
-                                             <li>
-                                                <h4>Created At</h4>
-                                                 {/* Format date if needed */}
-                                                <h6>{product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}</h6>
-                                            </li>
-                                             <li>
-                                                <h4>Last Updated At</h4>
-                                                 {/* Format date if needed */}
-                                                <h6>{product.updatedAt ? new Date(product.updatedAt).toLocaleString() : 'N/A'}</h6>
-                                            </li>
-                                        </ul>
+                                    <div className="product-details-section">
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="card border-0 shadow-sm h-100">
+                                                    <div className="card-header bg-light">
+                                                        <h6 className="mb-0 text-primary">
+                                                            <i className="fas fa-info-circle me-2"></i>
+                                                            Basic Information
+                                                        </h6>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Product Name</label>
+                                                            <div className="detail-value">{product.name || 'N/A'}</div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">SKU</label>
+                                                            <div className="detail-value">
+                                                                <span className="badge bg-primary">{product.sku || 'N/A'}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Category</label>
+                                                            <div className="detail-value">{product.category?.name || <span className="text-muted">None</span>}</div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Brand</label>
+                                                            <div className="detail-value">{product.brand?.name || <span className="text-muted">None</span>}</div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Price</label>
+                                                            <div className="detail-value">
+                                                                <span className="badge bg-success fs-6">{formatPrice(product.price)}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Status</label>
+                                                            <div className="detail-value">
+                                                                <span className={`badge ${product.isActive ? 'bg-success' : 'bg-danger'}`}>
+                                                                    {product.isActive ? 'Active' : 'Inactive'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="card border-0 shadow-sm h-100">
+                                                    <div className="card-header bg-light">
+                                                        <h6 className="mb-0 text-primary">
+                                                            <i className="fas fa-clock me-2"></i>
+                                                            Additional Information
+                                                        </h6>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Description</label>
+                                                            <div className="detail-value description-text">
+                                                                {product.description || <span className="text-muted">No description provided.</span>}
+                                                            </div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Created By</label>
+                                                            <div className="detail-value">{product.createdBy?.name || <span className="text-muted">Unknown</span>}</div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Created At</label>
+                                                            <div className="detail-value">
+                                                                <small className="text-muted">
+                                                                    {product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                        <div className="detail-item mb-3">
+                                                            <label className="detail-label">Last Updated</label>
+                                                            <div className="detail-value">
+                                                                <small className="text-muted">
+                                                                    {product.updatedAt ? new Date(product.updatedAt).toLocaleString() : 'N/A'}
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

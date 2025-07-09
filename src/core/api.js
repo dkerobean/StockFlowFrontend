@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Force the correct API URL - OVERRIDE any environment variables
-const FORCED_API_URL = 'http://localhost:3005/api';
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Create axios instance with base configuration
 const api = axios.create({
-    baseURL: FORCED_API_URL, // Force the correct URL
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -15,10 +15,10 @@ const api = axios.create({
 });
 
 // Log the API configuration for debugging
-console.log('🔧 API Configuration (FORCED):', {
+console.log('🔧 API Configuration:', {
     baseURL: api.defaults.baseURL,
-    forcedURL: FORCED_API_URL,
     envURL: process.env.REACT_APP_API_URL,
+    fileBaseURL: process.env.REACT_APP_FILE_BASE_URL,
     headers: api.defaults.headers
 });
 

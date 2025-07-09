@@ -12,6 +12,7 @@ import BarcodeDisplay from '../../components/barcode/BarcodeDisplay';
 import barcodeService from '../../services/barcodeService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
+const FILE_BASE_URL = process.env.REACT_APP_FILE_BASE_URL;
 
 const PrintBarcode = () => {
     const dispatch = useDispatch();
@@ -142,7 +143,7 @@ const PrintBarcode = () => {
         }
         setPrintItems(printItems.map(item =>
             item.productId === productId
-                ? { ...item, quantity: newQuantity }
+                ? { ...item, quantity: Math.max(1, newQuantity) }
                 : item
         ));
     };
@@ -163,27 +164,53 @@ const PrintBarcode = () => {
         }
 
         try {
-            // Generate print-ready barcode data
+            // Generate print-ready barcode data with images
             const printData = [];
             for (const item of printItems) {
                 for (let i = 0; i < item.quantity; i++) {
+                    // Create a temporary canvas to generate barcode image
+                    const canvas = document.createElement('canvas');
+                    
+                    // Use JsBarcode to render the barcode to the canvas
+                    const JsBarcode = await import('jsbarcode');
+                    JsBarcode.default(canvas, item.barcode, {
+                        format: barcodeFormat,
+                        width: barcodeWidth,
+                        height: barcodeHeight,
+                        displayValue: true,
+                        fontSize: 14,
+                        margin: 5,
+                        background: '#ffffff',
+                        lineColor: '#000000'
+                    });
+                    
+                    // Convert canvas to base64 image
+                    const barcodeImage = canvas.toDataURL('image/png');
+                    
                     printData.push({
                         name: item.name,
                         sku: item.sku,
                         barcode: item.barcode,
-                        format: barcodeFormat
+                        format: barcodeFormat,
+                        barcodeImage: barcodeImage
                     });
                 }
             }
 
-            // Create print content
+            // Create print content with images
             const printContent = generatePrintContent(printData);
             
             // Open print window
             const printWindow = window.open('', '_blank');
             printWindow.document.write(printContent);
             printWindow.document.close();
-            printWindow.print();
+            
+            // Wait for the content to load then print
+            printWindow.onload = () => {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            };
 
             toast.success('Print job sent successfully');
         } catch (error) {
@@ -193,10 +220,10 @@ const PrintBarcode = () => {
     };
 
     const generatePrintContent = (printData) => {
-        const barcodeItems = printData.map(item => `
+        const barcodeItems = printData.map((item, index) => `
             <div class="barcode-item">
                 <div class="barcode-container">
-                    <canvas class="barcode-canvas" data-barcode="${item.barcode}" data-format="${item.format}"></canvas>
+                    <img src="${item.barcodeImage}" class="barcode-image" alt="Barcode for ${item.barcode}" />
                 </div>
                 <div class="barcode-info">
                     <div class="product-name">${item.name}</div>
@@ -211,7 +238,6 @@ const PrintBarcode = () => {
             <html>
             <head>
                 <title>Print Barcodes</title>
-                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
                 <style>
                     body { 
                         font-family: Arial, sans-serif; 
@@ -220,26 +246,32 @@ const PrintBarcode = () => {
                         background: white;
                     }
                     .barcode-container {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 15px;
-                        justify-content: center;
+                        display: block;
+                        max-width: 300px;
+                        margin: 0 auto;
                     }
                     .barcode-item {
                         border: 1px solid #ddd;
-                        padding: 10px;
+                        padding: 15px;
                         text-align: center;
-                        width: 250px;
-                        margin: 5px;
+                        width: 100%;
+                        margin: 0 0 10px 0;
                         page-break-inside: avoid;
+                        background: white;
+                        box-sizing: border-box;
                     }
-                    .barcode-canvas {
-                        margin: 10px 0;
+                    .barcode-image {
+                        margin: 10px auto;
+                        display: block;
+                        max-width: 100%;
+                        height: auto;
                     }
                     .product-name {
                         font-weight: bold;
                         font-size: 14px;
                         margin: 5px 0;
+                        color: #333;
+                        line-height: 1.2;
                     }
                     .product-sku {
                         font-size: 12px;
@@ -250,12 +282,48 @@ const PrintBarcode = () => {
                         font-size: 12px;
                         font-weight: bold;
                         margin: 5px 0;
+                        color: #333;
+                        word-break: break-all;
                     }
                     @media print {
-                        body { margin: 0; }
+                        body { 
+                            margin: 0; 
+                            padding: 5px;
+                        }
+                        .barcode-container {
+                            max-width: 100%;
+                            margin: 0;
+                        }
                         .barcode-item { 
-                            margin: 5px; 
+                            margin: 0 0 8px 0;
                             border: 1px solid #000;
+                            background: white !important;
+                            padding: 10px;
+                            page-break-inside: avoid;
+                            page-break-after: avoid;
+                        }
+                        .barcode-image {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                            color-adjust: exact;
+                            margin: 8px auto;
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        .product-name {
+                            font-size: 13px;
+                            margin: 4px 0;
+                            color: #000 !important;
+                        }
+                        .product-sku {
+                            font-size: 11px;
+                            margin: 2px 0;
+                            color: #000 !important;
+                        }
+                        .barcode-text {
+                            font-size: 11px;
+                            margin: 4px 0;
+                            color: #000 !important;
                         }
                     }
                 </style>
@@ -264,23 +332,6 @@ const PrintBarcode = () => {
                 <div class="barcode-container">
                     ${barcodeItems}
                 </div>
-                <script>
-                    window.onload = function() {
-                        const canvases = document.querySelectorAll('.barcode-canvas');
-                        canvases.forEach(canvas => {
-                            const barcode = canvas.dataset.barcode;
-                            const format = canvas.dataset.format;
-                            JsBarcode(canvas, barcode, {
-                                format: format,
-                                width: ${barcodeWidth},
-                                height: ${barcodeHeight},
-                                displayValue: true,
-                                fontSize: 14,
-                                margin: 5
-                            });
-                        });
-                    };
-                </script>
             </body>
             </html>
         `;
@@ -363,7 +414,7 @@ const PrintBarcode = () => {
 
                     {/* Search Section */}
                     <div className="row mb-4">
-                        <div className="col-lg-6">
+                        <div className="col-lg-8">
                             <div className="input-blocks search-form">
                                 <label className="form-label">Search Product</label>
                                 <div className="searchInput">
@@ -380,24 +431,28 @@ const PrintBarcode = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-lg-6 d-flex align-items-end">
-                            <Button
-                                variant="primary"
-                                onClick={handlePreview}
-                                className="me-2"
-                                disabled={printItems.length === 0}
-                            >
-                                <Eye size={16} className="me-1" />
-                                Preview ({printItems.length})
-                            </Button>
-                            <Button
-                                variant="success"
-                                onClick={handlePrint}
-                                disabled={printItems.length === 0}
-                            >
-                                <Printer size={16} className="me-1" />
-                                Print All
-                            </Button>
+                        <div className="col-lg-4 d-flex align-items-end justify-content-end">
+                            <div className="barcode-action-buttons">
+                                <Button
+                                    variant="outline-primary"
+                                    onClick={handlePreview}
+                                    className="me-2"
+                                    disabled={printItems.length === 0}
+                                    size="sm"
+                                >
+                                    <Eye size={16} className="me-1" />
+                                    Preview ({printItems.length})
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={handlePrint}
+                                    disabled={printItems.length === 0}
+                                    size="sm"
+                                >
+                                    <Printer size={16} className="me-1" />
+                                    Print All
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
@@ -406,12 +461,12 @@ const PrintBarcode = () => {
                         <table className="table datanew">
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>SKU</th>
-                                    <th>Barcode</th>
-                                    <th>Preview</th>
-                                    <th>Print Qty</th>
-                                    <th className="text-center">Action</th>
+                                    <th style={{ width: '30%' }}>Product</th>
+                                    <th style={{ width: '15%' }}>SKU</th>
+                                    <th style={{ width: '25%' }}>Barcode</th>
+                                    <th style={{ width: '15%' }}>Preview</th>
+                                    <th style={{ width: '10%' }}>Print Qty</th>
+                                    <th className="text-center" style={{ width: '5%' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -438,52 +493,97 @@ const PrintBarcode = () => {
                                                     <div className="productimgname">
                                                         <Link to="#" className="product-img stock-img">
                                                             <Image 
-                                                                src={product.imageUrl || "assets/img/products/noimage.png"} 
-                                                                alt={product.name} 
+                                                                src={product.imageUrl ? `${FILE_BASE_URL}${product.imageUrl}` : "assets/img/products/noimage.png"} 
+                                                                alt={product.name}
+                                                                width={40}
+                                                                height={40}
+                                                                className="product-thumbnail"
+                                                                onError={(e) => {
+                                                                    e.target.src = "assets/img/products/noimage.png";
+                                                                }}
                                                             />
                                                         </Link>
-                                                        <Link to="#">{product.name}</Link>
+                                                        <Link to="#" className="product-name-link">{product.name}</Link>
                                                     </div>
                                                 </td>
-                                                <td>{product.sku}</td>
+                                                <td>
+                                                    <code>{product.sku}</code>
+                                                </td>
                                                 <td>
                                                     <code>{product.barcode}</code>
                                                 </td>
                                                 <td>
-                                                    <div style={{ width: '120px', height: '40px' }}>
-                                                        <BarcodeDisplay
-                                                            value={product.barcode}
-                                                            format={barcodeFormat}
-                                                            height={30}
-                                                            width={1}
-                                                            displayValue={false}
-                                                        />
+                                                    <div className="barcode-preview-container" style={{ width: '100px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5px' }}>
+                                                        {product.barcode ? (
+                                                            <img 
+                                                                src="assets/img/barcode/barcode-01.png" 
+                                                                alt="Barcode Preview" 
+                                                                style={{ 
+                                                                    width: '80px', 
+                                                                    height: '30px', 
+                                                                    objectFit: 'contain',
+                                                                    opacity: 0.8
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div className="barcode-placeholder" style={{ 
+                                                                width: '80px', 
+                                                                height: '30px', 
+                                                                display: 'flex', 
+                                                                alignItems: 'center', 
+                                                                justifyContent: 'center',
+                                                                backgroundColor: '#f8f9fa',
+                                                                border: '1px dashed #dee2e6',
+                                                                borderRadius: '4px',
+                                                                color: '#6c757d',
+                                                                fontSize: '10px'
+                                                            }}>
+                                                                No Barcode
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td>
                                                     {printItem ? (
-                                                        <div className="product-quantity">
-                                                            <span 
-                                                                className="quantity-btn" 
+                                                        <div className="product-quantity d-flex align-items-center justify-content-center">
+                                                            <button 
+                                                                className="btn btn-outline-secondary btn-sm quantity-btn" 
                                                                 onClick={() => updatePrintQuantity(product._id, printItem.quantity - 1)}
+                                                                type="button"
+                                                                style={{ padding: '4px 8px', minWidth: '32px' }}
+                                                                disabled={printItem.quantity <= 1}
                                                             >
-                                                                <MinusCircle />
-                                                            </span>
+                                                                <MinusCircle size={14} />
+                                                            </button>
                                                             <input
-                                                                type="text"
-                                                                className="quantity-input"
+                                                                type="number"
+                                                                className="form-control form-control-sm quantity-input mx-2"
                                                                 value={printItem.quantity}
                                                                 onChange={(e) => updatePrintQuantity(product._id, parseInt(e.target.value) || 0)}
+                                                                min="1"
+                                                                style={{ width: '60px', textAlign: 'center' }}
                                                             />
-                                                            <span 
-                                                                className="quantity-btn" 
+                                                            <button 
+                                                                className="btn btn-outline-secondary btn-sm quantity-btn" 
                                                                 onClick={() => updatePrintQuantity(product._id, printItem.quantity + 1)}
+                                                                type="button"
+                                                                style={{ padding: '4px 8px', minWidth: '32px' }}
                                                             >
-                                                                <PlusCircle />
-                                                            </span>
+                                                                <PlusCircle size={14} />
+                                                            </button>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-muted">-</span>
+                                                        <div className="d-flex align-items-center justify-content-center">
+                                                            <button 
+                                                                className="btn btn-outline-primary btn-sm" 
+                                                                onClick={() => addToPrintList(product)}
+                                                                type="button"
+                                                                style={{ padding: '4px 8px', fontSize: '12px' }}
+                                                            >
+                                                                <PlusCircle size={14} className="me-1" />
+                                                                Add
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </td>
                                                 <td className="action-table-data text-center">
@@ -521,38 +621,51 @@ const PrintBarcode = () => {
             <Modal 
                 show={showPreviewModal} 
                 onHide={() => setShowPreviewModal(false)}
-                size="lg"
+                size="xl"
                 centered
+                className="barcode-preview-modal"
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Barcode Print Preview</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                     <div className="barcode-preview-container">
-                        <div className="row">
-                            {previewItems.map((item, index) => (
-                                Array.from({ length: item.quantity }).map((_, qtyIndex) => (
-                                    <div key={`${index}-${qtyIndex}`} className="col-lg-4 col-md-6 mb-3">
-                                        <div className="barcode-preview-item border p-3 text-center">
-                                            <div className="mb-2">
-                                                <strong>{item.name}</strong>
-                                            </div>
-                                            <div className="mb-2">
-                                                <BarcodeDisplay
-                                                    value={item.barcode}
-                                                    format={barcodeFormat}
-                                                    height={barcodeHeight}
-                                                    width={barcodeWidth}
-                                                />
-                                            </div>
-                                            <div className="small text-muted">
-                                                SKU: {item.sku}
+                        <div className="container-fluid">
+                            <div className="row g-3">
+                                {previewItems.map((item, index) => (
+                                    Array.from({ length: item.quantity }).map((_, qtyIndex) => (
+                                        <div key={`${index}-${qtyIndex}`} className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                                            <div className="barcode-preview-item border p-3 text-center bg-white h-100" style={{ borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minHeight: '200px' }}>
+                                                <div className="mb-2">
+                                                    <strong style={{ fontSize: '14px', color: '#333', lineHeight: '1.2', display: 'block', height: '32px', overflow: 'hidden' }}>{item.name}</strong>
+                                                </div>
+                                                <div className="mb-2 d-flex justify-content-center align-items-center" style={{ height: '80px' }}>
+                                                    <BarcodeDisplay
+                                                        value={item.barcode}
+                                                        format={barcodeFormat}
+                                                        height={barcodeHeight}
+                                                        width={barcodeWidth}
+                                                        displayValue={true}
+                                                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                                                    />
+                                                </div>
+                                                <div className="small text-muted" style={{ fontSize: '12px' }}>
+                                                    SKU: {item.sku}
+                                                </div>
+                                                <div className="small text-muted" style={{ fontSize: '11px', marginTop: '5px', wordBreak: 'break-all' }}>
+                                                    {item.barcode}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            ))}
+                                    ))
+                                ))}
+                            </div>
                         </div>
+                        {previewItems.length === 0 && (
+                            <div className="text-center py-5">
+                                <p className="text-muted">No items selected for printing</p>
+                            </div>
+                        )}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

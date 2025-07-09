@@ -6,6 +6,168 @@
     @include respond-below(custom575) {
        padding-left: 15px;
     }
+    
+    // Product image styling
+    .product-thumbnail {
+        border-radius: 4px;
+        object-fit: cover;
+        border: 1px solid rgba(145, 158, 171, 0.20);
+    }
+    
+    .product-name-link {
+        color: $secondary !important;
+        font-weight: $font-weight-medium;
+        text-decoration: none;
+        &:hover {
+            color: $primary !important;
+        }
+    }
+    
+    // Barcode preview styling
+    .barcode-preview-container {
+        border: 1px solid rgba(145, 158, 171, 0.20);
+        border-radius: 4px;
+        background: $white;
+        padding: 5px;
+        min-height: 40px;
+        max-width: 100px;
+        margin: 0 auto;
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 2px;
+        }
+        
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .barcode-placeholder {
+            font-weight: $font-weight-medium;
+            text-align: center;
+            transition: all 0.3s ease;
+            
+            &:hover {
+                background-color: rgba(145, 158, 171, 0.1);
+                border-color: rgba(145, 158, 171, 0.3);
+            }
+        }
+    }
+    
+    // Action buttons styling
+    .barcode-action-buttons {
+        display: flex;
+        gap: 8px;
+        
+        .btn {
+            font-size: 13px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+    }
+    
+    // Quantity counter styling
+    .product-quantity {
+        min-width: 150px;
+        gap: 4px;
+        
+        .quantity-btn {
+            border: 1px solid rgba(145, 158, 171, 0.30);
+            background: $white;
+            color: $secondary;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            
+            &:hover:not(:disabled) {
+                background: $primary;
+                color: $white;
+                border-color: $primary;
+            }
+            
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+        
+        .quantity-input {
+            border: 1px solid rgba(145, 158, 171, 0.30);
+            background: $white;
+            color: $secondary;
+            font-weight: $font-weight-medium;
+            flex-shrink: 0;
+            
+            &:focus {
+                border-color: $primary;
+                box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+            }
+        }
+    }
+    
+    // Table styling improvements
+    .table {
+        th {
+            font-weight: $font-weight-semibold;
+            background-color: rgba(145, 158, 171, 0.05);
+            border-bottom: 2px solid rgba(145, 158, 171, 0.15);
+            
+            &:nth-child(4) { // Preview column (4th position with SKU added)
+                text-align: center;
+            }
+            
+            &:nth-child(5) { // Print Qty column (5th position with SKU added)
+                text-align: center;
+            }
+        }
+        
+        td {
+            vertical-align: middle;
+            padding: 12px 8px;
+            
+            &:nth-child(4) { // Preview column (4th position with SKU added)
+                text-align: center;
+            }
+            
+            &:nth-child(5) { // Print Qty column (5th position with SKU added)
+                text-align: center;
+            }
+        }
+    }
+    
+    // Preview modal styling
+    .barcode-preview-modal {
+        .modal-dialog {
+            max-width: 95%;
+            margin: 1.75rem auto;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .barcode-preview-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+        }
+        
+        .container-fluid {
+            padding: 0;
+        }
+        
+        .row {
+            margin: 0;
+        }
+    }
     .seacrh-barcode-item {
         margin-bottom: 24px;
         .seacrh-barcode-item-one {
@@ -102,7 +264,7 @@
     outline: none;
     border: none;
     border-radius: 5px;
-    padding: 0 60px 0 20px;
+    padding: 0 50px 0 20px;
     font-size: $font-size-18;
     box-shadow: 0px 1px 5px rgba(0,0,0,0.1);
 }  
@@ -139,14 +301,17 @@
 }  
 .searchInput .icon{
     position: absolute;
-    left: 10px;
-    top: 21px;
-    height: 15px;
-    width: 15px;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 18px;
+    width: 18px;
     text-align: center;
-    line-height: 55px;
     color: $text-color;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .barcode-scan-header {
     margin-bottom: 15px;

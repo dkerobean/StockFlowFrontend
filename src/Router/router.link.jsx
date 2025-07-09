@@ -205,7 +205,7 @@ export const publicRoutes = [
     id: 1,
     path: routes.dashboard,
     name: "home",
-    element: <EnhancedAdminDashboard />,
+    element: <ModernAdminDashboard />,
     route: Route,
   },
   {

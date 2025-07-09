@@ -387,26 +387,32 @@ const ModernAdminDashboard = () => {
 
         {/* Bottom Row */}
         <div className="row">
-          {/* Top Customers */}
+          {/* Recent Activity */}
           <div className="col-xl-6 col-lg-12">
             <div className="modern-data-card">
               <div className="data-header">
-                <h4>Top Customers</h4>
-                <Link to={route.customerlist} className="view-all-link">View All</Link>
+                <h4>Recent Activity</h4>
+                <Link to="#" className="view-all-link">View All</Link>
               </div>
               <div className="data-body">
-                {dashboardData.topCustomers.map((customer, index) => (
-                  <div key={customer.id} className="data-item">
-                    <div className="item-rank">#{index + 1}</div>
-                    <div className="item-info">
-                      <h6 className="item-name">{customer.name}</h6>
-                      <p className="item-details">{customer.orders} orders</p>
-                    </div>
-                    <div className="item-amount">
-                      ${customer.totalSpent.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
+                <ul className="activity-feed">
+                  {dashboardData.recentTransactions.map((activity, index) => (
+                    <li key={index} className="feed-item">
+                      <div className="feed-item-icon">
+                        {activity.type === 'Sale' ? <ShoppingCart size={20} className="text-success" /> : <ShoppingCart size={20} className="text-danger" />}
+                      </div>
+                      <div className="feed-item-body">
+                        <p>
+                          <strong>{activity.customer || activity.supplier}</strong>
+                          {activity.type === 'Sale' ? ' purchased ' : ' supplied '}
+                          items for a total of
+                          <strong> ${activity.amount.toLocaleString()}</strong>.
+                        </p>
+                        <small className="text-muted">{activity.date}</small>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
