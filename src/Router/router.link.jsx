@@ -148,6 +148,7 @@ import Preference from "../feature-module/settings/websitesettings/preference";
 import BanIpaddress from "../feature-module/settings/othersettings/ban-ipaddress";
 import StorageSettings from "../feature-module/settings/othersettings/storagesettings";
 import Pos from "../feature-module/sales/pos";
+import EnhancedPOS from "../feature-module/sales/EnhancedPOS";
 import AttendanceAdmin from "../feature-module/hrm/attendanceadmin";
 import Payslip from "../feature-module/hrm/payslip";
 import Holidays from "../feature-module/hrm/holidays";
@@ -1235,7 +1236,7 @@ export const publicRoutes = [
     id: 99,
     path: routes.pos,
     name: "pos",
-    element: <Pos />,
+    element: <EnhancedPOS />,
     route: Route,
   },
   {
@@ -1426,7 +1427,7 @@ export const posRoutes = [
     id: 1,
     path: routes.pos,
     name: "pos",
-    element: <Pos />,
+    element: <EnhancedPOS />,
     route: Route,
   },
 ];
