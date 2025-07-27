@@ -82,6 +82,7 @@
     "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.10.6",
     "sweetalert2-react-content": "^5.0.7",
+    "uuid": "^11.1.0",
     "weather-icons-react": "^1.2.0",
     "yet-another-react-lightbox": "^3.17.1"
   },

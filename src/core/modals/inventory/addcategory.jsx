@@ -76,58 +76,49 @@ const AddCategory = ({ onSuccess }) => {
 
     return (
         <>
-            {/* <ToastContainer /> REMOVE THIS IF IT EXISTS */}\
-            {/* Add Category Modal Structure (Keep original ID and classes) */}
+            {/* Add Category Modal Structure */}
             <div className="modal fade" id="add-units-category" tabIndex={-1} aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered custom-modal-two">
+                <div className="modal-dialog modal-dialog-centered modal-sm">
                     <div className="modal-content">
-                        <div className="page-wrapper-new p-0">
-                            <div className="content">
-                                <div className="modal-header border-0 custom-modal-header">
-                                    <div className="page-title">
-                                        <h4 id="addCategoryModalLabel">Add New Category</h4>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    >
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body custom-modal-body">
-                                    <div className="mb-3">
-                                        <label className="form-label">Category Name</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            value={categoryName}
-                                            onChange={(e) => setCategoryName(e.target.value)}
-                                            placeholder="Enter category name"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="modal-footer-btn">
-                                        <button
-                                            type="button"
-                                            className="btn btn-cancel me-2"
-                                            data-bs-dismiss="modal"
-                                             disabled={isSubmitting}
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleSubmit}
-                                            className="btn btn-submit"
-                                             disabled={isSubmitting}
-                                        >
-                                            {isSubmitting ? 'Submitting...' : 'Submit'}
-                                        </button>
-                                    </div>
-                                </div>
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label className="form-label">Category Name</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={categoryName}
+                                    onChange={(e) => setCategoryName(e.target.value)}
+                                    placeholder="Enter category name"
+                                    required
+                                />
                             </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                className="btn btn-primary"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit'}
+                            </button>
                         </div>
                     </div>
                 </div>

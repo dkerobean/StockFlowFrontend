@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import '../src/style/css/modal-fixes.css'; // Custom fixes for modal components
+import '../src/style/css/react-datepicker-custom.css'; // Custom styling for react-datepicker
 import { base_path } from "./environment.jsx";
 import '../src/style/css/feather.css'
 import '../src/style/css/line-awesome.min.css'
@@ -9,6 +11,8 @@ import "../src/style/scss/main.scss";
 import '../src/style/icons/fontawesome/css/fontawesome.min.css'
 import '../src/style/icons/fontawesome/css/all.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+
 
 
 

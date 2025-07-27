@@ -7,6 +7,7 @@ import { Filter, Sliders, Box, Package, AlertTriangle, DollarSign, TrendingUp, D
 import Select from "react-select";
 import inventoryService from "../../services/inventoryService";
 import { toast } from "react-toastify";
+import { getProductImageUrl, getDefaultProductImage } from "../../services/imageService";
 
 const InventoryReport = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -534,7 +535,7 @@ const InventoryReport = () => {
                           <div className="view-product me-2">
                             <Link to="#">
                               <Image
-                                src={item.productImage || "assets/img/products/noimage.png"}
+                                src={getProductImageUrl(item.productImage) || getDefaultProductImage()}
                                 alt="product"
                               />
                             </Link>

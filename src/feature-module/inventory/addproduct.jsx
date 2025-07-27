@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { DatePicker } from "antd";
-import dayjs from 'dayjs'; // Import dayjs for DatePicker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios'; // For making API calls
 import { v4 as uuidv4 } from 'uuid'; // For generating SKU/Barcode
 import { toast, ToastContainer } from 'react-toastify'; // For notifications
 import 'react-toastify/dist/ReactToastify.css'; // Toast styles
+import './addproduct.css'; // Custom styles
 
 // Import Modals (ensure these paths are correct)
 import AddCategory from "../../core/modals/inventory/addcategory";
@@ -72,7 +73,9 @@ const AddProduct = () => {
     // --- UI & Loading State ---
     const [isLoading, setIsLoading] = useState(false); // For fetching initial data
     const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
-    
+    const [isGeneratingSku, setIsGeneratingSku] = useState(false); // For SKU generation
+    const [isGeneratingBarcode, setIsGeneratingBarcode] = useState(false); // For barcode generation
+
     // --- Barcode State ---
     const [showBarcodeGenerator, setShowBarcodeGenerator] = useState(false);
     const [barcodeFormat, setBarcodeFormat] = useState('CODE128');
@@ -93,22 +96,22 @@ const AddProduct = () => {
         try {
             console.log("API_URL:", API_URL);
             console.log("Auth token exists:", !!authHeader.Authorization);
-            
+
             // Fetch categories
             console.log("Fetching categories...");
             const categoryRes = await axios.get(`${API_URL}/product-categories`, { headers: authHeader });
             console.log("Categories fetched successfully:", categoryRes.data.length, "items");
-            
+
             // Fetch brands
             console.log("Fetching brands...");
             const brandRes = await axios.get(`${API_URL}/brands`, { headers: authHeader });
             console.log("Brands fetched successfully:", brandRes.data.length, "items");
-            
+
             // Fetch locations
             console.log("Fetching locations...");
             const locationRes = await axios.get(`${API_URL}/locations`, { headers: authHeader });
             console.log("Locations response structure:", locationRes.data);
-            
+
             // Handle locations response - check both direct array and paginated response
             const locationsArray = locationRes.data.locations || locationRes.data;
             console.log("Locations array:", locationsArray);
@@ -118,12 +121,12 @@ const AddProduct = () => {
             // Format data for react-select: { value: _id, label: name }
             setCategories(categoryRes.data.map(cat => ({ value: cat._id, label: cat.name })));
             setBrands(brandRes.data.map(br => ({ value: br._id, label: br.name })));
-            
+
             // Handle locations with proper error checking
             if (Array.isArray(locationsArray) && locationsArray.length > 0) {
-                const formattedLocations = locationsArray.map(loc => ({ 
-                    value: loc._id, 
-                    label: `${loc.name} (${loc.type || 'Location'})` 
+                const formattedLocations = locationsArray.map(loc => ({
+                    value: loc._id,
+                    label: `${loc.name} (${loc.type || 'Location'})`
                 }));
                 console.log("Formatted locations:", formattedLocations);
                 setLocations(formattedLocations);
@@ -144,7 +147,7 @@ const AddProduct = () => {
                 data: error.response?.data,
                 url: error.config?.url
             });
-            
+
             // More specific error messages
             if (error.response?.status === 401) {
                 toast.error("Session expired. Please log in again.");
@@ -173,35 +176,104 @@ const AddProduct = () => {
     // --- Handlers ---
 
     const handleGenerateSku = () => {
-        setSku(uuidv4().substring(0, 12).toUpperCase()); // Example: Generate a shorter UUID
+        try {
+            console.log('handleGenerateSku called');
+            setIsGeneratingSku(true);
+
+            const newSku = uuidv4().substring(0, 12).toUpperCase();
+            console.log('Generated SKU:', newSku);
+            setSku(newSku);
+            toast.success('SKU generated successfully!');
+        } catch (error) {
+            console.error('Error generating SKU:', error);
+            toast.error('Failed to generate SKU');
+        } finally {
+            setIsGeneratingSku(false);
+        }
     };
 
     const handleGenerateBarcode = async () => {
         try {
+            console.log('handleGenerateBarcode called');
+            console.log('API_URL:', API_URL);
+            setIsGeneratingBarcode(true);
+
+            // Check authentication first
+            const authHeader = getAuthHeader();
+            if (!authHeader) {
+                console.error('No auth header available');
+                toast.error('Authentication required. Please log in.');
+                return;
+            }
+
+            console.log('Auth header exists:', !!authHeader.Authorization);
+
             // Create a temporary product ID for barcode generation
             const tempProductId = uuidv4();
             const tempSku = sku || `SKU${Date.now()}`;
-            
-            // Generate auto barcode
-            const response = await axios.post(`${API_URL}/barcodes/auto-generate`, {
+
+            console.log('Temp Product ID:', tempProductId);
+            console.log('Temp SKU:', tempSku);
+
+            const payload = {
                 productId: tempProductId,
                 sku: tempSku,
                 prefix: 'PRD'
-            }, {
-                headers: getAuthHeader()
+            };
+            console.log('API request payload:', payload);
+
+            // Show loading toast
+            toast.info('Generating barcode...');
+
+            // Generate auto barcode
+            const response = await axios.post(`${API_URL}/barcodes/auto-generate`, payload, {
+                headers: authHeader
             });
-            
+
+            console.log('API response:', response.data);
+
             if (response.data.success) {
                 const newBarcode = response.data.data.barcode;
+                console.log('New barcode generated:', newBarcode);
                 setBarcode(newBarcode);
                 setBarcodeImageInfo(response.data.data);
+                toast.dismiss(); // Dismiss loading toast
                 toast.success('Barcode generated successfully!');
+            } else {
+                console.warn('API response was not successful:', response.data);
+                throw new Error(response.data.message || 'API request was not successful');
             }
         } catch (error) {
             console.error('Error generating barcode:', error);
+            console.error('Error details:', {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                url: error.config?.url
+            });
+
+            toast.dismiss(); // Dismiss any loading toast
+
+            // More specific error messages
+            if (error.response?.status === 401) {
+                toast.error('Session expired. Please log in again.');
+            } else if (error.response?.status === 404) {
+                toast.error('Barcode service not found. Please check if backend is running.');
+            } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+                toast.error('Network error. Please check your connection and backend server.');
+            } else {
+                toast.error(`Barcode generation failed: ${error.response?.data?.message || error.message}`);
+            }
+
             // Fallback to UUID if API fails
-            setBarcode(uuidv4().substring(0, 12).toUpperCase());
+            console.log('Using fallback barcode generation');
+            const fallbackBarcode = uuidv4().substring(0, 12).toUpperCase();
+            console.log('Fallback barcode:', fallbackBarcode);
+            setBarcode(fallbackBarcode);
             toast.warn('Using fallback barcode generation');
+        } finally {
+            setIsGeneratingBarcode(false);
         }
     };
 
@@ -243,10 +315,11 @@ const AddProduct = () => {
          }
     };
 
-    // Handle date change from Ant Design DatePicker
+    // Handle date change from React DatePicker
     const handleDateChange = (date) => {
         // Store as ISO string (UTC) or null if cleared
         setExpiryDate(date ? date.toISOString() : null);
+        console.log('Selected Date:', date); // For debugging
     };
 
     // --- Form Submission Logic ---
@@ -339,7 +412,7 @@ const AddProduct = () => {
             brand: selectedBrand ? selectedBrand.value : null,
             imageUrl: finalImageUrl || '',
             // isActive: true, // Backend defaults to true
-            
+
             // Barcode generation fields
             generateBarcode: !barcode, // Auto-generate if no barcode provided
             barcodeFormat: barcodeFormat,
@@ -469,9 +542,9 @@ const AddProduct = () => {
 
                 {/* Form - Render only when not loading initial data */}
                 {!isLoading && (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="add-product-form">
                         <div className="card">
-                            <div className="card-body pb-0"> {/* Removed add-product class here */}
+                            <div className="card-body pb-0">
 
                                 {/* Section 1: Product Information */}
                                 <div className="mb-4 border-bottom pb-3">
@@ -543,38 +616,81 @@ const AddProduct = () => {
                                         {/* Row 3: SKU & Barcode */}
                                         <div className="col-lg-6 mb-3">
                                             <label htmlFor="productSku" className="form-label">SKU <span className="text-danger">*</span></label>
-                                            <div className="input-group">
-                                                <input type="text" id="productSku" className="form-control" placeholder="Enter or Generate SKU" value={sku} onChange={(e) => setSku(e.target.value)} required />
-                                                {/* Generate Button - styled like screenshot */}
-                                                <button type="button" className="btn btn-warning text-dark fw-bold" onClick={handleGenerateSku}> Generate </button>
+                                            <div className="d-flex">
+                                                <input
+                                                    type="text"
+                                                    id="productSku"
+                                                    className="form-control"
+                                                    placeholder="Enter or Generate SKU"
+                                                    value={sku}
+                                                    onChange={(e) => setSku(e.target.value)}
+                                                    required
+                                                    style={{
+                                                        borderTopRightRadius: '0',
+                                                        borderBottomRightRadius: '0',
+                                                        borderRight: '0'
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-warning text-dark fw-bold"
+                                                    onClick={handleGenerateSku}
+                                                    disabled={isGeneratingSku || isLoading}
+                                                    style={{
+                                                        borderTopLeftRadius: '0',
+                                                        borderBottomLeftRadius: '0',
+                                                        minWidth: '100px'
+                                                    }}
+                                                >
+                                                    {isGeneratingSku ? (
+                                                        <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Gen...</>
+                                                    ) : (
+                                                        'Generate'
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
                                         <div className="col-lg-6 mb-3">
                                             <label htmlFor="productBarcode" className="form-label">Barcode (Optional)</label>
-                                            <div className="input-group">
-                                                <input 
-                                                    type="text" 
-                                                    id="productBarcode" 
-                                                    className="form-control" 
-                                                    placeholder="Enter or Generate Barcode" 
-                                                    value={barcode} 
-                                                    onChange={(e) => setBarcode(e.target.value)} 
+                                            <div className="d-flex mb-2">
+                                                <input
+                                                    type="text"
+                                                    id="productBarcode"
+                                                    className="form-control"
+                                                    placeholder="Enter or Generate Barcode"
+                                                    value={barcode}
+                                                    onChange={(e) => setBarcode(e.target.value)}
+                                                    style={{
+                                                        borderTopRightRadius: '0',
+                                                        borderBottomRightRadius: '0',
+                                                        borderRight: '0'
+                                                    }}
                                                 />
-                                                <button 
-                                                    type="button" 
-                                                    className="btn btn-warning text-dark fw-bold" 
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-warning text-dark fw-bold"
                                                     onClick={handleGenerateBarcode}
-                                                > 
-                                                    Generate 
-                                                </button>
-                                                <button 
-                                                    type="button" 
-                                                    className="btn btn-outline-primary" 
-                                                    onClick={() => setShowBarcodeGenerator(!showBarcodeGenerator)}
+                                                    disabled={isGeneratingBarcode || isLoading}
+                                                    style={{
+                                                        borderTopLeftRadius: '0',
+                                                        borderBottomLeftRadius: '0',
+                                                        minWidth: '100px'
+                                                    }}
                                                 >
-                                                    {showBarcodeGenerator ? 'Hide' : 'Show'} Generator
+                                                    {isGeneratingBarcode ? (
+                                                        <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Gen...</>
+                                                    ) : (
+                                                        'Generate'
+                                                    )}
                                                 </button>
                                             </div>
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-primary btn-sm"
+                                                onClick={() => setShowBarcodeGenerator(!showBarcodeGenerator)}
+                                            >
+                                                {showBarcodeGenerator ? 'Hide' : 'Show'} Advanced Generator
+                                            </button>
                                         </div>
 
                                         {/* Row 4: Description */}
@@ -582,7 +698,7 @@ const AddProduct = () => {
                                             <label htmlFor="productDescription" className="form-label">Description</label>
                                             <textarea id="productDescription" className="form-control" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter product description..." />
                                         </div>
-                                        
+
                                         {/* Barcode Generator */}
                                         {showBarcodeGenerator && (
                                             <div className="col-lg-12 mb-3">
@@ -626,19 +742,17 @@ const AddProduct = () => {
                                         </div>
                                         <div className="col-lg-4 mb-3">
                                             <label htmlFor="expiryDate" className="form-label">Expiry Date (Optional)</label>
-                                            <div className="input-group"> {/* Use input-group for consistent styling */}
-                                                <span className="input-group-text"><Calendar size={16} /></span>
-                                                <DatePicker
-                                                    id="expiryDate"
-                                                    value={expiryDate ? dayjs(expiryDate) : null} // Use dayjs object for value
-                                                    onChange={handleDateChange} // Correct handler
-                                                    className="form-control" // Use form-control class
-                                                    format="DD-MM-YYYY" // Display format
-                                                    placeholder="Choose Expiry Date"
-                                                    allowClear // Allow clearing the date
-                                                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} // Fix border radius next to icon
-                                                />
-                                            </div>
+                                            <DatePicker
+                                                id="expiryDate"
+                                                selected={expiryDate ? new Date(expiryDate) : null}
+                                                onChange={handleDateChange}
+                                                dateFormat="dd-MM-yyyy"
+                                                placeholderText="Choose Expiry Date"
+                                                className="form-control"
+                                                isClearable
+                                                showPopperArrow={false}
+                                                autoComplete="off"
+                                            />
                                         </div>
 
                                         {/* Row 2: Min Stock & Notify Threshold */}
@@ -650,7 +764,7 @@ const AddProduct = () => {
                                             <label htmlFor="notifyAt" className="form-label">Notification Threshold</label>
                                             <input type="number" id="notifyAt" className="form-control" min="0" step="1" value={notifyAt} onChange={(e) => setNotifyAt(e.target.value)} placeholder="Default: Min Stock" />
                                         </div>
-                                    </div>
+                                    </div> {/* End row */}
                                 </div>
 
                                 {/* Section 3: Product Image */}
@@ -739,8 +853,7 @@ const AddProduct = () => {
             {/* Pass the fetchData function so modals can trigger a refresh on success */}
             <AddCategory onSuccess={fetchData} />
             <AddBrand onSuccess={fetchData} />
-
-        </div> /* End page-wrapper */
+        </div>
     );
 };
 

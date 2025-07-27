@@ -115,56 +115,47 @@ const AddBrand = ({ onSuccess }) => {
         <>
             {/* Add Brand Modal Structure (Keep original ID and classes) */}
             <div className="modal fade" id="add-units-brand" tabIndex={-1} aria-labelledby="addBrandModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered custom-modal-two">
+                <div className="modal-dialog modal-dialog-centered modal-sm">
                     <div className="modal-content">
-                        <div className="page-wrapper-new p-0">
-                            <div className="content">
-                                <div className="modal-header border-0 custom-modal-header">
-                                    <div className="page-title">
-                                        <h4 id="addBrandModalLabel">Add New Brand</h4>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    >
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body custom-modal-body">
-                                    {/* Removed form tag wrapping entire modal, handle submit on button click */}
-                                    <div className="mb-3">
-                                        <label className="form-label">Brand Name</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            value={brandName}
-                                            onChange={(e) => setBrandName(e.target.value)}
-                                            placeholder="Enter brand name"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="modal-footer-btn">
-                                        <button
-                                            type="button" // Important: change Link to button
-                                            className="btn btn-cancel me-2"
-                                            data-bs-dismiss="modal"
-                                            disabled={isSubmitting}
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button" // Important: change Link to button
-                                            onClick={handleSubmit} // Call submit handler
-                                            className="btn btn-submit"
-                                            disabled={isSubmitting}
-                                        >
-                                            {isSubmitting ? 'Submitting...' : 'Submit'}
-                                        </button>
-                                    </div>
-                                </div>
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="addBrandModalLabel">Add New Brand</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label className="form-label">Brand Name</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={brandName}
+                                    onChange={(e) => setBrandName(e.target.value)}
+                                    placeholder="Enter brand name"
+                                    required
+                                />
                             </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                disabled={isSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                className="btn btn-primary"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit'}
+                            </button>
                         </div>
                     </div>
                 </div>
